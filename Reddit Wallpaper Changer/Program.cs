@@ -1,49 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Reddit_Wallpaper_Changer.Forms;
+using System;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Reddit_Wallpaper_Changer
 {
     static class Program
     {
+        private static Mutex mutex = new Mutex(false, "RedditWallpaperChanger_byUgleh");
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        ///
-
-        static Mutex mutex = new Mutex(false, "RedditWallpaperChanger_byUgleh");
-
-
-
         [STAThread]
-        static void Main()
+        private static void Main()
         {
-        if (!mutex.WaitOne(TimeSpan.FromSeconds(2), false))
+            if (!mutex.WaitOne(TimeSpan.FromSeconds(2), false))
+            {
+                if (MessageBox.Show("Run another instance of RWC?", "Reddit Wallpaper Changer", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    RunMessageLoop();
+
+                return;
+            }
+
+            try
+            {
+                RunMessageLoop();
+            }
+            finally
+            {
+                // I find this more explicit
+                mutex.ReleaseMutex(); 
+            } 
+        }
+
+        private static void RunMessageLoop()
         {
-            DialogResult dialogResult = MessageBox.Show("Run another instance of RWC?", "Reddit Wallpaper Changer", MessageBoxButtons.YesNo);
-            if (dialogResult == DialogResult.Yes)
+            try
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new RWC());
             }
-            else if (dialogResult == DialogResult.No)
+            catch (Exception ex)
             {
-                //do something else
+                Logger.Instance.LogMessageToFile("Unhandled Exception: " + ex.Message, LogLevel.Error);
             }
-            return;
-        }
-
-        try
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new RWC());
-        }
-        finally { mutex.ReleaseMutex(); } // I find this more explicit
+            finally
+            {
+                Logger.Instance.CloseAsync().GetAwaiter().GetResult();
+            }
         }
     }
 }

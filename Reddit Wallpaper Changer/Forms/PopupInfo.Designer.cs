@@ -1,4 +1,4 @@
-﻿namespace Reddit_Wallpaper_Changer
+﻿namespace Reddit_Wallpaper_Changer.Forms
 {
     partial class PopupInfo
     {
@@ -6,19 +6,6 @@
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
 
         #region Windows Form Designer generated code
 
@@ -67,7 +54,6 @@
             this.txtWallpaperTitle.Size = new System.Drawing.Size(170, 65);
             this.txtWallpaperTitle.TabIndex = 5;
             this.txtWallpaperTitle.Text = "Wallpaper Title Here";
-            this.txtWallpaperTitle.TextChanged += new System.EventHandler(this.txtWallpaperTitle_TextChanged);
             // 
             // PopupInfo
             // 
@@ -86,6 +72,8 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Load += new System.EventHandler(this.PopupInfo_Load);
+            this.MouseEnter += new System.EventHandler(this.PopupInfo_MouseEnter);
+            this.MouseLeave += new System.EventHandler(this.PopupInfo_MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.imgWallpaper)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

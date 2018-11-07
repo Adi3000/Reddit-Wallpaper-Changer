@@ -1,4 +1,4 @@
-﻿namespace Reddit_Wallpaper_Changer
+﻿namespace Reddit_Wallpaper_Changer.Forms
 {
     partial class Update
     {
@@ -57,7 +57,7 @@
             this.btnUpdate.Text = "&Upgrade";
             this.btnUpdate.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnUpdate.UseVisualStyleBackColor = true;
-            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
+            this.btnUpdate.Click += new System.EventHandler(this.BtnUpdate_Click);
             // 
             // textBox1
             // 
@@ -99,7 +99,6 @@
             this.Name = "Update";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Update Available!";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Update_FormClosing);
             this.Load += new System.EventHandler(this.Update_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

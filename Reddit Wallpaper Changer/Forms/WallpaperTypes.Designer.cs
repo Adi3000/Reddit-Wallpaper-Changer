@@ -1,4 +1,4 @@
-﻿namespace Reddit_Wallpaper_Changer
+﻿namespace Reddit_Wallpaper_Changer.Forms
 {
     partial class WallpaperTypes
     {
@@ -211,7 +211,6 @@
             this.Name = "WallpaperTypes";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "WallpaperTypes";
-            this.Load += new System.EventHandler(this.WallpaperTypes_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);

@@ -1,4 +1,4 @@
-﻿namespace Reddit_Wallpaper_Changer
+﻿namespace Reddit_Wallpaper_Changer.Forms
 {
     partial class SearchWizard
     {
@@ -221,7 +221,6 @@
             this.Name = "SearchWizard";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Search Query Wizard";
-            this.Load += new System.EventHandler(this.SearchWizard_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

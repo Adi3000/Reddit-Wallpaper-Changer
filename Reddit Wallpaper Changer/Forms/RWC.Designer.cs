@@ -1,4 +1,4 @@
-﻿namespace Reddit_Wallpaper_Changer
+﻿namespace Reddit_Wallpaper_Changer.Forms
 {
     partial class RWC
     {
@@ -17,6 +17,7 @@
             {
                 components.Dispose();
             }
+
             base.Dispose(disposing);
         }
 
@@ -31,8 +32,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RWC));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.configurePanel = new System.Windows.Forms.Panel();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.statusMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,6 +43,7 @@
             this.faveWallpaperMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.changeWallpaperMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.currentThreadMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.disableNotificationsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -122,6 +124,11 @@
             this.historyPanel = new System.Windows.Forms.Panel();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.historyDataGrid = new System.Windows.Forms.DataGridView();
+            this.Preview = new System.Windows.Forms.DataGridViewImageColumn();
+            this.Thread = new System.Windows.Forms.DataGridViewLinkColumn();
+            this.orderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.wallpaperChangeTimer = new System.Windows.Forms.Timer(this.components);
             this.taskIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.startupTimer = new System.Windows.Forms.Timer(this.components);
@@ -142,6 +149,11 @@
             this.blacklistPanel = new System.Windows.Forms.Panel();
             this.blacklistGroupBox = new System.Windows.Forms.GroupBox();
             this.blacklistDataGrid = new System.Windows.Forms.DataGridView();
+            this.blacklistPreview = new System.Windows.Forms.DataGridViewImageColumn();
+            this.blacklistThread = new System.Windows.Forms.DataGridViewLinkColumn();
+            this.blacklistOrderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.blacklistThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.blacklistDateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.blacklistButton = new System.Windows.Forms.Button();
             this.blacklistMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.unblacklistWallpaper = new System.Windows.Forms.ToolStripMenuItem();
@@ -149,27 +161,17 @@
             this.favouritesPanel = new System.Windows.Forms.Panel();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.favouritesDataGrid = new System.Windows.Forms.DataGridView();
+            this.favouritePreview = new System.Windows.Forms.DataGridViewImageColumn();
+            this.favouriteThread = new System.Windows.Forms.DataGridViewLinkColumn();
+            this.favouriteOrderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.favouriteThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.favouriteDateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.favouritesMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.useFaveMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.removeFaveMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.saveThisWallpaperToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rwcStatusStrip = new System.Windows.Forms.StatusStrip();
             this.statuslabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.Preview = new System.Windows.Forms.DataGridViewImageColumn();
-            this.Thread = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.orderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.favouritePreview = new System.Windows.Forms.DataGridViewImageColumn();
-            this.favouriteThread = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.favouriteOrderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.favouriteThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.favouriteDateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.blacklistPreview = new System.Windows.Forms.DataGridViewImageColumn();
-            this.blacklistThread = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.blacklistOrderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.blacklistThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.blacklistDateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.configurePanel.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
             this.tabSettingsControl.SuspendLayout();
@@ -230,11 +232,13 @@
             this.faveWallpaperMenuItem,
             this.changeWallpaperMenuItem,
             this.currentThreadMenuItem1,
+            this.disableNotificationsToolStripMenuItem,
             this.toolStripSeparator2,
             this.settingsToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip1";
-            this.contextMenuStrip.Size = new System.Drawing.Size(233, 192);
+            this.contextMenuStrip.Size = new System.Drawing.Size(233, 236);
+            this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
             // 
             // statusMenuItem1
             // 
@@ -246,7 +250,7 @@
             this.statusMenuItem1.Name = "statusMenuItem1";
             this.statusMenuItem1.Size = new System.Drawing.Size(232, 22);
             this.statusMenuItem1.Text = "Running";
-            this.statusMenuItem1.Click += new System.EventHandler(this.statusMenuItem1_Click);
+            this.statusMenuItem1.Click += new System.EventHandler(this.StatusMenuItem1_Click);
             // 
             // toolStripSeparator1
             // 
@@ -260,7 +264,7 @@
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(232, 22);
             this.toolStripMenuItem1.Text = "Save Current Wallpaper";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.ToolStripMenuItem1_Click);
             // 
             // blacklistWallpaperMenuItem
             // 
@@ -269,7 +273,7 @@
             this.blacklistWallpaperMenuItem.Name = "blacklistWallpaperMenuItem";
             this.blacklistWallpaperMenuItem.Size = new System.Drawing.Size(232, 22);
             this.blacklistWallpaperMenuItem.Text = "Blacklist Current Wallpaper";
-            this.blacklistWallpaperMenuItem.Click += new System.EventHandler(this.blacklistWallpaperMenuItem_Click);
+            this.blacklistWallpaperMenuItem.Click += new System.EventHandler(this.BlacklistWallpaperMenuItem_Click);
             // 
             // faveWallpaperMenuItem
             // 
@@ -278,7 +282,7 @@
             this.faveWallpaperMenuItem.Name = "faveWallpaperMenuItem";
             this.faveWallpaperMenuItem.Size = new System.Drawing.Size(232, 22);
             this.faveWallpaperMenuItem.Text = "Favourite Current Wallpaper";
-            this.faveWallpaperMenuItem.Click += new System.EventHandler(this.faveWallpaperMenuItem_Click);
+            this.faveWallpaperMenuItem.Click += new System.EventHandler(this.FaveWallpaperMenuItem_Click);
             // 
             // changeWallpaperMenuItem
             // 
@@ -287,7 +291,7 @@
             this.changeWallpaperMenuItem.Name = "changeWallpaperMenuItem";
             this.changeWallpaperMenuItem.Size = new System.Drawing.Size(232, 22);
             this.changeWallpaperMenuItem.Text = "Change Wallpaper";
-            this.changeWallpaperMenuItem.Click += new System.EventHandler(this.changeWallpaperMenuItem_Click);
+            this.changeWallpaperMenuItem.Click += new System.EventHandler(this.ChangeWallpaperMenuItem_Click);
             // 
             // currentThreadMenuItem1
             // 
@@ -296,7 +300,15 @@
             this.currentThreadMenuItem1.Name = "currentThreadMenuItem1";
             this.currentThreadMenuItem1.Size = new System.Drawing.Size(232, 22);
             this.currentThreadMenuItem1.Text = "Current Thread";
-            this.currentThreadMenuItem1.Click += new System.EventHandler(this.currentThreadMenuItem1_Click);
+            this.currentThreadMenuItem1.Click += new System.EventHandler(this.CurrentThreadMenuItem1_Click);
+            // 
+            // disableNotificationsToolStripMenuItem
+            // 
+            this.disableNotificationsToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.disableNotificationsToolStripMenuItem.Name = "disableNotificationsToolStripMenuItem";
+            this.disableNotificationsToolStripMenuItem.Size = new System.Drawing.Size(232, 22);
+            this.disableNotificationsToolStripMenuItem.Text = "Disable Notifications";
+            this.disableNotificationsToolStripMenuItem.Click += new System.EventHandler(this.disableNotificationsToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -308,14 +320,14 @@
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(232, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(232, 22);
             this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
             // tabSettingsControl
             // 
@@ -475,7 +487,7 @@
             this.btnBrowse.Text = "Browse";
             this.btnBrowse.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnBrowse.UseVisualStyleBackColor = true;
-            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
+            this.btnBrowse.Click += new System.EventHandler(this.BtnBrowse_Click);
             // 
             // txtSavePath
             // 
@@ -493,7 +505,7 @@
             this.chkAutoSave.TabIndex = 16;
             this.chkAutoSave.Text = "Automatically save all wallpapers? ";
             this.chkAutoSave.UseVisualStyleBackColor = true;
-            this.chkAutoSave.CheckedChanged += new System.EventHandler(this.chkAutoSave_CheckedChanged);
+            this.chkAutoSave.CheckedChanged += new System.EventHandler(this.ChkAutoSave_CheckedChanged);
             // 
             // tabProxy
             // 
@@ -538,7 +550,7 @@
             this.chkAuth.TabIndex = 12;
             this.chkAuth.Text = "Authentication?";
             this.chkAuth.UseVisualStyleBackColor = true;
-            this.chkAuth.CheckedChanged += new System.EventHandler(this.chkAuth_CheckedChanged);
+            this.chkAuth.CheckedChanged += new System.EventHandler(this.ChkAuth_CheckedChanged);
             // 
             // txtProxyServer
             // 
@@ -557,7 +569,7 @@
             this.chkProxy.TabIndex = 10;
             this.chkProxy.Text = "Use a Proxy Server?";
             this.chkProxy.UseVisualStyleBackColor = true;
-            this.chkProxy.CheckedChanged += new System.EventHandler(this.chkProxy_CheckedChanged);
+            this.chkProxy.CheckedChanged += new System.EventHandler(this.ChkProxy_CheckedChanged);
             // 
             // tabDatabase
             // 
@@ -587,7 +599,7 @@
             this.btnRebuildThumbnails.Text = "Rebuild Thumbnails";
             this.btnRebuildThumbnails.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnRebuildThumbnails.UseVisualStyleBackColor = true;
-            this.btnRebuildThumbnails.Click += new System.EventHandler(this.btnRebuildThumbnails_Click);
+            this.btnRebuildThumbnails.Click += new System.EventHandler(this.BtnRebuildThumbnails_Click);
             // 
             // btnRestore
             // 
@@ -601,7 +613,7 @@
             this.btnRestore.Text = "Restore Database";
             this.btnRestore.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnRestore.UseVisualStyleBackColor = true;
-            this.btnRestore.Click += new System.EventHandler(this.btnRestore_Click);
+            this.btnRestore.Click += new System.EventHandler(this.BtnRestore_Click);
             // 
             // btnBackup
             // 
@@ -615,7 +627,7 @@
             this.btnBackup.Text = "Backup Database";
             this.btnBackup.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnBackup.UseVisualStyleBackColor = true;
-            this.btnBackup.Click += new System.EventHandler(this.btnBackup_Click);
+            this.btnBackup.Click += new System.EventHandler(this.BtnBackup_Click);
             // 
             // btnClearBlacklisted
             // 
@@ -629,7 +641,7 @@
             this.btnClearBlacklisted.Text = "Clear Blacklist";
             this.btnClearBlacklisted.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnClearBlacklisted.UseVisualStyleBackColor = true;
-            this.btnClearBlacklisted.Click += new System.EventHandler(this.btnClearBlacklisted_Click);
+            this.btnClearBlacklisted.Click += new System.EventHandler(this.BtnClearBlacklisted_Click);
             // 
             // btnClearFavourites
             // 
@@ -643,7 +655,7 @@
             this.btnClearFavourites.Text = "Clear Favourites";
             this.btnClearFavourites.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnClearFavourites.UseVisualStyleBackColor = true;
-            this.btnClearFavourites.Click += new System.EventHandler(this.btnClearFavourites_Click);
+            this.btnClearFavourites.Click += new System.EventHandler(this.BtnClearFavourites_Click);
             // 
             // btnClearHistory
             // 
@@ -657,7 +669,7 @@
             this.btnClearHistory.Text = "Clear History";
             this.btnClearHistory.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnClearHistory.UseVisualStyleBackColor = true;
-            this.btnClearHistory.Click += new System.EventHandler(this.btnClearHistory_Click);
+            this.btnClearHistory.Click += new System.EventHandler(this.BtnClearHistory_Click);
             // 
             // iconList
             // 
@@ -689,7 +701,7 @@
             this.btnSave.Text = "Save";
             this.btnSave.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnSave.UseVisualStyleBackColor = true;
-            this.btnSave.Click += new System.EventHandler(this.saveButton_Click);
+            this.btnSave.Click += new System.EventHandler(this.SaveButton_Click);
             // 
             // groupBox2
             // 
@@ -728,7 +740,7 @@
             this.btnWizard.Size = new System.Drawing.Size(32, 32);
             this.btnWizard.TabIndex = 9;
             this.btnWizard.UseVisualStyleBackColor = true;
-            this.btnWizard.Click += new System.EventHandler(this.searchWizardButton_Click);
+            this.btnWizard.Click += new System.EventHandler(this.SearchWizardButton_Click);
             // 
             // changeTimeValue
             // 
@@ -758,9 +770,9 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(18, 53);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(132, 13);
+            this.label6.Size = new System.Drawing.Size(135, 13);
             this.label6.TabIndex = 7;
-            this.label6.Text = "ChangeWallpaper Every:";
+            this.label6.Text = "Change Wallpaper Every:";
             // 
             // searchQuery
             // 
@@ -768,7 +780,6 @@
             this.searchQuery.Name = "searchQuery";
             this.searchQuery.Size = new System.Drawing.Size(231, 22);
             this.searchQuery.TabIndex = 3;
-            this.searchQuery.TextChanged += new System.EventHandler(this.searchQuery_TextChanged);
             // 
             // changeTimeType
             // 
@@ -782,7 +793,7 @@
             this.changeTimeType.Name = "changeTimeType";
             this.changeTimeType.Size = new System.Drawing.Size(114, 21);
             this.changeTimeType.TabIndex = 6;
-            this.changeTimeType.SelectedIndexChanged += new System.EventHandler(this.changeTimeType_SelectedIndexChanged);
+            this.changeTimeType.SelectedIndexChanged += new System.EventHandler(this.ChangeTimeType_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -815,7 +826,7 @@
             this.subredditTextBox.Size = new System.Drawing.Size(280, 20);
             this.subredditTextBox.TabIndex = 5;
             this.subredditTextBox.Text = "wallpapers+wallpaper";
-            this.subredditTextBox.TextChanged += new System.EventHandler(this.subredditTextBox_TextChanged);
+            this.subredditTextBox.TextChanged += new System.EventHandler(this.SubredditTextBox_TextChanged);
             // 
             // label1
             // 
@@ -854,7 +865,7 @@
             this.wallpaperGrabType.Name = "wallpaperGrabType";
             this.wallpaperGrabType.Size = new System.Drawing.Size(156, 21);
             this.wallpaperGrabType.TabIndex = 0;
-            this.wallpaperGrabType.SelectedIndexChanged += new System.EventHandler(this.wallpaperGrabType_SelectedIndexChanged);
+            this.wallpaperGrabType.SelectedIndexChanged += new System.EventHandler(this.WallpaperGrabType_SelectedIndexChanged);
             // 
             // statuslabel
             // 
@@ -902,7 +913,7 @@
             this.btnExport.TabIndex = 1;
             this.btnExport.Text = "Export";
             this.btnExport.UseVisualStyleBackColor = true;
-            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
+            this.btnExport.Click += new System.EventHandler(this.BtnExport_Click);
             // 
             // btnImport
             // 
@@ -916,7 +927,7 @@
             this.btnImport.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnImport.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnImport.UseVisualStyleBackColor = true;
-            this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
+            this.btnImport.Click += new System.EventHandler(this.BtnImport_Click);
             // 
             // groupBox10
             // 
@@ -941,7 +952,7 @@
             this.btnUpload.Text = "Upload Log";
             this.btnUpload.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnUpload.UseVisualStyleBackColor = true;
-            this.btnUpload.Click += new System.EventHandler(this.btnUpload_Click);
+            this.btnUpload.Click += new System.EventHandler(this.BtnUpload_Click);
             // 
             // btnLog
             // 
@@ -955,7 +966,7 @@
             this.btnLog.Text = "Open Log";
             this.btnLog.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnLog.UseVisualStyleBackColor = true;
-            this.btnLog.Click += new System.EventHandler(this.btnLog_Click);
+            this.btnLog.Click += new System.EventHandler(this.BtnLog_Click);
             // 
             // groupBox3
             // 
@@ -1001,7 +1012,7 @@
             this.btnUpdate.Text = "Check for Updates";
             this.btnUpdate.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnUpdate.UseVisualStyleBackColor = true;
-            this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
+            this.btnUpdate.Click += new System.EventHandler(this.BtnUpdate_Click);
             // 
             // groupBox4
             // 
@@ -1032,7 +1043,7 @@
             this.btnDonate.Text = "Donate!";
             this.btnDonate.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnDonate.UseVisualStyleBackColor = true;
-            this.btnDonate.Click += new System.EventHandler(this.btnDonate_Click);
+            this.btnDonate.Click += new System.EventHandler(this.BtnDonate_Click);
             // 
             // btnBug
             // 
@@ -1046,7 +1057,7 @@
             this.btnBug.Text = "Report a Bug";
             this.btnBug.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnBug.UseVisualStyleBackColor = true;
-            this.btnBug.Click += new System.EventHandler(this.btnBug_Click);
+            this.btnBug.Click += new System.EventHandler(this.BtnBug_Click);
             // 
             // label10
             // 
@@ -1073,7 +1084,7 @@
             this.rawnsLink.TabStop = true;
             this.rawnsLink.Text = "/u/Rawns";
             this.rawnsLink.VisitedLinkColor = System.Drawing.Color.SteelBlue;
-            this.rawnsLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.rawnsLink_LinkClicked);
+            this.rawnsLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.RawnsLink_LinkClicked);
             // 
             // btnSubreddit
             // 
@@ -1087,7 +1098,7 @@
             this.btnSubreddit.Text = "Support";
             this.btnSubreddit.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnSubreddit.UseVisualStyleBackColor = true;
-            this.btnSubreddit.Click += new System.EventHandler(this.btnSubreddit_Click);
+            this.btnSubreddit.Click += new System.EventHandler(this.BtnSubreddit_Click);
             // 
             // label3
             // 
@@ -1095,7 +1106,7 @@
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(30, 66);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(136, 13);
+            this.label3.Size = new System.Drawing.Size(129, 13);
             this.label3.TabIndex = 3;
             this.label3.Text = "Originally Created By:";
             // 
@@ -1114,7 +1125,7 @@
             this.redditLink.TabStop = true;
             this.redditLink.Text = "/u/Ugleh";
             this.redditLink.VisitedLinkColor = System.Drawing.Color.SteelBlue;
-            this.redditLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.redditLink_LinkClicked);
+            this.redditLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.RedditLink_LinkClicked);
             // 
             // monitorPanel
             // 
@@ -1174,7 +1185,7 @@
             this.btnWallpaperHelp.Size = new System.Drawing.Size(25, 25);
             this.btnWallpaperHelp.TabIndex = 13;
             this.btnWallpaperHelp.UseVisualStyleBackColor = true;
-            this.btnWallpaperHelp.Click += new System.EventHandler(this.btnWallpaperHelp_Click);
+            this.btnWallpaperHelp.Click += new System.EventHandler(this.BtnWallpaperHelp_Click);
             // 
             // picStyles
             // 
@@ -1197,7 +1208,7 @@
             this.btnMonitorSave.Text = "Save";
             this.btnMonitorSave.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
             this.btnMonitorSave.UseVisualStyleBackColor = true;
-            this.btnMonitorSave.Click += new System.EventHandler(this.btnMonitorSave_Click);
+            this.btnMonitorSave.Click += new System.EventHandler(this.BtnMonitorSave_Click);
             // 
             // comboType
             // 
@@ -1219,7 +1230,7 @@
             this.comboType.Name = "comboType";
             this.comboType.Size = new System.Drawing.Size(142, 21);
             this.comboType.TabIndex = 10;
-            this.comboType.SelectedIndexChanged += new System.EventHandler(this.comboType_SelectedIndexChanged);
+            this.comboType.SelectedIndexChanged += new System.EventHandler(this.ComboType_SelectedIndexChanged);
             // 
             // label7
             // 
@@ -1282,12 +1293,49 @@
             this.historyDataGrid.ShowRowErrors = false;
             this.historyDataGrid.Size = new System.Drawing.Size(420, 366);
             this.historyDataGrid.TabIndex = 1;
-            this.historyDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.historyDataGrid_CellContentClick);
-            this.historyDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.historyDataGrid_MouseClick);
+            this.historyDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.HistoryDataGrid_CellContentClick);
+            this.historyDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HistoryDataGrid_MouseClick);
+            // 
+            // Preview
+            // 
+            this.Preview.HeaderText = "Preview";
+            this.Preview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
+            this.Preview.Name = "Preview";
+            this.Preview.ReadOnly = true;
+            // 
+            // Thread
+            // 
+            this.Thread.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.Thread.DefaultCellStyle = dataGridViewCellStyle1;
+            this.Thread.HeaderText = "Thread";
+            this.Thread.Name = "Thread";
+            this.Thread.ReadOnly = true;
+            // 
+            // orderID
+            // 
+            this.orderID.HeaderText = "OrderID";
+            this.orderID.Name = "orderID";
+            this.orderID.ReadOnly = true;
+            this.orderID.Visible = false;
+            // 
+            // ThreadLink
+            // 
+            this.ThreadLink.HeaderText = "ThreadLink";
+            this.ThreadLink.Name = "ThreadLink";
+            this.ThreadLink.ReadOnly = true;
+            this.ThreadLink.Visible = false;
+            // 
+            // DateTime
+            // 
+            this.DateTime.HeaderText = "DateTime";
+            this.DateTime.Name = "DateTime";
+            this.DateTime.ReadOnly = true;
+            this.DateTime.Visible = false;
             // 
             // wallpaperChangeTimer
             // 
-            this.wallpaperChangeTimer.Tick += new System.EventHandler(this.wallpaperChangeTimer_Tick);
+            this.wallpaperChangeTimer.Tick += new System.EventHandler(this.WallpaperChangeTimer_Tick);
             // 
             // taskIcon
             // 
@@ -1295,17 +1343,17 @@
             this.taskIcon.ContextMenuStrip = this.contextMenuStrip;
             this.taskIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("taskIcon.Icon")));
             this.taskIcon.Text = "Reddit Wallpaper Changer";
-            this.taskIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.taskIcon_MouseDoubleClick);
+            this.taskIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.TaskIcon_MouseDoubleClick);
             // 
             // startupTimer
             // 
             this.startupTimer.Interval = 1000;
-            this.startupTimer.Tick += new System.EventHandler(this.startupTimer_Tick);
+            this.startupTimer.Tick += new System.EventHandler(this.StartupTimer_Tick);
             // 
             // changeWallpaperTimer
             // 
             this.changeWallpaperTimer.Interval = 1000;
-            this.changeWallpaperTimer.Tick += new System.EventHandler(this.changeWallpaperTimer_Tick);
+            this.changeWallpaperTimer.Tick += new System.EventHandler(this.ChangeWallpaperTimer_Tick);
             // 
             // saveWallpaper
             // 
@@ -1314,12 +1362,11 @@
             this.saveWallpaper.FilterIndex = 4;
             this.saveWallpaper.InitialDirectory = "Libraries\\Pictures";
             this.saveWallpaper.Title = "Save The Current Wallpaper";
-            this.saveWallpaper.FileOk += new System.ComponentModel.CancelEventHandler(this.saveWallpaper_FileOk);
             // 
             // checkInternetTimer
             // 
             this.checkInternetTimer.Interval = 1000;
-            this.checkInternetTimer.Tick += new System.EventHandler(this.checkInternetTimer_Tick);
+            this.checkInternetTimer.Tick += new System.EventHandler(this.CheckInternetTimer_Tick);
             // 
             // configureButton
             // 
@@ -1337,7 +1384,7 @@
             this.configureButton.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.configureButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.configureButton.UseVisualStyleBackColor = false;
-            this.configureButton.Click += new System.EventHandler(this.configureButton_Click);
+            this.configureButton.Click += new System.EventHandler(this.ConfigureButton_Click);
             // 
             // aboutButton
             // 
@@ -1355,7 +1402,7 @@
             this.aboutButton.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.aboutButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.aboutButton.UseVisualStyleBackColor = false;
-            this.aboutButton.Click += new System.EventHandler(this.aboutButton_Click);
+            this.aboutButton.Click += new System.EventHandler(this.AboutButton_Click);
             // 
             // historyButton
             // 
@@ -1373,12 +1420,12 @@
             this.historyButton.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.historyButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.historyButton.UseVisualStyleBackColor = false;
-            this.historyButton.Click += new System.EventHandler(this.historyButton_Click);
+            this.historyButton.Click += new System.EventHandler(this.HistoryButton_Click);
             // 
             // breakBetweenChange
             // 
             this.breakBetweenChange.Interval = 1500;
-            this.breakBetweenChange.Tick += new System.EventHandler(this.breakBetweenChange_Tick);
+            this.breakBetweenChange.Tick += new System.EventHandler(this.BreakBetweenChange_Tick);
             // 
             // monitorButton
             // 
@@ -1396,7 +1443,7 @@
             this.monitorButton.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.monitorButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.monitorButton.UseVisualStyleBackColor = false;
-            this.monitorButton.Click += new System.EventHandler(this.monitorButton_Click);
+            this.monitorButton.Click += new System.EventHandler(this.MonitorButton_Click);
             // 
             // historyMenuStrip
             // 
@@ -1416,7 +1463,7 @@
             this.useThisWallpaperToolStripMenuItem.Name = "useThisWallpaperToolStripMenuItem";
             this.useThisWallpaperToolStripMenuItem.Size = new System.Drawing.Size(280, 22);
             this.useThisWallpaperToolStripMenuItem.Text = "Use This Wallpaper";
-            this.useThisWallpaperToolStripMenuItem.Click += new System.EventHandler(this.useThisWallpapertoolStripMenuItem_Click);
+            this.useThisWallpaperToolStripMenuItem.Click += new System.EventHandler(this.UseThisWallpapertoolStripMenuItem_Click);
             // 
             // blacklistWallpapertoolStripMenuItem
             // 
@@ -1425,7 +1472,7 @@
             this.blacklistWallpapertoolStripMenuItem.Name = "blacklistWallpapertoolStripMenuItem";
             this.blacklistWallpapertoolStripMenuItem.Size = new System.Drawing.Size(280, 22);
             this.blacklistWallpapertoolStripMenuItem.Text = "Blacklist This Wallpaper";
-            this.blacklistWallpapertoolStripMenuItem.Click += new System.EventHandler(this.blacklistWallpapertoolStripMenuItem_Click);
+            this.blacklistWallpapertoolStripMenuItem.Click += new System.EventHandler(this.BlacklistWallpapertoolStripMenuItem_Click);
             // 
             // removeThisWallpaperFromHistoryToolStripMenuItem
             // 
@@ -1434,7 +1481,7 @@
             this.removeThisWallpaperFromHistoryToolStripMenuItem.Name = "removeThisWallpaperFromHistoryToolStripMenuItem";
             this.removeThisWallpaperFromHistoryToolStripMenuItem.Size = new System.Drawing.Size(280, 22);
             this.removeThisWallpaperFromHistoryToolStripMenuItem.Text = "Remove This Wallpaper From History";
-            this.removeThisWallpaperFromHistoryToolStripMenuItem.Click += new System.EventHandler(this.removeThisWallpaperFromHistoryToolStripMenuItem_Click);
+            this.removeThisWallpaperFromHistoryToolStripMenuItem.Click += new System.EventHandler(this.RemoveThisWallpaperFromHistoryToolStripMenuItem_Click);
             // 
             // favouriteThisWallpaperToolStripMenuItem
             // 
@@ -1443,7 +1490,7 @@
             this.favouriteThisWallpaperToolStripMenuItem.Name = "favouriteThisWallpaperToolStripMenuItem";
             this.favouriteThisWallpaperToolStripMenuItem.Size = new System.Drawing.Size(280, 22);
             this.favouriteThisWallpaperToolStripMenuItem.Text = "Favourite This Wallpaper";
-            this.favouriteThisWallpaperToolStripMenuItem.Click += new System.EventHandler(this.favouriteThisWallpaperToolStripMenuItem_Click);
+            this.favouriteThisWallpaperToolStripMenuItem.Click += new System.EventHandler(this.FavouriteThisWallpaperToolStripMenuItem_Click);
             // 
             // saveThisWallpaperToolStripMenuItem1
             // 
@@ -1452,7 +1499,7 @@
             this.saveThisWallpaperToolStripMenuItem1.Name = "saveThisWallpaperToolStripMenuItem1";
             this.saveThisWallpaperToolStripMenuItem1.Size = new System.Drawing.Size(280, 22);
             this.saveThisWallpaperToolStripMenuItem1.Text = "Save This Wallpaper";
-            this.saveThisWallpaperToolStripMenuItem1.Click += new System.EventHandler(this.saveThisWallpaperToolStripMenuItem1_Click);
+            this.saveThisWallpaperToolStripMenuItem1.Click += new System.EventHandler(this.SaveThisWallpaperToolStripMenuItem1_Click);
             // 
             // blacklistPanel
             // 
@@ -1505,8 +1552,45 @@
             this.blacklistDataGrid.ShowRowErrors = false;
             this.blacklistDataGrid.Size = new System.Drawing.Size(419, 365);
             this.blacklistDataGrid.TabIndex = 1;
-            this.blacklistDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.blacklistDataGrid_CellContentClick);
-            this.blacklistDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.blacklistDataGrid_MouseClick);
+            this.blacklistDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.BlacklistDataGrid_CellContentClick);
+            this.blacklistDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.BlacklistDataGrid_MouseClick);
+            // 
+            // blacklistPreview
+            // 
+            this.blacklistPreview.HeaderText = "Preview";
+            this.blacklistPreview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
+            this.blacklistPreview.Name = "blacklistPreview";
+            this.blacklistPreview.ReadOnly = true;
+            // 
+            // blacklistThread
+            // 
+            this.blacklistThread.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.blacklistThread.DefaultCellStyle = dataGridViewCellStyle2;
+            this.blacklistThread.HeaderText = "Thread";
+            this.blacklistThread.Name = "blacklistThread";
+            this.blacklistThread.ReadOnly = true;
+            // 
+            // blacklistOrderID
+            // 
+            this.blacklistOrderID.HeaderText = "OrderID";
+            this.blacklistOrderID.Name = "blacklistOrderID";
+            this.blacklistOrderID.ReadOnly = true;
+            this.blacklistOrderID.Visible = false;
+            // 
+            // blacklistThreadLink
+            // 
+            this.blacklistThreadLink.HeaderText = "ThreadLink";
+            this.blacklistThreadLink.Name = "blacklistThreadLink";
+            this.blacklistThreadLink.ReadOnly = true;
+            this.blacklistThreadLink.Visible = false;
+            // 
+            // blacklistDateTime
+            // 
+            this.blacklistDateTime.HeaderText = "DateTime";
+            this.blacklistDateTime.Name = "blacklistDateTime";
+            this.blacklistDateTime.ReadOnly = true;
+            this.blacklistDateTime.Visible = false;
             // 
             // blacklistButton
             // 
@@ -1524,7 +1608,7 @@
             this.blacklistButton.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.blacklistButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.blacklistButton.UseVisualStyleBackColor = false;
-            this.blacklistButton.Click += new System.EventHandler(this.blacklistButton_Click);
+            this.blacklistButton.Click += new System.EventHandler(this.BlacklistButton_Click);
             // 
             // blacklistMenuStrip
             // 
@@ -1541,7 +1625,7 @@
             this.unblacklistWallpaper.Size = new System.Drawing.Size(286, 22);
             this.unblacklistWallpaper.Text = "Remove This Wallpaper From Blacklist";
             this.unblacklistWallpaper.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.unblacklistWallpaper.Click += new System.EventHandler(this.unblacklistWallpaper_Click);
+            this.unblacklistWallpaper.Click += new System.EventHandler(this.UnblacklistWallpaper_Click);
             // 
             // favouritesButton
             // 
@@ -1559,7 +1643,7 @@
             this.favouritesButton.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.favouritesButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.favouritesButton.UseVisualStyleBackColor = false;
-            this.favouritesButton.Click += new System.EventHandler(this.favouritesButton_Click);
+            this.favouritesButton.Click += new System.EventHandler(this.FavouritesButton_Click);
             // 
             // favouritesPanel
             // 
@@ -1612,99 +1696,8 @@
             this.favouritesDataGrid.ShowRowErrors = false;
             this.favouritesDataGrid.Size = new System.Drawing.Size(419, 367);
             this.favouritesDataGrid.TabIndex = 1;
-            this.favouritesDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.favouritesDataGrid_CellContentClick);
-            this.favouritesDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.favouritesDataGrid_MouseClick);
-            // 
-            // favouritesMenuStrip
-            // 
-            this.favouritesMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.useFaveMenu,
-            this.removeFaveMenu,
-            this.saveThisWallpaperToolStripMenuItem});
-            this.favouritesMenuStrip.Name = "favouritesMenuStrip";
-            this.favouritesMenuStrip.Size = new System.Drawing.Size(299, 70);
-            // 
-            // useFaveMenu
-            // 
-            this.useFaveMenu.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.useFaveMenu.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.useFaveMenu.Name = "useFaveMenu";
-            this.useFaveMenu.Size = new System.Drawing.Size(298, 22);
-            this.useFaveMenu.Text = "Use This Wallpaper";
-            this.useFaveMenu.Click += new System.EventHandler(this.useFaveMenu_Click);
-            // 
-            // removeFaveMenu
-            // 
-            this.removeFaveMenu.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.removeFaveMenu.ForeColor = System.Drawing.Color.Crimson;
-            this.removeFaveMenu.Name = "removeFaveMenu";
-            this.removeFaveMenu.Size = new System.Drawing.Size(298, 22);
-            this.removeFaveMenu.Text = "Remove This Wallpaper From Favourites";
-            this.removeFaveMenu.Click += new System.EventHandler(this.removeFaveMenu_Click);
-            // 
-            // saveThisWallpaperToolStripMenuItem
-            // 
-            this.saveThisWallpaperToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.saveThisWallpaperToolStripMenuItem.ForeColor = System.Drawing.Color.ForestGreen;
-            this.saveThisWallpaperToolStripMenuItem.Name = "saveThisWallpaperToolStripMenuItem";
-            this.saveThisWallpaperToolStripMenuItem.Size = new System.Drawing.Size(298, 22);
-            this.saveThisWallpaperToolStripMenuItem.Text = "Save This Wallpaper";
-            this.saveThisWallpaperToolStripMenuItem.Click += new System.EventHandler(this.saveThisWallpaperToolStripMenuItem_Click);
-            // 
-            // rwcStatusStrip
-            // 
-            this.rwcStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.statuslabel1});
-            this.rwcStatusStrip.Location = new System.Drawing.Point(0, 787);
-            this.rwcStatusStrip.Name = "rwcStatusStrip";
-            this.rwcStatusStrip.Size = new System.Drawing.Size(1192, 22);
-            this.rwcStatusStrip.SizingGrip = false;
-            this.rwcStatusStrip.TabIndex = 11;
-            // 
-            // statuslabel1
-            // 
-            this.statuslabel1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.statuslabel1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.statuslabel1.Name = "statuslabel1";
-            this.statuslabel1.Size = new System.Drawing.Size(100, 17);
-            this.statuslabel1.Text = "RWC Status Text";
-            // 
-            // Preview
-            // 
-            this.Preview.HeaderText = "Preview";
-            this.Preview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
-            this.Preview.Name = "Preview";
-            this.Preview.ReadOnly = true;
-            // 
-            // Thread
-            // 
-            this.Thread.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.Thread.DefaultCellStyle = dataGridViewCellStyle1;
-            this.Thread.HeaderText = "Thread";
-            this.Thread.Name = "Thread";
-            this.Thread.ReadOnly = true;
-            // 
-            // orderID
-            // 
-            this.orderID.HeaderText = "OrderID";
-            this.orderID.Name = "orderID";
-            this.orderID.ReadOnly = true;
-            this.orderID.Visible = false;
-            // 
-            // ThreadLink
-            // 
-            this.ThreadLink.HeaderText = "ThreadLink";
-            this.ThreadLink.Name = "ThreadLink";
-            this.ThreadLink.ReadOnly = true;
-            this.ThreadLink.Visible = false;
-            // 
-            // DateTime
-            // 
-            this.DateTime.HeaderText = "DateTime";
-            this.DateTime.Name = "DateTime";
-            this.DateTime.ReadOnly = true;
-            this.DateTime.Visible = false;
+            this.favouritesDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.FavouritesDataGrid_CellContentClick);
+            this.favouritesDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.FavouritesDataGrid_MouseClick);
             // 
             // favouritePreview
             // 
@@ -1743,42 +1736,59 @@
             this.favouriteDateTime.ReadOnly = true;
             this.favouriteDateTime.Visible = false;
             // 
-            // blacklistPreview
+            // favouritesMenuStrip
             // 
-            this.blacklistPreview.HeaderText = "Preview";
-            this.blacklistPreview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
-            this.blacklistPreview.Name = "blacklistPreview";
-            this.blacklistPreview.ReadOnly = true;
+            this.favouritesMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.useFaveMenu,
+            this.removeFaveMenu,
+            this.saveThisWallpaperToolStripMenuItem});
+            this.favouritesMenuStrip.Name = "favouritesMenuStrip";
+            this.favouritesMenuStrip.Size = new System.Drawing.Size(299, 70);
             // 
-            // blacklistThread
+            // useFaveMenu
             // 
-            this.blacklistThread.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.blacklistThread.DefaultCellStyle = dataGridViewCellStyle2;
-            this.blacklistThread.HeaderText = "Thread";
-            this.blacklistThread.Name = "blacklistThread";
-            this.blacklistThread.ReadOnly = true;
+            this.useFaveMenu.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.useFaveMenu.ForeColor = System.Drawing.SystemColors.HotTrack;
+            this.useFaveMenu.Name = "useFaveMenu";
+            this.useFaveMenu.Size = new System.Drawing.Size(298, 22);
+            this.useFaveMenu.Text = "Use This Wallpaper";
+            this.useFaveMenu.Click += new System.EventHandler(this.UseFaveMenu_Click);
             // 
-            // blacklistOrderID
+            // removeFaveMenu
             // 
-            this.blacklistOrderID.HeaderText = "OrderID";
-            this.blacklistOrderID.Name = "blacklistOrderID";
-            this.blacklistOrderID.ReadOnly = true;
-            this.blacklistOrderID.Visible = false;
+            this.removeFaveMenu.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.removeFaveMenu.ForeColor = System.Drawing.Color.Crimson;
+            this.removeFaveMenu.Name = "removeFaveMenu";
+            this.removeFaveMenu.Size = new System.Drawing.Size(298, 22);
+            this.removeFaveMenu.Text = "Remove This Wallpaper From Favourites";
+            this.removeFaveMenu.Click += new System.EventHandler(this.RemoveFaveMenu_Click);
             // 
-            // blacklistThreadLink
+            // saveThisWallpaperToolStripMenuItem
             // 
-            this.blacklistThreadLink.HeaderText = "ThreadLink";
-            this.blacklistThreadLink.Name = "blacklistThreadLink";
-            this.blacklistThreadLink.ReadOnly = true;
-            this.blacklistThreadLink.Visible = false;
+            this.saveThisWallpaperToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.saveThisWallpaperToolStripMenuItem.ForeColor = System.Drawing.Color.ForestGreen;
+            this.saveThisWallpaperToolStripMenuItem.Name = "saveThisWallpaperToolStripMenuItem";
+            this.saveThisWallpaperToolStripMenuItem.Size = new System.Drawing.Size(298, 22);
+            this.saveThisWallpaperToolStripMenuItem.Text = "Save This Wallpaper";
+            this.saveThisWallpaperToolStripMenuItem.Click += new System.EventHandler(this.SaveThisWallpaperToolStripMenuItem_Click);
             // 
-            // blacklistDateTime
+            // rwcStatusStrip
             // 
-            this.blacklistDateTime.HeaderText = "DateTime";
-            this.blacklistDateTime.Name = "blacklistDateTime";
-            this.blacklistDateTime.ReadOnly = true;
-            this.blacklistDateTime.Visible = false;
+            this.rwcStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statuslabel1});
+            this.rwcStatusStrip.Location = new System.Drawing.Point(0, 787);
+            this.rwcStatusStrip.Name = "rwcStatusStrip";
+            this.rwcStatusStrip.Size = new System.Drawing.Size(1192, 22);
+            this.rwcStatusStrip.SizingGrip = false;
+            this.rwcStatusStrip.TabIndex = 11;
+            // 
+            // statuslabel1
+            // 
+            this.statuslabel1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.statuslabel1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.statuslabel1.Name = "statuslabel1";
+            this.statuslabel1.Size = new System.Drawing.Size(100, 17);
+            this.statuslabel1.Text = "RWC Status Text";
             // 
             // RWC
             // 
@@ -1996,6 +2006,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn blacklistOrderID;
         private System.Windows.Forms.DataGridViewTextBoxColumn blacklistThreadLink;
         private System.Windows.Forms.DataGridViewTextBoxColumn blacklistDateTime;
+        private System.Windows.Forms.ToolStripMenuItem disableNotificationsToolStripMenuItem;
     }
 }
 

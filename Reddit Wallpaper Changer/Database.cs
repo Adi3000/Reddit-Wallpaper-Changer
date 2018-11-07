@@ -1,215 +1,202 @@
-﻿using System;
+﻿using Reddit_Wallpaper_Changer.Properties;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using System.Xml;
+using System.Linq;
 using System.Net;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Threading.Tasks;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace Reddit_Wallpaper_Changer
 {
-    class Database
+    public class Database
     {
-        SQLiteConnection m_dbConnection;
-        string dbPath = Properties.Settings.Default.AppDataPath + @"\Reddit-Wallpaper-Changer.sqlite";
+        private const string DbName = "Reddit-Wallpaper-Changer.sqlite";
 
-        public string imgstring { get; set; }
-        public string titlestring { get; set; }
-        public string threadidstring { get; set; }
-        public string urlstring { get; set; }
-        public string datestring { get; set; }
+        private readonly string _dbPath, _connectionString;
 
+        public Database(string appDataPath)
+        {
+            _dbPath = $@"{appDataPath}\{DbName}";
+            _connectionString = $"Data Source={_dbPath};Version=3;";
+        }
 
         //======================================================================
         // Create the SQLite Blacklist database
         //======================================================================
-        public void connectToDatabase()
+        public async Task ConnectToDatabaseAsync()
         {
-            if (!File.Exists(dbPath))
+            if (File.Exists(_dbPath))
             {
                 try
                 {
-                    SQLiteConnection.CreateFile(dbPath);
-                    Logging.LogMessageToFile("Database 'Reddit-Wallpaper-Changer.sqlite' created successfully: " + dbPath, 0);
-
-                    m_dbConnection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;");
-                    m_dbConnection.Open();
-                    Logging.LogMessageToFile("Successfully connected to database 'Reddit-Wallpaper-Changer.sqlite'", 0);
-
-                    string sql = "CREATE TABLE version (version STRING, date STRING)";
-                    SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-                    command.ExecuteNonQuery();
-                    Logging.LogMessageToFile("Table 'version' successfully created.", 0);
-
-                    sql = "CREATE TABLE blacklist (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)";
-                    command = new SQLiteCommand(sql, m_dbConnection);
-                    command.ExecuteNonQuery();
-                    Logging.LogMessageToFile("Table 'blacklist' successfully created.", 0);
-
-                    sql = "CREATE INDEX idx_blacklist ON blacklist (url)";
-                    command = new SQLiteCommand(sql, m_dbConnection);
-                    command.ExecuteNonQuery();
-                    Logging.LogMessageToFile("Index 'idx_blacklist' successfully created.", 0);
-
-                    sql = "CREATE TABLE favourites (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)";
-                    command = new SQLiteCommand(sql, m_dbConnection);
-                    command.ExecuteNonQuery();
-                    Logging.LogMessageToFile("Table 'favourites' successfully created.", 0);
-
-                    sql = "CREATE INDEX idx_favourites ON favourites (url)";
-                    command = new SQLiteCommand(sql, m_dbConnection);
-                    command.ExecuteNonQuery();
-                    Logging.LogMessageToFile("Index 'idx_favourites' successfully created.", 0);
-
-                    sql = "CREATE TABLE history (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)";
-                    command = new SQLiteCommand(sql, m_dbConnection);
-                    command.ExecuteNonQuery();
-                    Logging.LogMessageToFile("Table 'history' successfully created.", 0);
-
-                    sql = "CREATE INDEX idx_history ON history (url)";
-                    command = new SQLiteCommand(sql, m_dbConnection);
-                    command.ExecuteNonQuery();
-                    Logging.LogMessageToFile("Index 'idx_history' successfully created.", 0);
-
-                    addVersion();
-
+                    using (await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                    {
+                        Logger.Instance.LogMessageToFile($"Successfully connected to database '{DbName}'", LogLevel.Information);
+                    }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    Logging.LogMessageToFile("Unexpected error creating database: " + ex.Message, 2);
+                    Logger.Instance.LogMessageToFile($"Unexpected error connecting to database: {ex.Message}", LogLevel.Error);
                 }
             }
             else
             {
                 try
                 {
-                    m_dbConnection = new SQLiteConnection("Data Source=" + dbPath + ";Version=3;");
-                    m_dbConnection.Open();
-                    Logging.LogMessageToFile("Successfully connected to database 'Reddit-Wallpaper-Changer.sqlite'", 0);
+                    SQLiteConnection.CreateFile(_dbPath);
+
+                    Logger.Instance.LogMessageToFile($"Database '{DbName}' created successfully: {_dbPath}", LogLevel.Information);
+
+                    using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                    {
+                        Logger.Instance.LogMessageToFile($"Successfully connected to database '{DbName}'", LogLevel.Information);
+
+                        using (var beginCommand = new SQLiteCommand("BEGIN", con))
+                        using (var versionTableCommand = new SQLiteCommand("CREATE TABLE version (version STRING, date STRING)", con))
+                        using (var blacklistTableCommand = new SQLiteCommand("CREATE TABLE blacklist (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
+                        using (var blacklistIndexCommand = new SQLiteCommand("CREATE INDEX idx_blacklist ON blacklist (url)", con))
+                        using (var favouritesTableCommand = new SQLiteCommand("CREATE TABLE favourites (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
+                        using (var favouritesIndexCommand = new SQLiteCommand("CREATE INDEX idx_favourites ON favourites (url)", con))
+                        using (var historyTableCommand = new SQLiteCommand("CREATE TABLE history (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
+                        using (var historyIndexCommand = new SQLiteCommand("CREATE INDEX idx_history ON history (url)", con))
+                        using (var endCommand = new SQLiteCommand("END", con))
+                        {
+                            await beginCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+
+                            await versionTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Table 'version' successfully created.", LogLevel.Information);
+
+                            await blacklistTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Table 'blacklist' successfully created.", LogLevel.Information);
+
+                            await blacklistIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Index 'idx_blacklist' successfully created.", LogLevel.Information);
+
+                            await favouritesTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Table 'favourites' successfully created.", LogLevel.Information);
+
+                            await favouritesIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Index 'idx_favourites' successfully created.", LogLevel.Information);
+
+                            await historyTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Table 'history' successfully created.", LogLevel.Information);
+
+                            await historyIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Index 'idx_history' successfully created.", LogLevel.Information);
+
+                            await endCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
+                    }
+
+                    await AddVersionAsync().ConfigureAwait(false);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    Logging.LogMessageToFile("Unexpected error connecting to database: " + ex.Message, 2);
+                    Logger.Instance.LogMessageToFile($"Unexpected error creating database: {ex.Message}", LogLevel.Error);
                 }
             }
         }
 
         //======================================================================
-        // One off task to migrate old Blacklist.xml file into Reddit-Wallpaper-Changer.sqlite
+        // One off task to migrate old Blacklist.xml file 
         //======================================================================
-        public void migrateOldBlacklist()
+        public async Task MigrateOldBlacklistAsync()
         {
             try
             {
-                Logging.LogMessageToFile("Migrating Blacklist.xml to 'Reddit-Wallpaper-Changer.sqlite'. This is a one off task...", 0);
+                Logger.Instance.LogMessageToFile($"Migrating Blacklist.xml to '{DbName}'. This is a one off task...", LogLevel.Information);
 
-                if (File.Exists(Properties.Settings.Default.AppDataPath + @"\Blacklist.xml"))
+                var fullFilePath = $@"{Settings.Default.AppDataPath}\Blacklist.xml";
+
+                if (File.Exists(fullFilePath))
                 {
-                    XmlDocument doc = new XmlDocument();
+                    var doc = new XmlDocument();
                     XmlNodeList list;
 
-                    doc.Load(Properties.Settings.Default.AppDataPath + @"\Blacklist.xml");
+                    doc.Load(fullFilePath);
                     list = doc.SelectNodes("Blacklisted/Wallpaper");
 
-                    using (WebClient wc = Proxy.setProxy())
+                    using (var wc = HelperMethods.CreateWebClient())
                     {
                         foreach (XmlNode xn in list)
                         {
                             try
                             {
-                                string URL = xn["URL"].InnerText;
-                                string Title = xn["Title"].InnerText;
-                                Title = Title.Replace("'", "''");
-                                string ThreadID = xn["ThreadID"].InnerText;
-                                Logging.LogMessageToFile("Migrating: " + Title + ", " + ThreadID + ", " + URL, 0);
+                                var url = xn["URL"].InnerText;
+                                var title = xn["Title"].InnerText.Replace("'", "''");
+                                var threadId = xn["ThreadID"].InnerText;
 
-                                Uri uri = new Uri(URL);
+                                Logger.Instance.LogMessageToFile($"Migrating: {title}, {threadId}, {url}", LogLevel.Information);
 
-                                byte[] bytes = wc.DownloadData(URL);
-                                using (MemoryStream ms = new MemoryStream(bytes))
+                                var bytes = await wc.DownloadDataTaskAsync(url).ConfigureAwait(false);
+
+                                var base64ImageRepresentation = HelperMethods.ConvertImageBytesToBase64String(bytes);
+
+                                var dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
+
+                                using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                                using (var command = new SQLiteCommand(
+                                    "INSERT INTO blacklist (thumbnail, title, threadid, url, date) " +
+                                    "VALUES (@thumbnail, @title, @threadid, @url, @date)", con))
                                 {
-                                    using (var bmp = new Bitmap(ms))
-                                    {
-                                        using (Bitmap newImage = new Bitmap(150, 70))
-                                        {
-                                            using (Graphics gr = Graphics.FromImage(newImage))
-                                            {
-                                                gr.SmoothingMode = SmoothingMode.HighQuality;
-                                                gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                                gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                                gr.DrawImage(bmp, new Rectangle(0, 0, 150, 70));
-                                                using (MemoryStream newms = new MemoryStream())
-                                                {
-                                                    newImage.Save(newms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                    command.Parameters.AddWithValue("@thumbnail", base64ImageRepresentation);
+                                    command.Parameters.AddWithValue("@title", title);
+                                    command.Parameters.AddWithValue("@threadid", threadId);
+                                    command.Parameters.AddWithValue("@url", url);
+                                    command.Parameters.AddWithValue("@date", dateTime);
 
-                                                    byte[] imageArray = newms.ToArray();
-                                                    string base64ImageRepresentation = Convert.ToBase64String(imageArray);
-                                                    string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
-
-                                                    string sql = "INSERT INTO blacklist (thumbnail, title, threadid, url, date) values ('" + base64ImageRepresentation + "', '" + Title + "', '" + ThreadID + "', '" + URL + "', '" + dateTime + "')";
-                                                    SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-                                                    command.ExecuteNonQuery();
-                                                }
-                                            }
-                                        }
-                                    }
+                                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                                 }
-                                Logging.LogMessageToFile("Successfully migrated: " + Title + ", " + ThreadID + ", " + URL, 0);
+
+                                Logger.Instance.LogMessageToFile($"Successfully migrated: {title}, {threadId}, {url}", LogLevel.Information);
                             }
                             catch (WebException ex)
                             {
-                                Logging.LogMessageToFile("Unexpected error migrating: " + ex.Message, 2);
+                                Logger.Instance.LogMessageToFile($"Unexpected error migrating: {ex.Message}", LogLevel.Error);
                             }
                         }
                     }
 
-                    Logging.LogMessageToFile("Migration to database completed successfully!", 0);
-                    File.Delete(Properties.Settings.Default.AppDataPath + @"\Blacklist.xml");
-                    Logging.LogMessageToFile("Blacklist.xml deleted.", 0);
-                    Properties.Settings.Default.dbMigrated = true;
-                    Properties.Settings.Default.Save();
+                    Logger.Instance.LogMessageToFile("Migration to database completed successfully!", LogLevel.Information);
+
+                    File.Delete(fullFilePath);
+
+                    Logger.Instance.LogMessageToFile("Blacklist.xml deleted.", LogLevel.Information);
                 }
                 else
-                {
-                    Logging.LogMessageToFile("No blacklist.xml file to migrate", 0);
-                    Properties.Settings.Default.dbMigrated = true;
-                    Properties.Settings.Default.Save();
-                }
+                    Logger.Instance.LogMessageToFile("No blacklist.xml file to migrate", LogLevel.Information);
+
+                Settings.Default.dbMigrated = true;
+                Settings.Default.Save();
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Error migrating: " + ex.Message, 2);
+                Logger.Instance.LogMessageToFile("Error migrating: " + ex.Message, LogLevel.Error);
             }
         }
 
         //======================================================================
         // Add wallpaper to blacklisted
         //======================================================================
-        public async Task<bool> blacklistWallpaper(string url, string title, string threadid)
+        public async Task<bool> BlacklistWallpaperAsync(RedditLink redditLink)
         {
             try
             {
-                string thumbnail = getThumbnail(url);
-                string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
-                title = title.Replace("'", "''");
-                using (SQLiteCommand command = new SQLiteCommand("INSERT INTO blacklist (thumbnail, title, threadid, url, date) values (@thumbnail, @title, @threadid, @url, @dateTime)", m_dbConnection))
-                {
-                    command.Parameters.AddWithValue("thumbnail", thumbnail);
-                    command.Parameters.AddWithValue("title", title);
-                    command.Parameters.AddWithValue("threadid", threadid);
-                    command.Parameters.AddWithValue("url", url);
-                    command.Parameters.AddWithValue("dateTime", dateTime);
-                    command.ExecuteNonQuery();
-                }
-                Logging.LogMessageToFile("Wallpaper blacklisted! Title: " + title + ", Thread ID: " + threadid + ", URL: " + url, 0);
+                await InsertWallpaperIntoDatabaseAsync(
+                    "INSERT INTO blacklist (thumbnail, title, threadid, url, date) " +
+                    "VALUES (@thumbnail, @title, @threadid, @url, @dateTime)", redditLink).ConfigureAwait(false);
+
+                Logger.Instance.LogMessageToFile($"Wallpaper blacklisted! Title: {redditLink.Title}, Thread ID: {redditLink.ThreadId}, URL: {redditLink.Url}", LogLevel.Information);
+
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error blacklisting wallpaper: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error blacklisting wallpaper: {ex.Message}", LogLevel.Warning);
                 return false;
             }
         }
@@ -217,28 +204,21 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Add wallpaper to favourites
         //======================================================================
-        public async Task<bool> faveWallpaper(string url, string title, string threadid)
+        public async Task<bool> FaveWallpaperAsync(RedditLink redditLink)
         {
             try
             {
-                string thumbnail = getThumbnail(url);
-                string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
-                title = title.Replace("'", "''");
-                using (SQLiteCommand command = new SQLiteCommand("INSERT INTO favourites (thumbnail, title, threadid, url, date) values (@thumbnail, @title, @threadid, @url, @dateTime)", m_dbConnection))
-                {
-                    command.Parameters.AddWithValue("thumbnail", thumbnail);
-                    command.Parameters.AddWithValue("title", title);
-                    command.Parameters.AddWithValue("threadid", threadid);
-                    command.Parameters.AddWithValue("url", url);
-                    command.Parameters.AddWithValue("dateTime", dateTime);
-                    command.ExecuteNonQuery();
-                }
-                Logging.LogMessageToFile("Wallpaper added to favourites! Title: " + title + ", Thread ID: " + threadid + ", URL: " + url, 0);
+                await InsertWallpaperIntoDatabaseAsync(
+                    "INSERT INTO favourites (thumbnail, title, threadid, url, date) " +
+                    "VALUES (@thumbnail, @title, @threadid, @url, @dateTime)", redditLink).ConfigureAwait(false);
+
+                Logger.Instance.LogMessageToFile($"Wallpaper added to favourites! Title: {redditLink.Title}, Thread ID: {redditLink.ThreadId}, URL: {redditLink.Url}", LogLevel.Information);
+
                 return true;
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error favouriting wallpaper: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error favouriting wallpaper: {ex.Message}", LogLevel.Warning);
                 return false;
             }
         }
@@ -246,145 +226,138 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Add version
         //======================================================================
-        public void addVersion()
+        public async Task AddVersionAsync()
         {
             try
             {
-                string currentVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
-                string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
-                using (SQLiteCommand command = new SQLiteCommand("INSERT INTO version (version, date) values (@version, @dateTime)", m_dbConnection))
+                var currentVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                var dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
+
+                using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                using (var command = new SQLiteCommand("INSERT INTO version (version, date) " +
+                                                       "VALUES (@version, @dateTime)", connection))
                 {
-                    command.Parameters.AddWithValue("dateTime", dateTime);
                     command.Parameters.AddWithValue("version", currentVersion);
-                    command.ExecuteNonQuery();
+                    command.Parameters.AddWithValue("dateTime", dateTime);
+
+                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error adding version to database: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error adding version to database: {ex.Message}", LogLevel.Warning);
             }
         }
 
         //======================================================================
         // Add wallpaper to history
         //======================================================================
-        public void historyWallpaper(string url, string title, string threadid)
+        public async Task<RedditImage> AddWallpaperToHistoryAsync(RedditLink redditLink)
         {
             try
             {
-                string thumbnail = getThumbnail(url);
-                string dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
-                title = title.Replace("'", "''");
-                using (SQLiteCommand command = new SQLiteCommand("INSERT INTO history (thumbnail, title, threadid, url, date) values (@thumbnail, @title, @threadid, @url, @dateTime)", m_dbConnection))
-                { 
-                    command.Parameters.AddWithValue("thumbnail", thumbnail);
-                    command.Parameters.AddWithValue("title", title);
-                    command.Parameters.AddWithValue("threadid", threadid);
-                    command.Parameters.AddWithValue("url", url);
-                    command.Parameters.AddWithValue("dateTime", dateTime);
-                    command.ExecuteNonQuery();
-                }
-
-                //return true;
+                return await InsertWallpaperIntoDatabaseAsync(
+                    "INSERT INTO history (thumbnail, title, threadid, url, date) " +
+                    "VALUES (@thumbnail, @title, @threadid, @url, @dateTime)", redditLink).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error adding wallpaper to history: " + ex.Message, 1);
-                //return false;
+                Logger.Instance.LogMessageToFile($"Unexpected error adding wallpaper to history: {ex.Message}", LogLevel.Warning);
+
+                throw;
             }
         }
 
         //======================================================================
         // Remove wallpaper from blacklist
         //======================================================================
-        public void removeFromBlacklist(string url, string date)
+        public async Task RemoveFromBlacklistAsync(string url)
         {
             try
             {
-                using (SQLiteCommand command = new SQLiteCommand("DELETE FROM blacklist WHERE date = @dateTime", m_dbConnection))
+                using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                using (var command = new SQLiteCommand("DELETE " +
+                                                       "FROM blacklist " +
+                                                       "WHERE url = @url", connection))
                 {
-                    command.Parameters.AddWithValue("dateTime", date);
-                    command.ExecuteNonQuery();
+                    command.Parameters.AddWithValue("@url", url);
+
+                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
-                Logging.LogMessageToFile("Wallpaper removed from blacklist! URL: " + url, 0);
+
+                Logger.Instance.LogMessageToFile($"Wallpaper removed from blacklist! URL: {url}", LogLevel.Information);
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error removing wallpaper from Blacklist: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error removing wallpaper from Blacklist: {ex.Message}", LogLevel.Warning);
             }
         }
 
         //======================================================================
         // Remove wallpaper from favourites
         //======================================================================
-        public void removeFromFavourites(string url, string date)
+        public async Task RemoveFromFavouritesAsync(string url)
         {
             try
             {
-                using (SQLiteCommand command = new SQLiteCommand("DELETE FROM favourites WHERE date = @dateTime", m_dbConnection))
+                using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                using (var command = new SQLiteCommand("DELETE " +
+                                                       "FROM favourites " +
+                                                       "WHERE url = @url", connection))
                 {
-                    command.Parameters.AddWithValue("dateTime", date);
-                    command.ExecuteNonQuery();
+                    command.Parameters.AddWithValue("@url", url);
+
+                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
-                Logging.LogMessageToFile("Wallpaper removed from favourites! URL: " + url, 0);
+
+                Logger.Instance.LogMessageToFile($"Wallpaper removed from favourites! URL: {url}", LogLevel.Information);
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error removing wallpaper from favourites: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error removing wallpaper from favourites: {ex.Message}", LogLevel.Warning);
             }
         }
 
         //======================================================================
         // Remove wallpaper from History
         //======================================================================
-        public void removeFromHistory(string url, string date)
+        public async Task RemoveFromHistoryAsync(string url)
         {
             try
             {
-                using (SQLiteCommand command = new SQLiteCommand("DELETE FROM history WHERE date = @dateTime", m_dbConnection))
+                using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                using (var command = new SQLiteCommand("DELETE " +
+                                                       "FROM history " +
+                                                       "WHERE url = @url", connection))
                 {
-                    command.Parameters.AddWithValue("dateTime", date);
-                    command.ExecuteNonQuery();
+                    command.Parameters.AddWithValue("@url", url);
+
+                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
-                Logging.LogMessageToFile("Wallpaper removed from history! URL: " + url, 0);
+
+                Logger.Instance.LogMessageToFile($"Wallpaper removed from history! URL: {url}", LogLevel.Information);
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error removing wallpaper from history: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error removing wallpaper from history: {ex.Message}", LogLevel.Warning);
             }
         }
-
 
         //======================================================================
         // Retrieve history from the database
         //======================================================================
-        public List<Database> getFromHistory()
+        public async Task<List<RedditImage>> GetFromHistoryAsync()
         {
             try
             {
-                List<Database> items = new List<Database>();
-                string sql = "SELECT * FROM history ORDER BY datetime(date) DESC";
-                SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var item = new Database();
-                        item.imgstring = (string)reader["thumbnail"];
-                        item.titlestring = (string)reader["title"];
-                        item.threadidstring = (string)reader["threadid"];
-                        item.urlstring = (string)reader["url"];
-                        item.datestring = (string)reader["date"];
-
-                        items.Add(item);
-                    }
-                }
-
-                return items;
+                return await GetRedditImagesFromDatabaseAsync(
+                    "SELECT * " +
+                    "FROM history " +
+                    "ORDER BY datetime(date) DESC").ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error retrieving History from database: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error retrieving History from database: {ex.Message}", LogLevel.Warning);
                 return null;
             }
         }
@@ -392,33 +365,18 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve blacklist from the database
         //======================================================================
-        public List<Database> getFromBlacklist()
+        public async Task<List<RedditImage>> GetFromBlacklistAsync()
         {
             try
             {
-                List<Database> items = new List<Database>();
-                string sql = "SELECT * FROM blacklist ORDER BY datetime(date) DESC";
-                SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var item = new Database();
-                        item.imgstring = (string)reader["thumbnail"];
-                        item.titlestring = (string)reader["title"];
-                        item.threadidstring = (string)reader["threadid"];
-                        item.urlstring = (string)reader["url"];
-                        item.datestring = (string)reader["date"];
-
-                        items.Add(item);
-                    }
-                }
-
-                return items;
+                return await GetRedditImagesFromDatabaseAsync(
+                    "SELECT * " +
+                    "FROM blacklist " +
+                    "ORDER BY datetime(date) DESC").ConfigureAwait(false);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error retrieving Blacklist from database: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error retrieving Blacklist from database: {ex.Message}", LogLevel.Warning);
                 return null;
             }
         }
@@ -426,33 +384,18 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve favourites from the database
         //======================================================================
-        public List<Database> getFromFavourites()
+        public async Task<List<RedditImage>> GetFromFavouritesAsync()
         {
             try
             {
-                List<Database> items = new List<Database>();
-                string sql = "SELECT * FROM favourites ORDER BY datetime(date) DESC";
-                SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var item = new Database();
-                        item.imgstring = (string)reader["thumbnail"];
-                        item.titlestring = (string)reader["title"];
-                        item.threadidstring = (string)reader["threadid"];
-                        item.urlstring = (string)reader["url"];
-                        item.datestring = (string)reader["date"];
-
-                        items.Add(item);
-                    }
-                }
-
-                return items;
+                return await GetRedditImagesFromDatabaseAsync(
+                    "SELECT * " +
+                    "FROM favourites " +
+                    "ORDER BY datetime(date) DESC").ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error retrieving favourites from database: " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error retrieving favourites from database: {ex.Message}", LogLevel.Warning);
                 return null;
             }
         }
@@ -460,119 +403,56 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Check for blacklisted wallpaper
         //======================================================================
-        public bool checkForEntry(string url)
+        public async Task<bool> IsBlacklistedAsync(string url)
         {
             try
             {
-                string tmp = "";
-                string sql = "SELECT url FROM blacklist WHERE url = \"" + url + "\"";
-                SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-                SQLiteDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    tmp = reader["url"].ToString();
-                }
-                if (tmp == "")
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            catch(Exception ex)
-            {
-                Logging.LogMessageToFile("Unexpected error checking for Blacklist entry: " + ex.Message, 1);
-                return false;
-            }
-        }
+                using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                using (var command = new SQLiteCommand("SELECT COUNT(*) " +
+                                                       "FROM blacklist " +
+                                                      $"WHERE url = \"{url}\"", con))
 
-        //======================================================================
-        // Generate thumbnail of the wallpaper and convert to base64 to store in db
-        //======================================================================
-        public string getThumbnail(string URL)
-        {
-            try
-            {
-                Uri uri = new Uri(URL);
-                using (WebClient wc = Proxy.setProxy())
                 {
-                    try
-                    {
-                        byte[] bytes = wc.DownloadData(URL);
-                        using (MemoryStream ms = new MemoryStream(bytes))
-                        {
-                            using (var bmp = new Bitmap(ms))
-                            {
-                                using (Bitmap newImage = new Bitmap(150, 70))
-                                {
-                                    using (Graphics gr = Graphics.FromImage(newImage))
-                                    {
-                                        gr.SmoothingMode = SmoothingMode.HighQuality;
-                                        gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                        gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                        gr.DrawImage(bmp, new Rectangle(0, 0, 150, 70));
-                                        using (MemoryStream newms = new MemoryStream())
-                                        {
-                                            newImage.Save(newms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                                            byte[] imageArray = newms.ToArray();
-                                            string base64ImageRepresentation = Convert.ToBase64String(imageArray);
-                                            return base64ImageRepresentation;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logging.LogMessageToFile("Unexpected error generating wallpaper thumbnail: " + ex.Message, 1);
-                        return "";
-                    }
+                    var count = await command.ExecuteScalarAsync().ConfigureAwait(false);
+                    if (count != null)
+                        return Convert.ToInt32(count) > 0;
                 }
+
+                return false;
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error generating wallpaper thumbnail: " + ex.Message, 1);
-                return "";
+                Logger.Instance.LogMessageToFile($"Unexpected error checking for Blacklist entry: {ex.Message}", LogLevel.Warning);
+                return false;
             }
         }
 
         //======================================================================
         // Delete all values from table
         //======================================================================
-        public bool wipeTable(string table)
+        public async Task<bool> WipeTableAsync(string table)
         {
             try
             {
-                if (table == "favourites")
+                switch (table)
                 {
-                    using (SQLiteCommand command = new SQLiteCommand("DELETE FROM favourites", m_dbConnection))
-                    {
-                        command.ExecuteNonQuery();
-                    }
+                    case "favourites":
+                    case "history":
+                    case "blacklist":
+                        using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                        using (var command = new SQLiteCommand($"DELETE FROM {table}", con))
+                        {
+                            await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
+                        break;
                 }
-                if (table == "history")
-                {
-                    using (SQLiteCommand command = new SQLiteCommand("DELETE FROM history", m_dbConnection))
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                }
-                if (table == "blacklist")
-                {
-                    using (SQLiteCommand command = new SQLiteCommand("DELETE FROM blacklist", m_dbConnection))
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                }
-                Logging.LogMessageToFile("All " + table + " contents have been successfully deleted!", 0);
+
+                Logger.Instance.LogMessageToFile($"All {table} contents have been successfully deleted!", LogLevel.Information);
                 return true;
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error deleting data from " + table + ": " + ex.Message, 1);
+                Logger.Instance.LogMessageToFile($"Unexpected error deleting data from {table}: {ex.Message}", LogLevel.Warning);
                 return false;
             }
         }
@@ -580,26 +460,24 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Backup database
         //======================================================================
-        public bool backupDatabase(string backupPath)
+        public async Task<bool> BackupDatabaseAsync(string backupPath)
         {
             try
             {
-                string dbName = "Reddit-Wallpaper-Changer.sqlite";
-                string backupSource = Properties.Settings.Default.AppDataPath;
-                disconnectFromDatabase();
-                Logging.LogMessageToFile("Backing up database to: " + Path.Combine(backupPath, dbName), 0);
-                File.Copy(Path.Combine(backupSource, dbName), Path.Combine(backupPath, dbName), true);
-                connectToDatabase();
+                var fullBackupPath = Path.Combine(backupPath, DbName);
+
+                Logger.Instance.LogMessageToFile($"Backing up database to: {fullBackupPath}", LogLevel.Information);
+
+                File.Copy(_dbPath, fullBackupPath, true);
+
+                await ConnectToDatabaseAsync().ConfigureAwait(false);
+
                 return true;
             }
-
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error backing up database: " + ex.Message, 2);
-                if (m_dbConnection != null && m_dbConnection.State == System.Data.ConnectionState.Open)
-                {
-                    connectToDatabase();
-                }
+                Logger.Instance.LogMessageToFile($"Unexpected error backing up database: {ex.Message}", LogLevel.Error);
+
                 return false;
             }
         }
@@ -607,37 +485,122 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Restore sqlite database
         //======================================================================
-        public bool restoreDatabase(string restoreSource)
+        public async Task<bool> RestoreDatabaseAsync(string restoreSource)
         {
             try
             {
-                string dbName = "Reddit-Wallpaper-Changer.sqlite";
-                string restorePath = Properties.Settings.Default.AppDataPath;
-                disconnectFromDatabase();
-                Logging.LogMessageToFile("Restoring database to: " + Path.Combine(restorePath, dbName), 0);
-                File.Copy(restoreSource, Path.Combine(restorePath, dbName), true);
-                connectToDatabase();
+                Logger.Instance.LogMessageToFile($"Restoring database to: {_dbPath}", LogLevel.Information);
+
+                File.Copy(restoreSource, _dbPath, true);
+
+                await ConnectToDatabaseAsync().ConfigureAwait(false);
+
                 return true;
             }
             catch (Exception ex)
             {
-                Logging.LogMessageToFile("Unexpected error restoring database: " + ex.Message, 2);
-                if (m_dbConnection != null && m_dbConnection.State == System.Data.ConnectionState.Open)
-                {
-                    connectToDatabase();
-                }
+                Logger.Instance.LogMessageToFile($"Unexpected error restoring database: {ex.Message}", LogLevel.Error);
+
                 return false;
             }
         }
 
         //======================================================================
-        // Close database conenction
+        // Generate thumbnails for History
         //======================================================================
-        public void disconnectFromDatabase()
+        public async Task BuildThumbnailCacheAsync()
         {
-            m_dbConnection.Close();
+            try
+            {
+                Logger.Instance.LogMessageToFile("Updating wallpaper thumbnail cache.", LogLevel.Information);
+
+                var taskList = new List<Task<List<RedditImage>>>
+                {
+                    GetFromHistoryAsync(),
+                    GetFromFavouritesAsync(),
+                    GetFromBlacklistAsync()
+                };
+
+                while (taskList.Any())
+                {
+                    var completedTask = await Task.WhenAny(taskList).ConfigureAwait(false);
+
+                    taskList.Remove(completedTask);
+
+                    var imageList = await completedTask.ConfigureAwait(false);
+
+                    foreach (var image in imageList)
+                    {
+                        image.SaveToThumbnailCache();
+                    }
+                }
+
+                Logger.Instance.LogMessageToFile("Wallpaper thumbnail cache updated.", LogLevel.Information);
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessageToFile($"Error updating Wallpaper thumbnail cache: {ex.Message}", LogLevel.Warning);
+            }
         }
 
+        private async Task<RedditImage> InsertWallpaperIntoDatabaseAsync(string sql, RedditLink redditLink)
+        {
+            var thumbnail = await HelperMethods.GetThumbnailAsync(redditLink.Url).ConfigureAwait(false);
+            var dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
+            var redditImage = new RedditImage(thumbnail, redditLink.Title, redditLink.ThreadId, redditLink.Url, dateTime);
+
+            redditLink.Title = redditLink.Title.Replace("'", "''");
+
+            using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+            using (var command = new SQLiteCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@thumbnail", thumbnail);
+                command.Parameters.AddWithValue("@title", redditLink.Title);
+                command.Parameters.AddWithValue("@threadid", redditLink.ThreadId);
+                command.Parameters.AddWithValue("@url", redditLink.Url);
+                command.Parameters.AddWithValue("@dateTime", dateTime);
+
+                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+
+            return redditImage;
+        }
+
+        private async Task<SQLiteConnection> GetNewOpenConnectionAsync()
+        {
+            var connection = new SQLiteConnection(_connectionString);
+            await connection.OpenAsync().ConfigureAwait(false);
+            return connection;
+        }
+
+        private async Task<List<RedditImage>> GetRedditImagesFromDatabaseAsync(string sql)
+        {
+            var imageList = new List<RedditImage>();
+
+            using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+            using (var command = new SQLiteCommand(sql, connection))
+            using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess).ConfigureAwait(false))
+            {
+                if (!reader.HasRows)
+                    return imageList;
+
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                {
+                    var redditImage = new RedditImage
+                    (
+                        reader.GetString(0), // thumbnail
+                        reader.GetString(1), // title
+                        reader.GetString(2), // threadid
+                        reader.GetString(3), // url
+                        reader.GetString(4)  // date
+                    );
+
+                    imageList.Add(redditImage);
+                }
+            }
+
+            return imageList;
+        }
     }
 }
 

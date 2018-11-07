@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Reddit_Wallpaper_Changer.Properties;
+using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 //=============================================================================
 // Source code from: 
@@ -8,29 +10,23 @@ using System.Runtime.InteropServices;
 
 namespace Reddit_Wallpaper_Changer
 {
-    public class ActiveDesktop
+    public class ActiveDesktop : IDisposable
     {
-        public const UInt32 SPIF_UPDATEINIFILE = 0x1;
-        public const int SPIF_SENDWININICHANGE = 0x02;
-        public const UInt32 SPI_SETDESKWALLPAPER = 20;
-        public static readonly UInt32 SPI_GETDESKWALLPAPER = 0x73;
-        public static readonly int MAX_PATH = 260;
-        public const int COLOR_DESKTOP = 1;
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern Int32 SystemParametersInfo(UInt32 uiAction, UInt32 uiParam, String pvParam, UInt32 fWinIni);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
+        private const uint SPIF_UPDATEINIFILE = 0x1;
+        private const int SPIF_SENDWININICHANGE = 0x02;
+        private const uint SPI_SETDESKWALLPAPER = 20;
+        private const uint SPI_GETDESKWALLPAPER = 0x73;
+        private const int MAX_PATH = 260;
+        private const int COLOR_DESKTOP = 1;
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct WALLPAPEROPT
+        private struct WALLPAPEROPT
         {
             public static readonly int SizeOf = Marshal.SizeOf(typeof(WALLPAPEROPT));
             public WallPaperStyle dwStyle;
         }
 
-        public enum WallPaperStyle : int
+        private enum WallPaperStyle : int
         {
             WPSTYLE_CENTER = 0,
             WPSTYLE_TILE = 1,
@@ -42,7 +38,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         [Flags]
-        public enum AD_Apply : int
+        private enum AD_Apply : int
         {
             SAVE = 0x00000001,
             HTMLGEN = 0x00000002,
@@ -54,7 +50,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct COMPONENTSOPT
+        private struct COMPONENTSOPT
         {
             public static readonly int SizeOf = Marshal.SizeOf(typeof(COMPONENTSOPT));
             public int dwSize;
@@ -65,7 +61,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         [Flags]
-        public enum CompItemState : int
+        private enum CompItemState : int
         {
             NORMAL = 0x00000001,
             FULLSCREEN = 00000002,
@@ -75,7 +71,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct COMPSTATEINFO
+        private struct COMPSTATEINFO
         {
             public static readonly int SizeOf = Marshal.SizeOf(typeof(COMPSTATEINFO));
             public int dwSize;
@@ -87,7 +83,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct COMPPOS
+        private struct COMPPOS
         {
             public const int COMPONENT_TOP = 0x3FFFFFFF;
             public const int COMPONENT_DEFAULT_LEFT = 0xFFFF;
@@ -110,7 +106,7 @@ namespace Reddit_Wallpaper_Changer
             public int iPreferredTopPercent;
         }
 
-        public enum CompType : int
+        private enum CompType : int
         {
             HTMLDOC = 0,
             PICTURE = 1,
@@ -120,7 +116,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode, Pack = 8)]
-        public struct COMPONENT
+        private struct COMPONENT
         {
             private const int INTERNET_MAX_URL_LENGTH = 2084;
             public const int IS_NORMAL = 1;
@@ -150,7 +146,7 @@ namespace Reddit_Wallpaper_Changer
             public COMPSTATEINFO csiRestored;
         }
 
-        public enum DtiAddUI : int
+        private enum DtiAddUI : int
         {
             DEFAULT = 0x00000000,
             DISPSUBWIZARD = 0x00000001,
@@ -158,7 +154,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         [Flags]
-        public enum ComponentModify : int
+        private enum ComponentModify : int
         {
             TYPE = 0x00000001,
             CHECKED = 0x00000002,
@@ -182,7 +178,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         [Flags]
-        public enum AddURL : int
+        private enum AddURL : int
         {
             SILENT = 0x0001
         }
@@ -190,7 +186,7 @@ namespace Reddit_Wallpaper_Changer
         [ComImport]
         [Guid("F490EB00-1240-11D1-9888-006097DEACF9")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        public interface IActiveDesktop
+        private interface IActiveDesktop
         {
             [PreserveSig]
             int ApplyChanges(AD_Apply dwFlags);
@@ -232,15 +228,71 @@ namespace Reddit_Wallpaper_Changer
             int GetDesktopItemBySource([MarshalAs(UnmanagedType.LPWStr)] string pwszSource, ref COMPONENT pcomp, int dwReserved);
         }
 
-        public class ActiveDesktopWrapper
-        {
-            static readonly Guid CLSID_ActiveDesktop = new Guid("{75048700-EF1F-11D0-9888-006097DEACF9}");
+        private static readonly Type _activeDesktopType = Type.GetTypeFromCLSID(new Guid("{75048700-EF1F-11D0-9888-006097DEACF9}"));
+        private IActiveDesktop _activeDesktop;
 
-            public static IActiveDesktop GetActiveDesktop()
+        public ActiveDesktop()
+        {
+            _activeDesktop = (IActiveDesktop)Activator.CreateInstance(_activeDesktopType);
+        }
+
+        private void SetWallpaperWithFade(string wallpaperFile)
+        {
+            NativeMethods.SendMessageTimeout(NativeMethods.FindWindow("Progman", IntPtr.Zero), 0x52c, IntPtr.Zero, IntPtr.Zero, 0, 500, out IntPtr _);
+
+            _activeDesktop.SetWallpaper(wallpaperFile, 0);
+            _activeDesktop.ApplyChanges(AD_Apply.ALL | AD_Apply.FORCE | AD_Apply.BUFFERED_REFRESH);
+        }
+
+        private static void SetWallpaper(string wallpaperFile) 
+            => NativeMethods.SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaperFile, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+
+        public static async Task SetWallpaperAsync(string wallpaperFile)
+        {
+            if (Settings.Default.wallpaperFade)
             {
-                Type typeActiveDesktop = Type.GetTypeFromCLSID(CLSID_ActiveDesktop);
-                return (IActiveDesktop)Activator.CreateInstance(typeActiveDesktop);
+                Logger.Instance.LogMessageToFile("Applying wallpaper using Active Desktop.", LogLevel.Information);
+
+                await HelperMethods.StartSTATask(() =>
+                {
+                    using (var activeDesktop = new ActiveDesktop())
+                    {
+                        activeDesktop.SetWallpaperWithFade(wallpaperFile);
+                    }
+                })
+                .ConfigureAwait(false);
+            }
+            else
+            {
+                Logger.Instance.LogMessageToFile("Applying wallpaper using standard process.", LogLevel.Information);
+
+                SetWallpaper(wallpaperFile);
             }
         }
+
+        #region IDisposable Support
+
+        private bool _disposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                // dispose managed state (managed objects).
+
+                Marshal.ReleaseComObject(_activeDesktop);
+            }
+
+            // free unmanaged resources (unmanaged objects) and override a finalizer below.
+            // set large fields to null.
+
+            _disposed = true;
+        }
+
+        public void Dispose() => Dispose(true);
+
+        #endregion
     }
 }

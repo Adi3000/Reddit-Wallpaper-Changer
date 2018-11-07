@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Reddit_Wallpaper_Changer.Properties {
-    using System;
-    
-    
+namespace Reddit_Wallpaper_Changer.Properties
+{
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>

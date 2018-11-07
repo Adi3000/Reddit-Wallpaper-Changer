@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Reddit_Wallpaper_Changer
+namespace Reddit_Wallpaper_Changer.Forms
 {
     public partial class WallpaperTypes : Form
     {
@@ -13,14 +13,6 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Close the window
         //======================================================================
-        private void btnClose_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void WallpaperTypes_Load(object sender, EventArgs e)
-        {
-
-        }
+        private void btnClose_Click(object sender, EventArgs e) => Close();
     }
 }
