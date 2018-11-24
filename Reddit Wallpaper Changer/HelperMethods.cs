@@ -268,7 +268,7 @@ namespace Reddit_Wallpaper_Changer
 
                     using (var imgurResponse = (HttpWebResponse)await imgurRequest.GetResponseAsync().ConfigureAwait(false))
                     {
-                        if (imgurResponse.StatusCode.ToString() == "OK")
+                        if (imgurResponse.StatusCode == HttpStatusCode.OK)
                         {
                             imgurRequest.Abort();
                             Logger.Instance.LogMessageToFile("The chosen wallpaper is still available on Imgur.", LogLevel.Information);
