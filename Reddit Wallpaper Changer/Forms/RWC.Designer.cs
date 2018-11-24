@@ -108,7 +108,7 @@
             this.btnDonate = new System.Windows.Forms.Button();
             this.btnBug = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
-            this.rawnsLink = new System.Windows.Forms.LinkLabel();
+            this.qwertydogLink = new System.Windows.Forms.LinkLabel();
             this.btnSubreddit = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.redditLink = new System.Windows.Forms.LinkLabel();
@@ -1019,7 +1019,7 @@
             this.groupBox4.Controls.Add(this.btnDonate);
             this.groupBox4.Controls.Add(this.btnBug);
             this.groupBox4.Controls.Add(this.label10);
-            this.groupBox4.Controls.Add(this.rawnsLink);
+            this.groupBox4.Controls.Add(this.qwertydogLink);
             this.groupBox4.Controls.Add(this.btnSubreddit);
             this.groupBox4.Controls.Add(this.label3);
             this.groupBox4.Controls.Add(this.redditLink);
@@ -1069,22 +1069,22 @@
             this.label10.TabIndex = 8;
             this.label10.Text = "Maintained By:";
             // 
-            // rawnsLink
+            // qwertydogLink
             // 
-            this.rawnsLink.ActiveLinkColor = System.Drawing.Color.SteelBlue;
-            this.rawnsLink.AutoSize = true;
-            this.rawnsLink.DisabledLinkColor = System.Drawing.Color.SteelBlue;
-            this.rawnsLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rawnsLink.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
-            this.rawnsLink.LinkColor = System.Drawing.Color.SteelBlue;
-            this.rawnsLink.Location = new System.Drawing.Point(166, 42);
-            this.rawnsLink.Name = "rawnsLink";
-            this.rawnsLink.Size = new System.Drawing.Size(64, 13);
-            this.rawnsLink.TabIndex = 7;
-            this.rawnsLink.TabStop = true;
-            this.rawnsLink.Text = "/u/Rawns";
-            this.rawnsLink.VisitedLinkColor = System.Drawing.Color.SteelBlue;
-            this.rawnsLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.RawnsLink_LinkClicked);
+            this.qwertydogLink.ActiveLinkColor = System.Drawing.Color.SteelBlue;
+            this.qwertydogLink.AutoSize = true;
+            this.qwertydogLink.DisabledLinkColor = System.Drawing.Color.SteelBlue;
+            this.qwertydogLink.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.qwertydogLink.LinkBehavior = System.Windows.Forms.LinkBehavior.HoverUnderline;
+            this.qwertydogLink.LinkColor = System.Drawing.Color.SteelBlue;
+            this.qwertydogLink.Location = new System.Drawing.Point(166, 42);
+            this.qwertydogLink.Name = "qwertydogLink";
+            this.qwertydogLink.Size = new System.Drawing.Size(64, 13);
+            this.qwertydogLink.TabIndex = 7;
+            this.qwertydogLink.TabStop = true;
+            this.qwertydogLink.Text = "/u/qwertydog";
+            this.qwertydogLink.VisitedLinkColor = System.Drawing.Color.SteelBlue;
+            this.qwertydogLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.QwertydogLink_LinkClicked);
             // 
             // btnSubreddit
             // 
@@ -1923,7 +1923,7 @@
         private System.Windows.Forms.ContextMenuStrip historyMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem useThisWallpaperToolStripMenuItem;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.LinkLabel rawnsLink;
+        private System.Windows.Forms.LinkLabel qwertydogLink;
         private System.Windows.Forms.ToolStripMenuItem blacklistWallpaperMenuItem;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ToolStripMenuItem blacklistWallpapertoolStripMenuItem;

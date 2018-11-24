@@ -255,7 +255,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             {
                 try
                 {
-                    var latestVersion = await wc.DownloadStringTaskAsync("https://raw.githubusercontent.com/Rawns/Reddit-Wallpaper-Changer/master/version");
+                    var latestVersion = await wc.DownloadStringTaskAsync("https://raw.githubusercontent.com/qwertydog/Reddit-Wallpaper-Changer/master/version");
 
                     if (!latestVersion.ToString().Contains(_currentVersion))
                     {
@@ -435,7 +435,7 @@ namespace Reddit_Wallpaper_Changer.Forms
                 {
                     if (Settings.Default.autoUpdateCheck)
                     {
-                        var latestVersion = await wc.DownloadStringTaskAsync("https://raw.githubusercontent.com/Rawns/Reddit-Wallpaper-Changer/master/version");
+                        var latestVersion = await wc.DownloadStringTaskAsync("https://raw.githubusercontent.com/qwertydog/Reddit-Wallpaper-Changer/master/version");
 
                         if (!latestVersion.Contains(_currentVersion))
                         {
@@ -679,10 +679,10 @@ namespace Reddit_Wallpaper_Changer.Forms
         }
 
         //======================================================================
-        // Open Rawns profile page on Reddit
+        // Open qwertydog profile page on Reddit
         //======================================================================
-        private void RawnsLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) 
-            => Process.Start("http://www.reddit.com/user/Rawns/").Dispose();
+        private void QwertydogLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) 
+            => Process.Start("http://www.reddit.com/user/qwertydog/").Dispose();
 
         //======================================================================
         // Set default location for manually saved wallpapers
@@ -905,7 +905,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         // Open the bug form on GitHub
         //======================================================================
         private void BtnBug_Click(object sender, EventArgs e) 
-            => Process.Start("https://github.com/Rawns/Reddit-Wallpaper-Changer/issues/new").Dispose();
+            => Process.Start("https://github.com/qwertydog/Reddit-Wallpaper-Changer/issues/new").Dispose();
 
         //======================================================================
         // Open the log form
@@ -927,7 +927,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         // Donation button
         //======================================================================
         private void BtnDonate_Click(object sender, EventArgs e) 
-            => Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=S9YSLJS5DXDT8").Dispose();
+            => Process.Start("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9CCQRAXVRSTZ4").Dispose();
 
         //======================================================================
         // Import settings

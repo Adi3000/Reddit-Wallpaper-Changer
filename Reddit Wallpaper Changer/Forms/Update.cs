@@ -71,7 +71,7 @@ namespace Reddit_Wallpaper_Changer.Forms
                         }
                     };
 
-                    var updateSourceUrl = new Uri("https://github.com/Rawns/Reddit-Wallpaper-Changer/releases/download/release/Reddit.Wallpaper.Changer.msi");
+                    var updateSourceUrl = new Uri("https://github.com/qwertydog/Reddit-Wallpaper-Changer/releases/download/release/Reddit.Wallpaper.Changer.msi");
 
                     // Download the latest MSI instaler to the users Temp folder
                     await wc.DownloadFileTaskAsync(updateSourceUrl, temp + "Reddit.Wallpaper.Changer.msi").ConfigureAwait(false);
