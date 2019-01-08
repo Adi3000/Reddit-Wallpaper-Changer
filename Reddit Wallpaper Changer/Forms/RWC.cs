@@ -265,13 +265,7 @@ namespace Reddit_Wallpaper_Changer.Forms
                             "Update Available!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                         if (choice == DialogResult.Yes)
-                        {
-                            var updateForm = new Update(latestVersion);
-
-                            updateForm.FormClosing += (s, ev) => { changeWallpaperTimer.Enabled = true; };
-                            updateForm.OnUpdated += (s, ev) => Exit();
-                            updateForm.Show();
-                        }
+                            UpdateAndClose(latestVersion);
                         else if (choice == DialogResult.No)
                         {
                             btnUpdate.Enabled = true;
@@ -298,6 +292,15 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             btnUpdate.Text = "Check For Updates";
             btnUpdate.Enabled = true;
+        }
+
+        private void UpdateAndClose(string latestVersion)
+        {
+            var updateForm = new Update(latestVersion);
+
+            updateForm.FormClosing += (s, ev) => { changeWallpaperTimer.Enabled = true; };
+            updateForm.OnUpdated += (s, ev) => Exit();
+            updateForm.Show();
         }
 
         //======================================================================
@@ -438,13 +441,7 @@ namespace Reddit_Wallpaper_Changer.Forms
                         var latestVersion = await wc.DownloadStringTaskAsync("https://raw.githubusercontent.com/qwertydog/Reddit-Wallpaper-Changer/master/version");
 
                         if (!latestVersion.Contains(_currentVersion))
-                        {
-                            var updateForm = new Update(latestVersion);
-
-                            updateForm.FormClosing += (s, ev) => { changeWallpaperTimer.Enabled = true; };
-                            updateForm.OnUpdated += (s, ev) => Exit();
-                            updateForm.Show();
-                        }
+                            UpdateAndClose(latestVersion);
                         else
                             changeWallpaperTimer.Enabled = true;
                     }
