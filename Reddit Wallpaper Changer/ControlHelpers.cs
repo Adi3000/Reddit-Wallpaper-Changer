@@ -28,11 +28,13 @@ namespace Reddit_Wallpaper_Changer
 
         public static RedditLink CreateRedditLinkFromGrid(DataGridView dataGrid, int currentRow)
         {
+            var row = dataGrid.Rows[currentRow];
+
             return new RedditLink
             (
-                dataGrid.Rows[currentRow].Cells[3].Value.ToString(),
-                dataGrid.Rows[currentRow].Cells[1].Value.ToString(),
-                dataGrid.Rows[currentRow].Cells[2].Value.ToString()
+                row.Cells[3].Value.ToString(),
+                row.Cells[1].Value.ToString(),
+                row.Cells[2].Value.ToString()
             );
         }
 
@@ -41,7 +43,9 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         public static void FakeClose(NotifyIcon taskIcon)
         {
-            var details = new BalloonTipDetails(ToolTipIcon.Info, "Reddit Wallpaper Changer", "Down here if you need me!", 700);
+            var details = new BalloonTipDetails(ToolTipIcon.Info, "Reddit Wallpaper Changer", 
+                "Down here if you need me!", 700);
+
             ShowBalloonTip(taskIcon, details);
         }
 
@@ -74,13 +78,18 @@ namespace Reddit_Wallpaper_Changer
 
         public static void ShowWallpaperSavedBalloonTip(NotifyIcon taskIcon, ToolStripStatusLabel statusLabel)
         {
-            var details = new BalloonTipDetails(ToolTipIcon.Info, "Wallpaper Saved!", $"Wallpaper saved to {Settings.Default.defaultSaveLocation}", 750);
+            var details = new BalloonTipDetails(ToolTipIcon.Info, "Wallpaper Saved!", 
+                $"Wallpaper saved to {Settings.Default.defaultSaveLocation}", 750);
+
             ShowBalloonTip(taskIcon, details);
         }
 
         public static void ShowWallpaperAlreadyExistsBalloonTip(NotifyIcon taskIcon, ToolStripStatusLabel statusLabel)
         {
-            var details = new BalloonTipDetails(ToolTipIcon.Info, "Already Saved!", "No need to save this wallpaper as it already exists in your wallpapers folder! :)", 750);
+            var details = new BalloonTipDetails(ToolTipIcon.Info, "Already Saved!", 
+                "No need to save this wallpaper as it already exists in your wallpapers folder! :)", 
+                750);
+
             ShowBalloonTip(taskIcon, details);
         }
 
@@ -192,7 +201,8 @@ namespace Reddit_Wallpaper_Changer
         }
 
         public static ScreenDimensions GetScreenDimensions() 
-            => new ScreenDimensions(SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height);
+            => new ScreenDimensions(SystemInformation.VirtualScreen.Width, 
+                SystemInformation.VirtualScreen.Height);
 
         //======================================================================
         // Populate the History panel
