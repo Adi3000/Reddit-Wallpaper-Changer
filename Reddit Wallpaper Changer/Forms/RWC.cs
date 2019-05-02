@@ -73,7 +73,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         }
 
         public void AddImageToHistory(RedditImage image)
-            => ControlHelpers.AddImageToHistoryDataGrid(historyDataGrid, image);
+            => ControlHelpers.InsertImageInHistoryDataGrid(historyDataGrid, image);
 
         public void UpdateStatus(string text) => statuslabel1.Text = text;
 

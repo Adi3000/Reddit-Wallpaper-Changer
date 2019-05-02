@@ -230,15 +230,27 @@ namespace Reddit_Wallpaper_Changer
             }
         }
 
+        public static void InsertImageInHistoryDataGrid(DataGridView historyDataGrid, RedditImage image)
+        {
+            historyDataGrid.Rows.Insert(0, 1);
+
+            UpdateRow(historyDataGrid, image, 0);
+        }
+
         public static void AddImageToHistoryDataGrid(DataGridView historyDataGrid, RedditImage image)
         {
-            var index = historyDataGrid.Rows.Add();
-            var row = historyDataGrid.Rows[index];
+            UpdateRow(historyDataGrid, image, historyDataGrid.Rows.Add());
+        }
 
+        private static void UpdateRow(DataGridView historyDataGrid, RedditImage image, int index)
+        {
+            Bitmap bitmap;
             if (File.Exists(Settings.Default.thumbnailCache + @"\" + image.ThreadId + ".jpg"))
-                UpdateDataGridRowValues(row, image);
+                bitmap = GetBitmap(image);
             else
-                row.SetValues(Resources.null_thumb, image.Title, image.ThreadId, image.Url, image.Date);
+                bitmap = Resources.null_thumb;
+
+            historyDataGrid.Rows[index].SetValues(bitmap, image.Title, image.ThreadId, image.Url, image.Date);
         }
 
         //======================================================================
@@ -297,6 +309,13 @@ namespace Reddit_Wallpaper_Changer
 
         public static void UpdateDataGridRowValues(DataGridViewRow row, RedditImage redditImage)
         {
+            var bitmap = GetBitmap(redditImage);
+
+            row.SetValues(bitmap, redditImage.Title, redditImage.ThreadId, redditImage.Url, redditImage.Date);
+        }
+
+        private static Bitmap GetBitmap(RedditImage redditImage)
+        {
             Bitmap bitmap;
 
             using (var fs = new FileStream($@"{Settings.Default.thumbnailCache}\{redditImage.ThreadId}.jpg", FileMode.Open, FileAccess.Read))
@@ -305,7 +324,7 @@ namespace Reddit_Wallpaper_Changer
                 bitmap = new Bitmap(tempImage);
             }
 
-            row.SetValues(bitmap, redditImage.Title, redditImage.ThreadId, redditImage.Url, redditImage.Date);
+            return bitmap;
         }
 
         public static void SetSubredditTypeLabel(Label label, string subredditText)
