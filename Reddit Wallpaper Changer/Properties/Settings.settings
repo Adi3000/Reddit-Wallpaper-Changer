@@ -8,11 +8,8 @@
     <Setting Name="subredditsUsed" Type="System.String" Scope="User">
       <Value Profile="(Default)">wallpapers+wallpaper</Value>
     </Setting>
-    <Setting Name="searchQuery" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1920x1080</Value>
-    </Setting>
     <Setting Name="changeTimeValue" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">10</Value>
     </Setting>
     <Setting Name="changeTimeType" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -112,6 +109,9 @@
     </Setting>
     <Setting Name="rebuildThumbCache" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="searchQuery" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1920x1080 nsfw:no</Value>
     </Setting>
   </Settings>
 </SettingsFile>
