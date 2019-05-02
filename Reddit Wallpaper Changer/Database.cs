@@ -358,7 +358,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve history from the database
         //======================================================================
-        public async Task<List<RedditImage>> GetFromHistoryAsync()
+        public async Task<IEnumerable<RedditImage>> GetFromHistoryAsync()
         {
             try
             {
@@ -377,7 +377,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve blacklist from the database
         //======================================================================
-        public async Task<List<RedditImage>> GetFromBlacklistAsync()
+        public async Task<IEnumerable<RedditImage>> GetFromBlacklistAsync()
         {
             try
             {
@@ -396,7 +396,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve favourites from the database
         //======================================================================
-        public async Task<List<RedditImage>> GetFromFavouritesAsync()
+        public async Task<IEnumerable<RedditImage>> GetFromFavouritesAsync()
         {
             try
             {
@@ -526,7 +526,7 @@ namespace Reddit_Wallpaper_Changer
             {
                 Logger.Instance.LogMessageToFile("Updating wallpaper thumbnail cache.", LogLevel.Information);
 
-                var taskList = new List<Task<List<RedditImage>>>
+                var taskList = new List<Task<IEnumerable<RedditImage>>>
                 {
                     GetFromHistoryAsync(),
                     GetFromFavouritesAsync(),
@@ -585,7 +585,7 @@ namespace Reddit_Wallpaper_Changer
             return connection;
         }
 
-        private async Task<List<RedditImage>> GetRedditImagesFromDatabaseAsync(string sql)
+        private async Task<IEnumerable<RedditImage>> GetRedditImagesFromDatabaseAsync(string sql)
         {
             var imageList = new List<RedditImage>();
 
