@@ -59,10 +59,13 @@ namespace Reddit_Wallpaper_Changer
                         using (var versionTableCommand = new SQLiteCommand("CREATE TABLE version (version STRING, date STRING)", con))
                         using (var blacklistTableCommand = new SQLiteCommand("CREATE TABLE blacklist (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
                         using (var blacklistIndexCommand = new SQLiteCommand("CREATE INDEX idx_blacklist ON blacklist (url)", con))
+                        using (var blacklistIndexDateTimeCommand = new SQLiteCommand("CREATE INDEX idx_blacklist_date ON blacklist (datetime(date) DESC)", con))
                         using (var favouritesTableCommand = new SQLiteCommand("CREATE TABLE favourites (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
                         using (var favouritesIndexCommand = new SQLiteCommand("CREATE INDEX idx_favourites ON favourites (url)", con))
+                        using (var favouritesIndexDateTimeCommand = new SQLiteCommand("CREATE INDEX idx_favourites_date ON favourites (datetime(date) DESC)", con))
                         using (var historyTableCommand = new SQLiteCommand("CREATE TABLE history (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
                         using (var historyIndexCommand = new SQLiteCommand("CREATE INDEX idx_history ON history (url)", con))
+                        using (var historyIndexDateTimeCommand = new SQLiteCommand("CREATE INDEX idx_history_date ON history (datetime(date) DESC)", con))
                         using (var endCommand = new SQLiteCommand("END", con))
                         {
                             await beginCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -76,17 +79,26 @@ namespace Reddit_Wallpaper_Changer
                             await blacklistIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                             Logger.Instance.LogMessageToFile("Index 'idx_blacklist' successfully created.", LogLevel.Information);
 
+                            await blacklistIndexDateTimeCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Index 'idx_blacklist_date' successfully created.", LogLevel.Information);
+
                             await favouritesTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                             Logger.Instance.LogMessageToFile("Table 'favourites' successfully created.", LogLevel.Information);
 
                             await favouritesIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                             Logger.Instance.LogMessageToFile("Index 'idx_favourites' successfully created.", LogLevel.Information);
 
+                            await favouritesIndexDateTimeCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Index 'idx_favourites_date' successfully created.", LogLevel.Information);
+
                             await historyTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                             Logger.Instance.LogMessageToFile("Table 'history' successfully created.", LogLevel.Information);
 
                             await historyIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                             Logger.Instance.LogMessageToFile("Index 'idx_history' successfully created.", LogLevel.Information);
+
+                            await historyIndexDateTimeCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            Logger.Instance.LogMessageToFile("Index 'idx_history_date' successfully created.", LogLevel.Information);
 
                             await endCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                         }
@@ -588,11 +600,11 @@ namespace Reddit_Wallpaper_Changer
                 {
                     var redditImage = new RedditImage
                     (
-                        reader.GetString(0), // thumbnail
-                        reader.GetString(1), // title
-                        reader.GetString(2), // threadid
-                        reader.GetString(3), // url
-                        reader.GetString(4)  // date
+                        await reader.GetFieldValueAsync<string>(0).ConfigureAwait(false), // thumbnail
+                        await reader.GetFieldValueAsync<string>(1).ConfigureAwait(false), // title
+                        await reader.GetFieldValueAsync<string>(2).ConfigureAwait(false), // threadid
+                        await reader.GetFieldValueAsync<string>(3).ConfigureAwait(false), // url
+                        await reader.GetFieldValueAsync<string>(4).ConfigureAwait(false)  // date
                     );
 
                     imageList.Add(redditImage);
