@@ -48,7 +48,7 @@ namespace Reddit_Wallpaper_Changer
             }
             finally
             {
-                Logger.Instance.CloseAsync().GetAwaiter().GetResult();
+                Logger.Instance.Close();
             }
         }
     }

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Reddit_Wallpaper_Changer
 {
@@ -15,13 +15,14 @@ namespace Reddit_Wallpaper_Changer
         public static Logger Instance => _instance.Value;
 
         private readonly BlockingCollection<Log> _logs = new BlockingCollection<Log>();
-        private readonly Task _logTask;
+        private readonly Thread _logThread;
 
         private bool _disposed;
 
         private Logger()
         {
-            _logTask = Task.Run(() => BeginLoggingAsync());
+            _logThread = new Thread(BeginLogging) { IsBackground = true };
+            _logThread.Start();
         }
 
         #region IDisposable Support
@@ -53,24 +54,24 @@ namespace Reddit_Wallpaper_Changer
         public void LogMessageToFile(string msg, LogLevel logLevel, [CallerMemberName]string callerName = "") 
             => _logs.Add(new Log(DateTime.Now, logLevel, msg, callerName));
 
-        public async Task CloseAsync()
+        public void Close()
         {
             _logs.CompleteAdding();
 
-            await _logTask.ConfigureAwait(false);
+            _logThread.Join();
 
             Dispose();
         }
 
-        private async Task BeginLoggingAsync()
+        private void BeginLogging()
         {
             foreach (var log in _logs.GetConsumingEnumerable())
             {
-                await WriteLogAsync(log).ConfigureAwait(false);
+                WriteLog(log);
             }
         }
 
-        private static async Task WriteLogAsync(Log log)
+        private static void WriteLog(Log log)
         {
             // Legacy: Remove old logs
             if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + @"Log\RWC.log"))
@@ -92,8 +93,8 @@ namespace Reddit_Wallpaper_Changer
 
                 using (var sw = new StreamWriter(fullLogPath, true))
                 {
-                    await sw.WriteLineAsync($"{log.DateTime} - {machineName} - {log.CallerName} - {logLevel} {log.Message}").ConfigureAwait(false);
-                    await sw.FlushAsync().ConfigureAwait(false);
+                    sw.WriteLine($"{log.DateTime} - {machineName} - {log.CallerName} - {logLevel} {log.Message}");
+                    sw.Flush();
                 }
             }
             catch { }
