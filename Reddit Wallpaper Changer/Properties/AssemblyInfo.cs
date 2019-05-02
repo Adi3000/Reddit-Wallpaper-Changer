@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Reddit Wallpaper Changer")]
 [assembly: AssemblyDescription("Reddit Wallpaper Changer")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("/u/Rawns")]
+[assembly: AssemblyCompany("/u/qwertydog")]
 [assembly: AssemblyProduct("Reddit Wallpaper Changer")]
-[assembly: AssemblyCopyright("Copyright © /u/Rawns 2016-2017")]
+[assembly: AssemblyCopyright("Copyright © /u/qwertydog 2016-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,6 +32,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.0.13.0")]
-[assembly: AssemblyFileVersion("1.0.13.0")]
+[assembly: AssemblyVersion("1.0.14.0")]
+[assembly: AssemblyFileVersion("1.0.14.0")]
 
