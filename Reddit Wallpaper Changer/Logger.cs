@@ -11,7 +11,7 @@ namespace Reddit_Wallpaper_Changer
     {
         private const int MaxLogFileSize = 512000;
 
-        private static Lazy<Logger> _instance = new Lazy<Logger>(() => new Logger());
+        private readonly static Lazy<Logger> _instance = new Lazy<Logger>(() => new Logger());
         public static Logger Instance => _instance.Value;
 
         private readonly BlockingCollection<Log> _logs = new BlockingCollection<Log>();

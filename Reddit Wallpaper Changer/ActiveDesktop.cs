@@ -229,7 +229,7 @@ namespace Reddit_Wallpaper_Changer
         }
 
         private static readonly Type _activeDesktopType = Type.GetTypeFromCLSID(new Guid("{75048700-EF1F-11D0-9888-006097DEACF9}"));
-        private IActiveDesktop _activeDesktop;
+        private readonly IActiveDesktop _activeDesktop;
 
         public ActiveDesktop()
         {

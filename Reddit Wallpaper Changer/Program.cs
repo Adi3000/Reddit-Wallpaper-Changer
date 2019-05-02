@@ -7,7 +7,7 @@ namespace Reddit_Wallpaper_Changer
 {
     static class Program
     {
-        private static Mutex mutex = new Mutex(false, "RedditWallpaperChanger_byUgleh");
+        private readonly static Mutex mutex = new Mutex(false, "RedditWallpaperChanger_byUgleh");
 
         /// <summary>
         /// The main entry point for the application.

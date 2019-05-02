@@ -16,12 +16,12 @@ namespace Reddit_Wallpaper_Changer.Forms
 {
     public sealed partial class RWC : Form
     {
-        private Database _database;
-        private MainThreadMarshaller _mainThreadMarshaller;
-        private WallpaperChanger _wallpaperChanger;
-        private TabSelector _tabSelector;
+        private readonly Database _database;
+        private readonly MainThreadMarshaller _mainThreadMarshaller;
+        private readonly WallpaperChanger _wallpaperChanger;
+        private readonly TabSelector _tabSelector;
 
-        private string _currentVersion;
+        private readonly string _currentVersion;
 
         private int _currentMouseOverRow;
         private bool _enabledOnSleep;

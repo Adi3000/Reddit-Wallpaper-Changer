@@ -33,7 +33,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             else if (searchQuery.Text.Contains("nsfw:no"))
                 searchQuery.Text = searchQuery.Text.Replace("nsfw:no", "nsfw:yes");
             else
-                searchQuery.Text = searchQuery.Text + " nsfw:no";
+                searchQuery.Text += " nsfw:no";
         }
 
         private void button2_Click(object sender, EventArgs e)

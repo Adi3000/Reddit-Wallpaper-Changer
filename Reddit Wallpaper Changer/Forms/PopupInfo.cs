@@ -1,7 +1,6 @@
 ﻿using Reddit_Wallpaper_Changer.Properties;
 using System;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -12,8 +11,8 @@ namespace Reddit_Wallpaper_Changer.Forms
         private const double FadeAmount = 0.01;
         private const int FadeInterval = 5;
 
-        private Timer fade = new Timer();
-        private Timer timer = new Timer();
+        private readonly Timer fade = new Timer();
+        private readonly Timer timer = new Timer();
 
         public string Title { get; set; }
         public string Threadid { get; set; }
