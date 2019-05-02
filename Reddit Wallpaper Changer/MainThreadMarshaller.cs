@@ -84,7 +84,7 @@ namespace Reddit_Wallpaper_Changer
         public void LogFailure(string uiText, string logText, LogLevel logLevel)
         {
             UpdateStatus(uiText);
-            Logger.Instance.LogMessageToFile(logText, LogLevel.Warning);
+            Logger.Instance.LogMessageToFile(logText, logLevel);
             RestartBreakBetweenChangeTimer();
         }
 
