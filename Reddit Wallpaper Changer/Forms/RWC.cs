@@ -679,7 +679,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         // Open qwertydog profile page on Reddit
         //======================================================================
         private void QwertydogLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) 
-            => Process.Start("http://www.reddit.com/user/qwertydog/").Dispose();
+            => Process.Start("http://www.reddit.com/user/qwertydog123/").Dispose();
 
         //======================================================================
         // Set default location for manually saved wallpapers
