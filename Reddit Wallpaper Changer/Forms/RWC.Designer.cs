@@ -238,7 +238,7 @@
             this.exitToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip1";
             this.contextMenuStrip.Size = new System.Drawing.Size(233, 236);
-            this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip_Opening);
+            this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_Opening);
             // 
             // statusMenuItem1
             // 
@@ -308,7 +308,7 @@
             this.disableNotificationsToolStripMenuItem.Name = "disableNotificationsToolStripMenuItem";
             this.disableNotificationsToolStripMenuItem.Size = new System.Drawing.Size(232, 22);
             this.disableNotificationsToolStripMenuItem.Text = "Disable Notifications";
-            this.disableNotificationsToolStripMenuItem.Click += new System.EventHandler(this.disableNotificationsToolStripMenuItem_Click);
+            this.disableNotificationsToolStripMenuItem.Click += new System.EventHandler(this.DisableNotificationsToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 

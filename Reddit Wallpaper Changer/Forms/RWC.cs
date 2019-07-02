@@ -2,6 +2,7 @@
 using Reddit_Wallpaper_Changer.DTOs;
 using Reddit_Wallpaper_Changer.Properties;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -415,7 +416,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             changeWallpaperTimer.Enabled = true;
         }
 
-        private void disableNotificationsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void DisableNotificationsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Settings.Default.disableNotifications = !Settings.Default.disableNotifications;
             Settings.Default.Save();
@@ -506,12 +507,12 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             if (HelperMethods.SaveCurrentWallpaper(Settings.Default.currentWallpaperName))
             {
-                ControlHelpers.ShowWallpaperSavedBalloonTip(taskIcon, statuslabel1);
+                ControlHelpers.ShowWallpaperSavedBalloonTip(taskIcon);
                 statuslabel1.Text = "Wallpaper saved!";
             }
             else
             {
-                ControlHelpers.ShowWallpaperAlreadyExistsBalloonTip(taskIcon, statuslabel1);
+                ControlHelpers.ShowWallpaperAlreadyExistsBalloonTip(taskIcon);
                 statuslabel1.Text = "Wallpaper already saved!";
             }
         }
@@ -1235,14 +1236,9 @@ namespace Reddit_Wallpaper_Changer.Forms
             }
         }
 
-        private void contextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private void ContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
-            var disableNotificationsMenuItem = contextMenuStrip.Items
-                                                               .OfType<ToolStripMenuItem>()
-                                                               .Where(x => x == disableNotificationsToolStripMenuItem)
-                                                               .First();
-
-            disableNotificationsMenuItem.Text = Settings.Default.disableNotifications ?
+            disableNotificationsToolStripMenuItem.Text = Settings.Default.disableNotifications ?
                 "Enable Notifications" :
                 "Disable Notifications";
         }
