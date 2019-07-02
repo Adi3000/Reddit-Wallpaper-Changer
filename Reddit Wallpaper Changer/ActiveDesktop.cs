@@ -1,6 +1,7 @@
 ﻿using Reddit_Wallpaper_Changer.Properties;
 using System;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 
 //=============================================================================
@@ -15,9 +16,6 @@ namespace Reddit_Wallpaper_Changer
         private const uint SPIF_UPDATEINIFILE = 0x1;
         private const int SPIF_SENDWININICHANGE = 0x02;
         private const uint SPI_SETDESKWALLPAPER = 20;
-        private const uint SPI_GETDESKWALLPAPER = 0x73;
-        private const int MAX_PATH = 260;
-        private const int COLOR_DESKTOP = 1;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct WALLPAPEROPT
@@ -199,7 +197,7 @@ namespace Reddit_Wallpaper_Changer
             [PreserveSig]
             int SetWallpaperOptions(ref WALLPAPEROPT pwpo, int dwReserved);
             [PreserveSig]
-            int GetPattern([MarshalAs(UnmanagedType.LPWStr)] System.Text.StringBuilder pwszPattern, int cchPattern, int dwReserved);
+            int GetPattern([MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszPattern, int cchPattern, int dwReserved);
             [PreserveSig]
             int SetPattern([MarshalAs(UnmanagedType.LPWStr)] string pwszPattern, int dwReserved);
             [PreserveSig]

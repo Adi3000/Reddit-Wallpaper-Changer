@@ -14,16 +14,20 @@ namespace Reddit_Wallpaper_Changer
     {
         public static async Task SaveLinkAsync(ToolStripStatusLabel statusLabel, NotifyIcon taskIcon, RedditLink redditLink)
         {
+            string statusText;
+
             if (await redditLink.SaveImage())
             {
-                ShowWallpaperSavedBalloonTip(taskIcon, statusLabel);
-                statusLabel.Text = "Wallpaper saved!";
+                ShowWallpaperSavedBalloonTip(taskIcon);
+                statusText = "Wallpaper saved!";
             }
             else
             {
-                ShowWallpaperAlreadyExistsBalloonTip(taskIcon, statusLabel);
-                statusLabel.Text = "Wallpaper already saved!";
+                ShowWallpaperAlreadyExistsBalloonTip(taskIcon);
+                statusText = "Wallpaper already saved!";
             }
+
+            statusLabel.Text = statusText;
         }
 
         public static RedditLink CreateRedditLinkFromGrid(DataGridView dataGrid, int currentRow)
@@ -32,9 +36,9 @@ namespace Reddit_Wallpaper_Changer
 
             return new RedditLink
             (
-                row.Cells[3].Value.ToString(),
-                row.Cells[1].Value.ToString(),
-                row.Cells[2].Value.ToString()
+                row.Cells[3].Value.ToString(), // url
+                row.Cells[1].Value.ToString(), // title
+                row.Cells[2].Value.ToString()  // threadId
             );
         }
 
@@ -56,12 +60,18 @@ namespace Reddit_Wallpaper_Changer
         {
             wallpaperChangeTimer.Enabled = false;
 
-            if (Settings.Default.changeTimeType == (int)ChangeTimeType.Minutes)
-                wallpaperChangeTimer.Interval = (int)TimeSpan.FromMinutes(Settings.Default.changeTimeValue).TotalMilliseconds;
-            else if (Settings.Default.changeTimeType == (int)ChangeTimeType.Hours)
-                wallpaperChangeTimer.Interval = (int)TimeSpan.FromHours(Settings.Default.changeTimeValue).TotalMilliseconds;
-            else
-                wallpaperChangeTimer.Interval = (int)TimeSpan.FromDays(Settings.Default.changeTimeValue).TotalMilliseconds;
+            switch ((ChangeTimeType)Settings.Default.changeTimeType)
+            {
+                case ChangeTimeType.Minutes:
+                    wallpaperChangeTimer.Interval = (int)TimeSpan.FromMinutes(Settings.Default.changeTimeValue).TotalMilliseconds;
+                    break;
+                case ChangeTimeType.Hours:
+                    wallpaperChangeTimer.Interval = (int)TimeSpan.FromHours(Settings.Default.changeTimeValue).TotalMilliseconds;
+                    break;
+                default:
+                    wallpaperChangeTimer.Interval = (int)TimeSpan.FromDays(Settings.Default.changeTimeValue).TotalMilliseconds;
+                    break;
+            }
 
             wallpaperChangeTimer.Enabled = true;
         }
@@ -76,7 +86,7 @@ namespace Reddit_Wallpaper_Changer
             notifyIcon.ShowBalloonTip(details.Duration);
         }
 
-        public static void ShowWallpaperSavedBalloonTip(NotifyIcon taskIcon, ToolStripStatusLabel statusLabel)
+        public static void ShowWallpaperSavedBalloonTip(NotifyIcon taskIcon)
         {
             var details = new BalloonTipDetails(ToolTipIcon.Info, "Wallpaper Saved!", 
                 $"Wallpaper saved to {Settings.Default.defaultSaveLocation}", 750);
@@ -84,7 +94,7 @@ namespace Reddit_Wallpaper_Changer
             ShowBalloonTip(taskIcon, details);
         }
 
-        public static void ShowWallpaperAlreadyExistsBalloonTip(NotifyIcon taskIcon, ToolStripStatusLabel statusLabel)
+        public static void ShowWallpaperAlreadyExistsBalloonTip(NotifyIcon taskIcon)
         {
             var details = new BalloonTipDetails(ToolTipIcon.Info, "Already Saved!", 
                 "No need to save this wallpaper as it already exists in your wallpapers folder! :)", 

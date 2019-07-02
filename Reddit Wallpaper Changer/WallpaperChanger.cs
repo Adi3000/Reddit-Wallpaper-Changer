@@ -440,9 +440,9 @@ namespace Reddit_Wallpaper_Changer
             else
                 formURL.Append($"r/").Append(sub);
 
-            switch (Settings.Default.wallpaperGrabType)
+            switch ((WallpaperGrabType)Settings.Default.wallpaperGrabType)
             {
-                case (int)WallpaperGrabType.Random:
+                case WallpaperGrabType.Random:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append(SortValues[random.Next(0, 4)])
@@ -450,55 +450,55 @@ namespace Reddit_Wallpaper_Changer
                            .Append("&restrict_sr=on");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.Newest:
+                case WallpaperGrabType.Newest:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append("&sort=new&restrict_sr=on");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.HotToday:
+                case WallpaperGrabType.HotToday:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append("&sort=hot&restrict_sr=on&t=day");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.TopLastHour:
+                case WallpaperGrabType.TopLastHour:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append("&sort=top&restrict_sr=on&t=hour");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.TopToday:
+                case WallpaperGrabType.TopToday:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append("&sort=top&restrict_sr=on&t=day");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.TopWeek:
+                case WallpaperGrabType.TopWeek:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append("&sort=top&restrict_sr=on&t=week");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.TopMonth:
+                case WallpaperGrabType.TopMonth:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append("&sort=top&restrict_sr=on&t=month");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.TopYear:
+                case WallpaperGrabType.TopYear:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append("&sort=top&restrict_sr=on&t=year");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.TopAllTime:
+                case WallpaperGrabType.TopAllTime:
                     formURL.Append("/search.json?q=")
                            .Append(query)
                            .Append("&sort=top&restrict_sr=on&t=all");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
-                case (int)WallpaperGrabType.TrulyRandom:
+                case WallpaperGrabType.TrulyRandom:
                     formURL.Append("/random.json?p=").Append(Guid.NewGuid());
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
