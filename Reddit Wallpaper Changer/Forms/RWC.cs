@@ -24,6 +24,8 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         private readonly string _currentVersion;
 
+        private ToolTip _toolTip;
+
         private int _currentMouseOverRow;
         private bool _enabledOnSleep;
 
@@ -49,6 +51,22 @@ namespace Reddit_Wallpaper_Changer.Forms
             _tabSelector = new TabSelector(configurePanel, configureButton);
             _mainThreadMarshaller = new MainThreadMarshaller(this, SynchronizationContext.Current);
             _wallpaperChanger = new WallpaperChanger(_mainThreadMarshaller, _database);
+        }
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                components?.Dispose();
+
+                _toolTip?.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
 
         #region Public Methods
@@ -687,13 +705,14 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         private void BtnBrowse_Click(object sender, EventArgs e)
         {
-            var folderBrowser = new FolderBrowserDialog
+            using (var folderBrowser = new FolderBrowserDialog
             {
                 Description = "Select a location to save wallpapers:"
-            };
-
-            if (folderBrowser.ShowDialog() == DialogResult.OK)
-                txtSavePath.Text = folderBrowser.SelectedPath;
+            })
+            {
+                if (folderBrowser.ShowDialog() == DialogResult.OK)
+                    txtSavePath.Text = folderBrowser.SelectedPath;
+            } 
         }
 
         //======================================================================
@@ -1157,24 +1176,25 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         private async void BtnBackup_Click(object sender, EventArgs e)
         {
-            var folderBrowser = new FolderBrowserDialog
+            using (var folderBrowser = new FolderBrowserDialog
             {
                 Description = "Select a location to backup the database:"
-            };
-
-            if (folderBrowser.ShowDialog() == DialogResult.OK)
+            })
             {
-                Logger.Instance.LogMessageToFile("Database backup process started.", LogLevel.Information);
+                if (folderBrowser.ShowDialog() == DialogResult.OK)
+                {
+                    Logger.Instance.LogMessageToFile("Database backup process started.", LogLevel.Information);
 
-                if (await _database.BackupDatabaseAsync(folderBrowser.SelectedPath))
-                {
-                    MessageBox.Show("Your database has been successfully backed up.", "Backup Successful!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    Logger.Instance.LogMessageToFile("The backup process has completed successfully.", LogLevel.Information);
-                }
-                else
-                {
-                    MessageBox.Show("There was an error backing up your database.", "Backup Failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Logger.Instance.LogMessageToFile("The backup process has failed.", LogLevel.Error);
+                    if (await _database.BackupDatabaseAsync(folderBrowser.SelectedPath))
+                    {
+                        MessageBox.Show("Your database has been successfully backed up.", "Backup Successful!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        Logger.Instance.LogMessageToFile("The backup process has completed successfully.", LogLevel.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("There was an error backing up your database.", "Backup Failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.Instance.LogMessageToFile("The backup process has failed.", LogLevel.Error);
+                    }
                 }
             }
         }
@@ -1184,29 +1204,30 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         private async void BtnRestore_Click(object sender, EventArgs e)
         {
-            var fileBrowser = new OpenFileDialog
+            using (var fileBrowser = new OpenFileDialog
             {
                 Filter = "SQLite Database (*.sqlite)|*.sqlite",
                 Multiselect = false
-            };
-
-            if (fileBrowser.ShowDialog() == DialogResult.OK)
+            })
             {
-                Logger.Instance.LogMessageToFile("Database restore process has been started.", LogLevel.Information);
-
-                if (await _database.RestoreDatabaseAsync(fileBrowser.FileName))
+                if (fileBrowser.ShowDialog() == DialogResult.OK)
                 {
-                    await ControlHelpers.PopulateHistoryAsync(historyDataGrid, _database);
-                    await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database);
-                    await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database);
+                    Logger.Instance.LogMessageToFile("Database restore process has been started.", LogLevel.Information);
 
-                    MessageBox.Show("Your database has been successfully restored.", "Restore Successful!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    Logger.Instance.LogMessageToFile("The restore process has completed successfully.", LogLevel.Information);
-                }
-                else
-                {
-                    MessageBox.Show("There was an error restoring your database.", "Restore Failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Logger.Instance.LogMessageToFile("The restore process has failed.", LogLevel.Error);
+                    if (await _database.RestoreDatabaseAsync(fileBrowser.FileName))
+                    {
+                        await ControlHelpers.PopulateHistoryAsync(historyDataGrid, _database);
+                        await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database);
+                        await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database);
+
+                        MessageBox.Show("Your database has been successfully restored.", "Restore Successful!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        Logger.Instance.LogMessageToFile("The restore process has completed successfully.", LogLevel.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("There was an error restoring your database.", "Restore Failed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.Instance.LogMessageToFile("The restore process has failed.", LogLevel.Error);
+                    }
                 }
             }
         }
@@ -1316,7 +1337,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         private void SetToolTips()
         {
-            ToolTip tt = new ToolTip
+            _toolTip = new ToolTip
             {
                 AutoPopDelay = 7500,
                 InitialDelay = 1000,
@@ -1326,46 +1347,46 @@ namespace Reddit_Wallpaper_Changer.Forms
                 ToolTipIcon = ToolTipIcon.Info
             };
 
-            tt.SetToolTip(chkAutoStart, "Run Reddit Wallpaper Changer when your computer starts.");
-            tt.SetToolTip(chkStartInTray, "Start Reddit Wallpaper Changer minimised.");
-            tt.SetToolTip(chkProxy, "Configure a proxy server for Reddit Wallpaper Changer to use.");
-            tt.SetToolTip(chkAuth, "Enable if your proxy server requires authentication.");
-            tt.SetToolTip(btnBrowse, "Sellect the downlaod destination for saved wallpapers.");
-            tt.SetToolTip(btnSave, "Saves your settings.");
-            tt.SetToolTip(btnWizard, "Open the Search wizard.");
-            tt.SetToolTip(wallpaperGrabType, "Choose how you want to find a wallpaper.");
-            tt.SetToolTip(changeTimeValue, "Choose how oftern to change your wallpaper.");
-            tt.SetToolTip(subredditTextBox, "Enter the subs to scrape for wallpaper (eg, wallpaper, earthporn etc).\r\nMultiple subs can be provided and separated with a +.");
-            tt.SetToolTip(chkAutoSave, "Enable this to automatically save all wallpapers to the below directory.");
-            tt.SetToolTip(chkFade, "Enable this for a faded wallpaper transition using Active Desktop.\r\nDisable this option if you experience any issues when the wallpaper changes.");
-            tt.SetToolTip(chkNotifications, "Disables all RWC System Tray/Notification Centre notifications.");
-            tt.SetToolTip(chkFitWallpaper, "Enable this option to ensure that wallpapers matching your resolution are applied.\r\n\r\n" +
+            _toolTip.SetToolTip(chkAutoStart, "Run Reddit Wallpaper Changer when your computer starts.");
+            _toolTip.SetToolTip(chkStartInTray, "Start Reddit Wallpaper Changer minimised.");
+            _toolTip.SetToolTip(chkProxy, "Configure a proxy server for Reddit Wallpaper Changer to use.");
+            _toolTip.SetToolTip(chkAuth, "Enable if your proxy server requires authentication.");
+            _toolTip.SetToolTip(btnBrowse, "Sellect the downlaod destination for saved wallpapers.");
+            _toolTip.SetToolTip(btnSave, "Saves your settings.");
+            _toolTip.SetToolTip(btnWizard, "Open the Search wizard.");
+            _toolTip.SetToolTip(wallpaperGrabType, "Choose how you want to find a wallpaper.");
+            _toolTip.SetToolTip(changeTimeValue, "Choose how oftern to change your wallpaper.");
+            _toolTip.SetToolTip(subredditTextBox, "Enter the subs to scrape for wallpaper (eg, wallpaper, earthporn etc).\r\nMultiple subs can be provided and separated with a +.");
+            _toolTip.SetToolTip(chkAutoSave, "Enable this to automatically save all wallpapers to the below directory.");
+            _toolTip.SetToolTip(chkFade, "Enable this for a faded wallpaper transition using Active Desktop.\r\nDisable this option if you experience any issues when the wallpaper changes.");
+            _toolTip.SetToolTip(chkNotifications, "Disables all RWC System Tray/Notification Centre notifications.");
+            _toolTip.SetToolTip(chkFitWallpaper, "Enable this option to ensure that wallpapers matching your resolution are applied.\r\n\r\n" +
                 "NOTE: If you have multiple screens, it will validate wallpaper sizes against the ENTIRE desktop area and not just your primary display (eg, 3840x1080 for two 1980x1080 displays).\r\n" +
                 "Best suited to single monitors, or duel monitors with matching resolutions. If you experience a lack of wallpapers, try disabeling this option.");
-            tt.SetToolTip(chkSuppressDuplicates, "Disable this option if you don't mind the occasional repeating wallpaper in the same session.");
-            tt.SetToolTip(chkWallpaperInfoPopup, "Displays a mini wallpaper info popup at the bottom right of your primary display for 5 seconds.\r\n" +
+            _toolTip.SetToolTip(chkSuppressDuplicates, "Disable this option if you don't mind the occasional repeating wallpaper in the same session.");
+            _toolTip.SetToolTip(chkWallpaperInfoPopup, "Displays a mini wallpaper info popup at the bottom right of your primary display for 5 seconds.\r\n" +
                 "Note: The 'Disable Notifications' option suppresses this popup.");
-            tt.SetToolTip(chkAutoSaveFaves, "Enable this option to automatically save Favourite wallpapers to the below directory.");
-            tt.SetToolTip(btnClearHistory, "This will erase ALL historical information from the History panel.");
-            tt.SetToolTip(btnClearFavourites, "This will erase ALL wallpaper information from your Favourites.");
-            tt.SetToolTip(btnClearBlacklisted, "This will erase ALL wallpaper information from your Blacklist.");
-            tt.SetToolTip(btnBackup, "Backup Reddit Wallpaper Changer's database.");
-            tt.SetToolTip(btnRestore, "Restore a previous backup.");
-            tt.SetToolTip(btnRebuildThumbnails, "This will wipe the current thumbnail cache and recreate it.");
-            tt.SetToolTip(chkUpdates, "Enable or disable automatic update checks.\r\nA manual check for updates can be done in the 'About' panel.");
+            _toolTip.SetToolTip(chkAutoSaveFaves, "Enable this option to automatically save Favourite wallpapers to the below directory.");
+            _toolTip.SetToolTip(btnClearHistory, "This will erase ALL historical information from the History panel.");
+            _toolTip.SetToolTip(btnClearFavourites, "This will erase ALL wallpaper information from your Favourites.");
+            _toolTip.SetToolTip(btnClearBlacklisted, "This will erase ALL wallpaper information from your Blacklist.");
+            _toolTip.SetToolTip(btnBackup, "Backup Reddit Wallpaper Changer's database.");
+            _toolTip.SetToolTip(btnRestore, "Restore a previous backup.");
+            _toolTip.SetToolTip(btnRebuildThumbnails, "This will wipe the current thumbnail cache and recreate it.");
+            _toolTip.SetToolTip(chkUpdates, "Enable or disable automatic update checks.\r\nA manual check for updates can be done in the 'About' panel.");
 
             // Monitors
-            tt.SetToolTip(btnWallpaperHelp, "Show info on the different wallpaper styles.");
+            _toolTip.SetToolTip(btnWallpaperHelp, "Show info on the different wallpaper styles.");
 
             // About
-            tt.SetToolTip(btnSubreddit, "Having issues? You can get support by posting on the Reddit Wallpaper Changer Subreddit.");
-            tt.SetToolTip(btnBug, "Spotted a bug? Open a ticket on GitHub by clicking here!");
-            tt.SetToolTip(btnDonate, "Reddit Wallpaper Changer is maintained by one guy in his own time!\r\nIf you'd like to say 'thanks' by getting him a beer, click here! :)");
-            tt.SetToolTip(btnUpdate, "Click here to manually check for updates.");
-            tt.SetToolTip(btnLog, "Click here to open the RWC log file in your default text editor.");
-            tt.SetToolTip(btnImport, "Import custom settings from an XML file.");
-            tt.SetToolTip(btnExport, "Export your current settings into an XML file.");
-            tt.SetToolTip(btnUpload, "Having issues? Click here to automatically upload your log file to Pastebin!");
+            _toolTip.SetToolTip(btnSubreddit, "Having issues? You can get support by posting on the Reddit Wallpaper Changer Subreddit.");
+            _toolTip.SetToolTip(btnBug, "Spotted a bug? Open a ticket on GitHub by clicking here!");
+            _toolTip.SetToolTip(btnDonate, "Reddit Wallpaper Changer is maintained by one guy in his own time!\r\nIf you'd like to say 'thanks' by getting him a beer, click here! :)");
+            _toolTip.SetToolTip(btnUpdate, "Click here to manually check for updates.");
+            _toolTip.SetToolTip(btnLog, "Click here to open the RWC log file in your default text editor.");
+            _toolTip.SetToolTip(btnImport, "Import custom settings from an XML file.");
+            _toolTip.SetToolTip(btnExport, "Export your current settings into an XML file.");
+            _toolTip.SetToolTip(btnUpload, "Having issues? Click here to automatically upload your log file to Pastebin!");
         }
 
         //======================================================================
