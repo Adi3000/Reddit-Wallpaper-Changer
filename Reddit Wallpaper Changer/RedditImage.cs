@@ -27,7 +27,8 @@ namespace Reddit_Wallpaper_Changer
 
             if (File.Exists(fileName)) return;
 
-            using (var ms = new MemoryStream(Convert.FromBase64String(Image)))
+            var ms = new MemoryStream(Convert.FromBase64String(Image));
+
             using (var image = System.Drawing.Image.FromStream(ms))
             {
                 image.Save(fileName);
