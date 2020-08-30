@@ -4,11 +4,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-//=============================================================================
-// Source code from: 
-// https://www.neowin.net/forum/topic/1035559-fade-effect-when-changing-wallpaper/
-//=============================================================================
-
 namespace Reddit_Wallpaper_Changer
 {
     public class ActiveDesktop : IDisposable
@@ -189,7 +184,7 @@ namespace Reddit_Wallpaper_Changer
             [PreserveSig]
             int ApplyChanges(AD_Apply dwFlags);
             [PreserveSig]
-            int GetWallpaper([MarshalAs(UnmanagedType.LPWStr)]  System.Text.StringBuilder pwszWallpaper, int cchWallpaper, int dwReserved);
+            int GetWallpaper([MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszWallpaper, int cchWallpaper, int dwReserved);
             [PreserveSig]
             int SetWallpaper([MarshalAs(UnmanagedType.LPWStr)] string pwszWallpaper, int dwReserved);
             [PreserveSig]
@@ -226,7 +221,9 @@ namespace Reddit_Wallpaper_Changer
             int GetDesktopItemBySource([MarshalAs(UnmanagedType.LPWStr)] string pwszSource, ref COMPONENT pcomp, int dwReserved);
         }
 
-        private static readonly Type _activeDesktopType = Type.GetTypeFromCLSID(new Guid("{75048700-EF1F-11D0-9888-006097DEACF9}"));
+        private static readonly Type 
+            _activeDesktopType = Type.GetTypeFromCLSID(new Guid("{75048700-EF1F-11D0-9888-006097DEACF9}"));
+
         private readonly IActiveDesktop _activeDesktop;
 
         public ActiveDesktop()
@@ -236,14 +233,20 @@ namespace Reddit_Wallpaper_Changer
 
         private void SetWallpaperWithFade(string wallpaperFile)
         {
-            NativeMethods.SendMessageTimeout(NativeMethods.FindWindow("Progman", IntPtr.Zero), 0x52c, IntPtr.Zero, IntPtr.Zero, 0, 500, out IntPtr _);
+            var hWnd = NativeMethods.FindWindow("Progman", IntPtr.Zero);
+
+            NativeMethods.SendMessageTimeout(hWnd, 0x52c, IntPtr.Zero,
+                IntPtr.Zero, 0, 500, out IntPtr _);
 
             _activeDesktop.SetWallpaper(wallpaperFile, 0);
-            _activeDesktop.ApplyChanges(AD_Apply.ALL | AD_Apply.FORCE | AD_Apply.BUFFERED_REFRESH);
+
+            const AD_Apply flags = AD_Apply.ALL | AD_Apply.FORCE | AD_Apply.BUFFERED_REFRESH;
+            _activeDesktop.ApplyChanges(flags);
         }
 
         private static void SetWallpaper(string wallpaperFile) 
-            => NativeMethods.SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, wallpaperFile, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+            => NativeMethods.SystemParametersInfo(SPI_SETDESKWALLPAPER, 0,
+                wallpaperFile, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
 
         public static async Task SetWallpaperAsync(string wallpaperFile)
         {
