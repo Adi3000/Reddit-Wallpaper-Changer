@@ -71,7 +71,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         #region Public Methods
 
-        public void OpenPopupInfoWindow(RedditLink redditLink)
+        public static void OpenPopupInfoWindow(RedditLink redditLink)
         {
             var formx = 300;
             var formy = 90;

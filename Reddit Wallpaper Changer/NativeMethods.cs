@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Reddit_Wallpaper_Changer
 {
-    public class NativeMethods
+    public static class NativeMethods
     {
         [DllImport("user32.dll")]
         internal static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam, uint fuFlags, uint uTimeout, out IntPtr result);

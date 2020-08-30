@@ -292,7 +292,11 @@ namespace Reddit_Wallpaper_Changer
             _disposed = true;
         }
 
-        public void Dispose() => Dispose(true);
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
         #endregion
     }

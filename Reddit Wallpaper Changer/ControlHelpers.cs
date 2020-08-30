@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Reddit_Wallpaper_Changer
 {
-    public class ControlHelpers
+    public static class ControlHelpers
     {
         public static async Task SaveLinkAsync(ToolStripStatusLabel statusLabel, NotifyIcon taskIcon, RedditLink redditLink)
         {
