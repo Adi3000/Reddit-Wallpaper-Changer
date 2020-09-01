@@ -129,33 +129,30 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         public static WebClient CreateWebClient()
         {
-            using (var wc = new DecompressableWebClient())
+            var wc = new DecompressableWebClient();
+
+            if (Settings.Default.useProxy)
             {
-                wc.Proxy = null;
-
-                if (Settings.Default.useProxy)
+                try
                 {
-                    try
-                    {
-                        var proxy = new WebProxy(Settings.Default.proxyAddress);
+                    var proxy = new WebProxy(Settings.Default.proxyAddress);
 
-                        if (Settings.Default.proxyAuth)
-                        {
-                            proxy.Credentials = new NetworkCredential(Settings.Default.proxyUser, Settings.Default.proxyPass);
-                            proxy.UseDefaultCredentials = false;
-                            proxy.BypassProxyOnLocal = false;
-                        }
-
-                        wc.Proxy = proxy;
-                    }
-                    catch (Exception ex)
+                    if (Settings.Default.proxyAuth)
                     {
-                        Logger.Instance.LogMessageToFile("Unexpeced error setting proxy: " + ex.Message, LogLevel.Error);
+                        proxy.Credentials = new NetworkCredential(Settings.Default.proxyUser, Settings.Default.proxyPass);
+                        proxy.UseDefaultCredentials = false;
+                        proxy.BypassProxyOnLocal = false;
                     }
+
+                    wc.Proxy = proxy;
                 }
-
-                return wc;
+                catch (Exception ex)
+                {
+                    Logger.Instance.LogMessageToFile("Unexpeced error setting proxy: " + ex.Message, LogLevel.Error);
+                }
             }
+
+            return wc;
         }
 
         public static async Task<bool> UploadLogToPastebinAsync()
