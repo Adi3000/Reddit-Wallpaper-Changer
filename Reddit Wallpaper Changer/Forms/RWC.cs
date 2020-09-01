@@ -2,6 +2,7 @@
 using Reddit_Wallpaper_Changer.DTOs;
 using Reddit_Wallpaper_Changer.Properties;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -17,6 +18,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 {
     public sealed partial class RWC : Form
     {
+        private readonly Dictionary<EventHandler, HotKey> _hotkeys = new Dictionary<EventHandler, HotKey>();
         private readonly Database _database;
         private readonly MainThreadMarshaller _mainThreadMarshaller;
         private readonly WallpaperChanger _wallpaperChanger;
@@ -64,6 +66,8 @@ namespace Reddit_Wallpaper_Changer.Forms
                 components?.Dispose();
 
                 _toolTip?.Dispose();
+
+                UnregisterHotkeys();
             }
 
             base.Dispose(disposing);
@@ -71,7 +75,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         #region Public Methods
 
-        public static void OpenPopupInfoWindow(RedditLink redditLink)
+        public void OpenPopupInfoWindow(RedditLink redditLink)
         {
             var formx = 300;
             var formy = 90;
@@ -161,8 +165,9 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             SetupProxySettings();
             SetupButtons();
-            SetupPanels();          
+            SetupPanels();
             SetupOthers();
+            SetupHotkeys();
 
             ControlHelpers.SetSubredditTypeLabel(label5, subredditTextBox.Text);
             HelperMethods.LogSettings(changeTimeType.Text, Screen.AllScreens.Length);
@@ -427,7 +432,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Change wallpaper selected from the menu
         //======================================================================
-        private void ChangeWallpaperMenuItem_Click(object sender, EventArgs e)
+        private void ChangeWallpaper_Click(object sender, EventArgs e)
         {
             wallpaperChangeTimer.Enabled = false;
             wallpaperChangeTimer.Enabled = true;
@@ -521,7 +526,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Save current wallpaper locally
         //======================================================================
-        private void ToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void SaveCurrentWallpaper_Click(object sender, EventArgs e)
         {
             if (HelperMethods.SaveCurrentWallpaper(Settings.Default.currentWallpaperName))
             {
@@ -718,7 +723,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Click on favourite menu
         //======================================================================
-        private async void FaveWallpaperMenuItem_Click(object sender, EventArgs e)
+        private async void FavCurrentWallpaper_Click(object sender, EventArgs e)
         {
             var redditLink = new RedditLink
             (
@@ -741,7 +746,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Blacklist the current wallpaper
         //======================================================================
-        private async void BlacklistWallpaperMenuItem_Click(object sender, EventArgs e)
+        private async void BlacklistCurrentWallpaper_Click(object sender, EventArgs e)
         {
             var imageDetails = new RedditLink
             (
@@ -1325,6 +1330,12 @@ namespace Reddit_Wallpaper_Changer.Forms
             Settings.Default.wallpaperFade = chkFade.Checked;
             Settings.Default.autoUpdateCheck = chkUpdates.Checked;
             Settings.Default.autoSaveFaves = chkAutoSaveFaves.Checked;
+            Settings.Default.useHotkeys = chkUseHotkeys.Checked;
+            Settings.Default.changeWallpaperHotkey = txtChangeHotkey.Text;
+            Settings.Default.saveWallpaperHotkey = txtSaveHotkey.Text;
+            Settings.Default.favouriteWallpaperHotkey = txtFavouriteHotkey.Text;
+            Settings.Default.blacklistWallpaperHotkey = txtBlacklistHotkey.Text;
+
             Settings.Default.Save();
 
             HelperMethods.LogSettings(changeTimeType.Text, Screen.AllScreens.Length);
@@ -1362,7 +1373,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             _toolTip.SetToolTip(chkNotifications, "Disables all RWC System Tray/Notification Centre notifications.");
             _toolTip.SetToolTip(chkFitWallpaper, "Enable this option to ensure that wallpapers matching your resolution are applied.\r\n\r\n" +
                 "NOTE: If you have multiple screens, it will validate wallpaper sizes against the ENTIRE desktop area and not just your primary display (eg, 3840x1080 for two 1980x1080 displays).\r\n" +
-                "Best suited to single monitors, or duel monitors with matching resolutions. If you experience a lack of wallpapers, try disabeling this option.");
+                "Best suited to single monitors, or dual monitors with matching resolutions. If you experience a lack of wallpapers, try disabling this option.");
             _toolTip.SetToolTip(chkSuppressDuplicates, "Disable this option if you don't mind the occasional repeating wallpaper in the same session.");
             _toolTip.SetToolTip(chkWallpaperInfoPopup, "Displays a mini wallpaper info popup at the bottom right of your primary display for 5 seconds.\r\n" +
                 "Note: The 'Disable Notifications' option suppresses this popup.");
@@ -1374,6 +1385,12 @@ namespace Reddit_Wallpaper_Changer.Forms
             _toolTip.SetToolTip(btnRestore, "Restore a previous backup.");
             _toolTip.SetToolTip(btnRebuildThumbnails, "This will wipe the current thumbnail cache and recreate it.");
             _toolTip.SetToolTip(chkUpdates, "Enable or disable automatic update checks.\r\nA manual check for updates can be done in the 'About' panel.");
+
+            _toolTip.SetToolTip(chkUseHotkeys, "NOTE: These hotkeys will override other system-wide hotkeys");
+            _toolTip.SetToolTip(txtChangeHotkey, "Hotkey used to change the current wallpaper.");
+            _toolTip.SetToolTip(txtFavouriteHotkey, "Hotkey used to favourite the current wallpaper.");
+            _toolTip.SetToolTip(txtBlacklistHotkey, "Hotkey used to blacklist the current wallpaper.");
+            _toolTip.SetToolTip(txtSaveHotkey, "Hotkey used to save the current wallpaper.");
 
             // Monitors
             _toolTip.SetToolTip(btnWallpaperHelp, "Show info on the different wallpaper styles.");
@@ -1442,6 +1459,44 @@ namespace Reddit_Wallpaper_Changer.Forms
             lblVersion.Text = "Current Version: " + _currentVersion;
         }
 
+        private void SetupHotkeys()
+        {
+            chkUseHotkeys.Checked = Settings.Default.useHotkeys;
+            txtChangeHotkey.Text = Settings.Default.changeWallpaperHotkey;
+            txtSaveHotkey.Text = Settings.Default.saveWallpaperHotkey;
+            txtFavouriteHotkey.Text = Settings.Default.favouriteWallpaperHotkey;
+            txtBlacklistHotkey.Text = Settings.Default.blacklistWallpaperHotkey;
+
+            if (chkUseHotkeys.Checked)
+                RegisterHotkeys();
+        }
+
+        private void RegisterHotkeys()
+        {
+            RegisterHotkey(txtChangeHotkey.Text, ChangeWallpaper_Click);
+            RegisterHotkey(txtSaveHotkey.Text, SaveCurrentWallpaper_Click);
+            RegisterHotkey(txtFavouriteHotkey.Text, FavCurrentWallpaper_Click);
+            RegisterHotkey(txtBlacklistHotkey.Text, BlacklistCurrentWallpaper_Click);
+        }
+
+        private void RegisterHotkey(string text, EventHandler eventHandler)
+        {
+            if (_hotkeys.TryGetValue(eventHandler, out HotKey value))
+                value?.Dispose();
+
+            if (!string.IsNullOrWhiteSpace(text)
+                && HotKey.TryParse(text, out HotKey hotKey))
+            {
+                hotKey.HotKeyPressed += eventHandler;
+
+                _hotkeys[eventHandler] = hotKey;
+            }
+            else
+            {
+                _hotkeys.Remove(eventHandler);
+            }
+        }
+
         //======================================================================
         // Setup the five panels
         //======================================================================
@@ -1498,5 +1553,85 @@ namespace Reddit_Wallpaper_Changer.Forms
         }
 
         #endregion
+
+        private void txtHotkey_KeyDown(object sender, KeyEventArgs e)
+        {
+            var textBox = (TextBox)sender;
+
+            var clearKeys = new[] { Keys.Delete, Keys.Back };
+
+            if (!clearKeys.Contains(e.KeyData))
+            {
+                var rawKey = e.KeyData ^ e.Modifiers;
+                if (rawKey != Keys.ControlKey && rawKey != Keys.ShiftKey && rawKey != Keys.Menu)
+                {
+                    var text = "";
+
+                    if (e.Modifiers.HasFlag(Keys.Control))
+                        text += "Ctrl+";
+
+                    if (e.Modifiers.HasFlag(Keys.Shift))
+                        text += "Shift+";
+
+                    if (e.Modifiers.HasFlag(Keys.Alt))
+                        text += "Alt+";
+
+                    text += rawKey.ToString();
+
+                    textBox.Text = text;
+
+                    if (textBox == txtChangeHotkey)
+                        RegisterHotkey(txtChangeHotkey.Text, ChangeWallpaper_Click);
+                    else if (textBox == txtSaveHotkey)
+                        RegisterHotkey(txtSaveHotkey.Text, SaveCurrentWallpaper_Click);
+                    else if (textBox == txtFavouriteHotkey)
+                        RegisterHotkey(txtFavouriteHotkey.Text, FavCurrentWallpaper_Click);
+                    else if (textBox == txtBlacklistHotkey)
+                        RegisterHotkey(txtBlacklistHotkey.Text, BlacklistCurrentWallpaper_Click);
+                }
+            }
+            else
+            {
+                textBox.Text = "";
+
+                if (textBox == txtChangeHotkey)
+                    UnregisterHotkey(ChangeWallpaper_Click);
+                else if (textBox == txtSaveHotkey)
+                    UnregisterHotkey(SaveCurrentWallpaper_Click);
+                else if (textBox == txtFavouriteHotkey)
+                    UnregisterHotkey(FavCurrentWallpaper_Click);
+                else if (textBox == txtBlacklistHotkey)
+                    UnregisterHotkey(BlacklistCurrentWallpaper_Click);
+            }
+
+            e.SuppressKeyPress = true;
+        }
+
+        private void chkUseHotkeys_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkUseHotkeys.Checked)
+                RegisterHotkeys();
+            else
+                UnregisterHotkeys();
+
+            grpHotkeys.Enabled = chkUseHotkeys.Checked;
+        }
+
+        private void UnregisterHotkeys()
+        {
+            UnregisterHotkey(ChangeWallpaper_Click);
+            UnregisterHotkey(SaveCurrentWallpaper_Click);
+            UnregisterHotkey(FavCurrentWallpaper_Click);
+            UnregisterHotkey(BlacklistCurrentWallpaper_Click);
+        }
+
+        private void UnregisterHotkey(EventHandler eventHandler)
+        {
+            if (_hotkeys.TryGetValue(eventHandler, out HotKey value))
+            {
+                value?.Dispose();
+                _hotkeys.Remove(eventHandler);
+            }
+        }
     }
 }

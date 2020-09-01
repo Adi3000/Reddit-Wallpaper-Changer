@@ -113,5 +113,20 @@
     <Setting Name="searchQuery" Type="System.String" Scope="User">
       <Value Profile="(Default)">1920x1080 nsfw:no</Value>
     </Setting>
+    <Setting Name="useHotkeys" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="changeWallpaperHotkey" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="saveWallpaperHotkey" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="favouriteWallpaperHotkey" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="blacklistWallpaperHotkey" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -104,6 +104,7 @@
     <Compile Include="Database.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="HelperMethods.cs" />
+    <Compile Include="HotKey.cs" />
     <Compile Include="RedditLink.cs" />
     <Compile Include="RedditImage.cs" />
     <Compile Include="Logger.cs" />
@@ -219,6 +220,7 @@
     <None Include="Resources\db_backup_16x16.png" />
     <None Include="Resources\db_restore_16x16.png" />
     <None Include="Resources\null_thumb.png" />
+    <Content Include="Resources\keyboard.png" />
     <Content Include="Resources\rwc.ico" />
     <Content Include="Resources\data.png" />
     <Content Include="Resources\information.png" />

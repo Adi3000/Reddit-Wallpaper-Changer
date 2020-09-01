@@ -62,6 +62,17 @@
             this.btnClearBlacklisted = new System.Windows.Forms.Button();
             this.btnClearFavourites = new System.Windows.Forms.Button();
             this.btnClearHistory = new System.Windows.Forms.Button();
+            this.tabHotkeys = new System.Windows.Forms.TabPage();
+            this.grpHotkeys = new System.Windows.Forms.GroupBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.txtBlacklistHotkey = new System.Windows.Forms.TextBox();
+            this.txtSaveHotkey = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtFavouriteHotkey = new System.Windows.Forms.TextBox();
+            this.txtChangeHotkey = new System.Windows.Forms.TextBox();
+            this.chkUseHotkeys = new System.Windows.Forms.CheckBox();
             this.iconList = new System.Windows.Forms.ImageList(this.components);
             this.noticeLabel = new System.Windows.Forms.Label();
             this.btnSave = new System.Windows.Forms.Button();
@@ -166,6 +177,8 @@
             this.groupBox9.SuspendLayout();
             this.tabProxy.SuspendLayout();
             this.tabDatabase.SuspendLayout();
+            this.tabHotkeys.SuspendLayout();
+            this.grpHotkeys.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.changeTimeValue)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -223,7 +236,7 @@
             this.settingsToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.contextMenuStrip.Name = "contextMenuStrip1";
-            this.contextMenuStrip.Size = new System.Drawing.Size(233, 236);
+            this.contextMenuStrip.Size = new System.Drawing.Size(233, 214);
             this.contextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(this.ContextMenuStrip_Opening);
             // 
             // statusMenuItem1
@@ -250,7 +263,7 @@
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(232, 22);
             this.toolStripMenuItem1.Text = "Save Current Wallpaper";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.ToolStripMenuItem1_Click);
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.SaveCurrentWallpaper_Click);
             // 
             // blacklistWallpaperMenuItem
             // 
@@ -259,7 +272,7 @@
             this.blacklistWallpaperMenuItem.Name = "blacklistWallpaperMenuItem";
             this.blacklistWallpaperMenuItem.Size = new System.Drawing.Size(232, 22);
             this.blacklistWallpaperMenuItem.Text = "Blacklist Current Wallpaper";
-            this.blacklistWallpaperMenuItem.Click += new System.EventHandler(this.BlacklistWallpaperMenuItem_Click);
+            this.blacklistWallpaperMenuItem.Click += new System.EventHandler(this.BlacklistCurrentWallpaper_Click);
             // 
             // faveWallpaperMenuItem
             // 
@@ -268,7 +281,7 @@
             this.faveWallpaperMenuItem.Name = "faveWallpaperMenuItem";
             this.faveWallpaperMenuItem.Size = new System.Drawing.Size(232, 22);
             this.faveWallpaperMenuItem.Text = "Favourite Current Wallpaper";
-            this.faveWallpaperMenuItem.Click += new System.EventHandler(this.FaveWallpaperMenuItem_Click);
+            this.faveWallpaperMenuItem.Click += new System.EventHandler(this.FavCurrentWallpaper_Click);
             // 
             // changeWallpaperMenuItem
             // 
@@ -277,7 +290,7 @@
             this.changeWallpaperMenuItem.Name = "changeWallpaperMenuItem";
             this.changeWallpaperMenuItem.Size = new System.Drawing.Size(232, 22);
             this.changeWallpaperMenuItem.Text = "Change Wallpaper";
-            this.changeWallpaperMenuItem.Click += new System.EventHandler(this.ChangeWallpaperMenuItem_Click);
+            this.changeWallpaperMenuItem.Click += new System.EventHandler(this.ChangeWallpaper_Click);
             // 
             // currentThreadMenuItem1
             // 
@@ -321,11 +334,12 @@
             this.tabSettingsControl.Controls.Add(this.tabWallpaperSave);
             this.tabSettingsControl.Controls.Add(this.tabProxy);
             this.tabSettingsControl.Controls.Add(this.tabDatabase);
+            this.tabSettingsControl.Controls.Add(this.tabHotkeys);
             this.tabSettingsControl.ImageList = this.iconList;
-            this.tabSettingsControl.Location = new System.Drawing.Point(10, 203);
+            this.tabSettingsControl.Location = new System.Drawing.Point(5, 203);
             this.tabSettingsControl.Name = "tabSettingsControl";
             this.tabSettingsControl.SelectedIndex = 0;
-            this.tabSettingsControl.Size = new System.Drawing.Size(428, 158);
+            this.tabSettingsControl.Size = new System.Drawing.Size(438, 158);
             this.tabSettingsControl.TabIndex = 14;
             // 
             // tabSettings
@@ -343,9 +357,9 @@
             this.tabSettings.Location = new System.Drawing.Point(4, 23);
             this.tabSettings.Name = "tabSettings";
             this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSettings.Size = new System.Drawing.Size(420, 131);
+            this.tabSettings.Size = new System.Drawing.Size(430, 131);
             this.tabSettings.TabIndex = 0;
-            this.tabSettings.Text = "RWC Settings:";
+            this.tabSettings.Text = "RWC";
             // 
             // chkUpdates
             // 
@@ -422,7 +436,7 @@
             this.chkStartInTray.AutoSize = true;
             this.chkStartInTray.Location = new System.Drawing.Point(20, 42);
             this.chkStartInTray.Name = "chkStartInTray";
-            this.chkStartInTray.Size = new System.Drawing.Size(90, 17);
+            this.chkStartInTray.Size = new System.Drawing.Size(91, 17);
             this.chkStartInTray.TabIndex = 11;
             this.chkStartInTray.Text = "Start In Tray?";
             this.chkStartInTray.UseVisualStyleBackColor = true;
@@ -436,9 +450,9 @@
             this.tabWallpaperSave.ImageKey = "save.png";
             this.tabWallpaperSave.Location = new System.Drawing.Point(4, 23);
             this.tabWallpaperSave.Name = "tabWallpaperSave";
-            this.tabWallpaperSave.Size = new System.Drawing.Size(420, 131);
+            this.tabWallpaperSave.Size = new System.Drawing.Size(430, 131);
             this.tabWallpaperSave.TabIndex = 2;
-            this.tabWallpaperSave.Text = "Wallpaper Saving:";
+            this.tabWallpaperSave.Text = "Wallpaper Saving";
             // 
             // chkAutoSaveFaves
             // 
@@ -505,9 +519,9 @@
             this.tabProxy.Location = new System.Drawing.Point(4, 23);
             this.tabProxy.Name = "tabProxy";
             this.tabProxy.Padding = new System.Windows.Forms.Padding(3);
-            this.tabProxy.Size = new System.Drawing.Size(420, 131);
+            this.tabProxy.Size = new System.Drawing.Size(430, 131);
             this.tabProxy.TabIndex = 1;
-            this.tabProxy.Text = "Proxy Server:";
+            this.tabProxy.Text = "Proxy Server";
             // 
             // txtPass
             // 
@@ -569,9 +583,9 @@
             this.tabDatabase.ImageKey = "database.png";
             this.tabDatabase.Location = new System.Drawing.Point(4, 23);
             this.tabDatabase.Name = "tabDatabase";
-            this.tabDatabase.Size = new System.Drawing.Size(420, 131);
+            this.tabDatabase.Size = new System.Drawing.Size(430, 131);
             this.tabDatabase.TabIndex = 3;
-            this.tabDatabase.Text = "Database:";
+            this.tabDatabase.Text = "Database";
             // 
             // btnRebuildThumbnails
             // 
@@ -657,6 +671,114 @@
             this.btnClearHistory.UseVisualStyleBackColor = true;
             this.btnClearHistory.Click += new System.EventHandler(this.BtnClearHistory_Click);
             // 
+            // tabHotkeys
+            // 
+            this.tabHotkeys.Controls.Add(this.grpHotkeys);
+            this.tabHotkeys.Controls.Add(this.chkUseHotkeys);
+            this.tabHotkeys.ImageKey = "keyboard.png";
+            this.tabHotkeys.Location = new System.Drawing.Point(4, 23);
+            this.tabHotkeys.Name = "tabHotkeys";
+            this.tabHotkeys.Size = new System.Drawing.Size(430, 131);
+            this.tabHotkeys.TabIndex = 4;
+            this.tabHotkeys.Text = "Hotkeys";
+            // 
+            // grpHotkeys
+            // 
+            this.grpHotkeys.Controls.Add(this.label11);
+            this.grpHotkeys.Controls.Add(this.label12);
+            this.grpHotkeys.Controls.Add(this.txtBlacklistHotkey);
+            this.grpHotkeys.Controls.Add(this.txtSaveHotkey);
+            this.grpHotkeys.Controls.Add(this.label8);
+            this.grpHotkeys.Controls.Add(this.label4);
+            this.grpHotkeys.Controls.Add(this.txtFavouriteHotkey);
+            this.grpHotkeys.Controls.Add(this.txtChangeHotkey);
+            this.grpHotkeys.Enabled = false;
+            this.grpHotkeys.Location = new System.Drawing.Point(11, 36);
+            this.grpHotkeys.Name = "grpHotkeys";
+            this.grpHotkeys.Size = new System.Drawing.Size(413, 86);
+            this.grpHotkeys.TabIndex = 17;
+            this.grpHotkeys.TabStop = false;
+            this.grpHotkeys.Text = "Hotkeys";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(226, 52);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(86, 13);
+            this.label11.TabIndex = 21;
+            this.label11.Text = "Add to Blacklist";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(23, 52);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(86, 13);
+            this.label12.TabIndex = 20;
+            this.label12.Text = "Save Wallpaper";
+            // 
+            // txtBlacklistHotkey
+            // 
+            this.txtBlacklistHotkey.Location = new System.Drawing.Point(318, 49);
+            this.txtBlacklistHotkey.Name = "txtBlacklistHotkey";
+            this.txtBlacklistHotkey.Size = new System.Drawing.Size(89, 22);
+            this.txtBlacklistHotkey.TabIndex = 19;
+            this.txtBlacklistHotkey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtHotkey_KeyDown);
+            // 
+            // txtSaveHotkey
+            // 
+            this.txtSaveHotkey.Location = new System.Drawing.Point(115, 49);
+            this.txtSaveHotkey.Name = "txtSaveHotkey";
+            this.txtSaveHotkey.Size = new System.Drawing.Size(89, 22);
+            this.txtSaveHotkey.TabIndex = 18;
+            this.txtSaveHotkey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtHotkey_KeyDown);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(216, 24);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(96, 13);
+            this.label8.TabIndex = 17;
+            this.label8.Text = "Save As Favourite";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 24);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(103, 13);
+            this.label4.TabIndex = 16;
+            this.label4.Text = "Change Wallpaper";
+            // 
+            // txtFavouriteHotkey
+            // 
+            this.txtFavouriteHotkey.Location = new System.Drawing.Point(318, 21);
+            this.txtFavouriteHotkey.Name = "txtFavouriteHotkey";
+            this.txtFavouriteHotkey.Size = new System.Drawing.Size(89, 22);
+            this.txtFavouriteHotkey.TabIndex = 15;
+            this.txtFavouriteHotkey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtHotkey_KeyDown);
+            // 
+            // txtChangeHotkey
+            // 
+            this.txtChangeHotkey.Location = new System.Drawing.Point(115, 21);
+            this.txtChangeHotkey.Name = "txtChangeHotkey";
+            this.txtChangeHotkey.Size = new System.Drawing.Size(89, 22);
+            this.txtChangeHotkey.TabIndex = 14;
+            this.txtChangeHotkey.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtHotkey_KeyDown);
+            // 
+            // chkUseHotkeys
+            // 
+            this.chkUseHotkeys.AutoSize = true;
+            this.chkUseHotkeys.Location = new System.Drawing.Point(15, 12);
+            this.chkUseHotkeys.Name = "chkUseHotkeys";
+            this.chkUseHotkeys.Size = new System.Drawing.Size(105, 17);
+            this.chkUseHotkeys.TabIndex = 16;
+            this.chkUseHotkeys.Text = "Enable Hotkeys";
+            this.chkUseHotkeys.UseVisualStyleBackColor = true;
+            this.chkUseHotkeys.CheckedChanged += new System.EventHandler(this.chkUseHotkeys_CheckedChanged);
+            // 
             // iconList
             // 
             this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
@@ -665,6 +787,7 @@
             this.iconList.Images.SetKeyName(1, "proxy.png");
             this.iconList.Images.SetKeyName(2, "config_16x16.png");
             this.iconList.Images.SetKeyName(3, "database.png");
+            this.iconList.Images.SetKeyName(4, "keyboard.png");
             // 
             // noticeLabel
             // 
@@ -819,7 +942,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(18, 48);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(106, 13);
+            this.label1.Size = new System.Drawing.Size(105, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "Grab Wallpaper By:";
             // 
@@ -1065,7 +1188,7 @@
             this.qwertydogLink.LinkColor = System.Drawing.Color.SteelBlue;
             this.qwertydogLink.Location = new System.Drawing.Point(166, 42);
             this.qwertydogLink.Name = "qwertydogLink";
-            this.qwertydogLink.Size = new System.Drawing.Size(64, 13);
+            this.qwertydogLink.Size = new System.Drawing.Size(84, 13);
             this.qwertydogLink.TabIndex = 7;
             this.qwertydogLink.TabStop = true;
             this.qwertydogLink.Text = "/u/qwertydog";
@@ -1816,6 +1939,10 @@
             this.tabProxy.ResumeLayout(false);
             this.tabProxy.PerformLayout();
             this.tabDatabase.ResumeLayout(false);
+            this.tabHotkeys.ResumeLayout(false);
+            this.tabHotkeys.PerformLayout();
+            this.grpHotkeys.ResumeLayout(false);
+            this.grpHotkeys.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.changeTimeValue)).EndInit();
@@ -1993,6 +2120,17 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn blacklistThreadLink;
         private System.Windows.Forms.DataGridViewTextBoxColumn blacklistDateTime;
         private System.Windows.Forms.ToolStripMenuItem disableNotificationsToolStripMenuItem;
+        private System.Windows.Forms.TabPage tabHotkeys;
+        private System.Windows.Forms.TextBox txtFavouriteHotkey;
+        private System.Windows.Forms.TextBox txtChangeHotkey;
+        private System.Windows.Forms.GroupBox grpHotkeys;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox txtBlacklistHotkey;
+        private System.Windows.Forms.TextBox txtSaveHotkey;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.CheckBox chkUseHotkeys;
     }
 }
 
