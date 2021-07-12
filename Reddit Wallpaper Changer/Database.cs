@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -383,9 +382,11 @@ namespace Reddit_Wallpaper_Changer
                 using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
                 using (var command = new SQLiteCommand("SELECT COUNT(*) " +
                                                        "FROM blacklist " +
-                                                      $"WHERE url = \"{url}\"", con))
+                                                       "WHERE url = @url", con))
 
                 {
+                    command.Parameters.AddWithValue("@url", url);
+
                     var count = await command.ExecuteScalarAsync().ConfigureAwait(false);
                     if (count != null)
                         return Convert.ToInt32(count) > 0;
@@ -487,25 +488,11 @@ namespace Reddit_Wallpaper_Changer
             {
                 Logger.Instance.LogMessageToFile("Updating wallpaper thumbnail cache.", LogLevel.Information);
 
-                var taskList = new List<Task<IEnumerable<RedditImage>>>
+                var images = await GetAllImagesFromDatabaseAsync().ConfigureAwait(false);
+
+                foreach (var image in images)
                 {
-                    GetFromHistoryAsync(),
-                    GetFromFavouritesAsync(),
-                    GetFromBlacklistAsync()
-                };
-
-                while (taskList.Any())
-                {
-                    var completedTask = await Task.WhenAny(taskList).ConfigureAwait(false);
-
-                    taskList.Remove(completedTask);
-
-                    var imageList = await completedTask.ConfigureAwait(false);
-
-                    foreach (var image in imageList)
-                    {
-                        image.SaveToThumbnailCache();
-                    }
+                    image.SaveToThumbnailCache();
                 }
 
                 Logger.Instance.LogMessageToFile("Wallpaper thumbnail cache updated.", LogLevel.Information);
@@ -514,6 +501,39 @@ namespace Reddit_Wallpaper_Changer
             {
                 Logger.Instance.LogMessageToFile($"Error updating Wallpaper thumbnail cache: {ex.Message}", LogLevel.Warning);
             }
+        }
+
+        private async Task<IEnumerable<RedditImage>> GetAllImagesFromDatabaseAsync()
+        {
+            var imageList = new List<RedditImage>();
+
+            using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+            using (var command = new SQLiteCommand("SELECT * FROM blacklist " +
+                                                   "UNION " +
+                                                   "SELECT * FROM history " +
+                                                   "UNION " +
+                                                   "SELECT * FROM favourites", connection))
+            using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess).ConfigureAwait(false))
+            {
+                if (!reader.HasRows)
+                    return imageList;
+
+                while (await reader.ReadAsync().ConfigureAwait(false))
+                {
+                    var redditImage = new RedditImage
+                    (
+                        await reader.GetFieldValueAsync<string>(0).ConfigureAwait(false), // thumbnail
+                        await reader.GetFieldValueAsync<string>(1).ConfigureAwait(false), // title
+                        await reader.GetFieldValueAsync<string>(2).ConfigureAwait(false), // threadid
+                        await reader.GetFieldValueAsync<string>(3).ConfigureAwait(false), // url
+                        await reader.GetFieldValueAsync<string>(4).ConfigureAwait(false)  // date
+                    );
+
+                    imageList.Add(redditImage);
+                }
+            }
+
+            return imageList;
         }
 
         private async Task<IEnumerable<RedditImage>> GetRedditImagesFromDatabaseAsync(string tableName)
