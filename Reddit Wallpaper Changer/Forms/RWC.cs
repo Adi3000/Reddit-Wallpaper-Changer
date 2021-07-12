@@ -183,7 +183,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database);
             await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database);
 
-            statuslabel1.Text = "RWC Setup Initated.";
+            statuslabel1.Text = "RWC Setup Initiated.";
 
             checkInternetTimer.Enabled = true;
         }
