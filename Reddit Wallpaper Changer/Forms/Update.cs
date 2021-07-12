@@ -49,13 +49,8 @@ namespace Reddit_Wallpaper_Changer.Forms
 
                     var updateSourceUrl = new Uri("https://github.com/qwertydog/Reddit-Wallpaper-Changer/releases/download/release/Reddit.Wallpaper.Changer.msi");
 
-                    var securityVersion = ServicePointManager.SecurityProtocol;
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-                    // Download the latest MSI instaler to the users Temp folder
+                    // Download the latest MSI installer to the users Temp folder
                     await wc.DownloadFileTaskAsync(updateSourceUrl, temp + "Reddit.Wallpaper.Changer.msi");
-
-                    ServicePointManager.SecurityProtocol = securityVersion;
 
                     Logger.Instance.LogMessageToFile("Update successfully downloaded.", LogLevel.Information);
 
