@@ -6,7 +6,7 @@ Based on [RWC-Source](https://github.com/JosephRobidoux/RWC-Source) originally c
 # About
 Reddit Wallpaper Changer is a lightweight C# application for Windows that will scrape Reddit for fresh desktop wallpapers. You can specify which subs to scrape from and how often to rotate your wallpaper.
 
-# Current Version - 1.0.15.0
+# Current Version - 1.0.16.0
 
 # Installation
 Download the latest MSI installer from the [releases page](https://github.com/qwertydog/Reddit-Wallpaper-Changer/releases)
