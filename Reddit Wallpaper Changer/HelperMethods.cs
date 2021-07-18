@@ -163,43 +163,40 @@ namespace Reddit_Wallpaper_Changer
             var data = new NameValueCollection
             {
                 ["api_paste_name"] = $"RWC_Log_{DateTime.Now}.log",
-                ["api_paste_expire_Date"] = "N",
+                ["api_paste_expire_date"] = "N",
                 ["api_paste_code"] = File.ReadAllText($@"{Settings.Default.AppDataPath}\Logs\RWC.log"),
                 ["api_dev_key"] = "017c00e3a11ee8c70499c1f4b6b933f0",
                 ["api_option"] = "paste"
             };
 
-            using (var wc = CreateWebClient())
+            try
             {
-                try
+                byte[] bytes;
+
+                using (var wc = CreateWebClient())
                 {
-                    var bytes = await wc.UploadValuesTaskAsync("http://pastebin.com/api/api_post.php", data).ConfigureAwait(false);
-
-                    string response;
-                    using (var ms = new MemoryStream(bytes))
-                    using (var reader = new StreamReader(ms))
-                    {
-                        response = await reader.ReadToEndAsync().ConfigureAwait(false);
-                    }
-
-                    if (response.StartsWith("Bad API request"))
-                    {
-                        Logger.Instance.LogMessageToFile("Failed to upload log to Pastebin: " + response, LogLevel.Information);
-                        return false;
-                    }
-                    else
-                    {
-                        Logger.Instance.LogMessageToFile("Logfile successfully uploaded to Pastebin: " + response, LogLevel.Information);
-                        Settings.Default.logUrl = response;
-                        Settings.Default.Save();
-                        return true;
-                    }
+                    bytes = await wc.UploadValuesTaskAsync("https://pastebin.com/api/api_post.php", data).ConfigureAwait(false);
                 }
-                catch (Exception ex)
+
+                var response = System.Text.Encoding.UTF8.GetString(bytes);
+
+                if (response.StartsWith("Bad API request"))
                 {
-                    Logger.Instance.LogMessageToFile("Error uploading logfile to Pastebin: " + ex.Message, LogLevel.Error);
+                    Logger.Instance.LogMessageToFile("Failed to upload log to Pastebin: " + response, LogLevel.Information);
+                    return false;
+                }
+                else
+                {
+                    Logger.Instance.LogMessageToFile("Logfile successfully uploaded to Pastebin: " + response, LogLevel.Information);
+                    Settings.Default.logUrl = response;
+                    Settings.Default.Save();
                     return true;
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessageToFile("Error uploading logfile to Pastebin: " + ex.Message, LogLevel.Error);
+                return false;
             }
         }
 
