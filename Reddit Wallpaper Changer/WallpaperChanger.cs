@@ -430,23 +430,32 @@ namespace Reddit_Wallpaper_Changer
 
             var formURL = new StringBuilder("http://www.reddit.com/");
 
-            if (!sub.Any())
+            if (sub.Length == 0)
+            {
                 formURL.Append("r/all");
+            }
             else if (sub.Contains("/m/"))
-                formURL.Append(subreddits)
+            {
+                subreddits = subreddits
                        .Replace("http://", "")
                        .Replace("https://", "")
                        .Replace("user/", "u/");
+
+                formURL.Append(subreddits);
+            }
             else
+            {
                 formURL.Append($"r/").Append(sub);
+            }
+                
 
             switch ((WallpaperGrabType)Settings.Default.wallpaperGrabType)
             {
                 case WallpaperGrabType.Random:
                     formURL.Append("/search.json?q=")
                            .Append(query)
-                           .Append(SortValues[random.Next(0, 4)])
-                           .Append(TopValues[random.Next(0, 5)])
+                           .Append(SortValues[random.Next(0, SortValues.Count)])
+                           .Append(TopValues[random.Next(0, TopValues.Count)])
                            .Append("&restrict_sr=on");
                     Logger.Instance.LogMessageToFile("Full URL Search String: " + formURL, LogLevel.Information);
                     break;
