@@ -203,21 +203,21 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Check that the selected wallpaper URL is for an image
         //======================================================================
-        public static async Task<bool> ValidateImageAsync(string url)
+        public static async Task<bool> ValidateImageAsync(RedditLink redditLink)
         {
             try
             {
-                if (url.Contains("deviantart"))
+                if (redditLink.Url.Contains("deviantart"))
                     return true;
                 else
                 {
                     Logger.Instance.LogMessageToFile("Checking to ensure the chosen wallpaper URL is for an image.", LogLevel.Information);
 
-                    var imageCheck = (HttpWebRequest)WebRequest.Create(url);
+                    var imageCheck = (HttpWebRequest)WebRequest.Create(redditLink.Url);
                     imageCheck.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
                     imageCheck.Timeout = 5000;
                     imageCheck.Method = "HEAD";
-                    imageCheck.AllowAutoRedirect = false;
+                    imageCheck.MaximumAutomaticRedirections = 1;
 
                     using (var imageResponse = await imageCheck.GetResponseAsync().ConfigureAwait(false))
                     {
@@ -226,6 +226,9 @@ namespace Reddit_Wallpaper_Changer
                         {
                             imageCheck.Abort();
                             Logger.Instance.LogMessageToFile("The chosen URL is for an image.", LogLevel.Information);
+                            
+                            redditLink.Url = imageResponse.ResponseUri.AbsoluteUri;
+                            
                             return true;
                         }
                         else

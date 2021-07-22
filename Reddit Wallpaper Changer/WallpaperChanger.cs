@@ -140,9 +140,16 @@ namespace Reddit_Wallpaper_Changer
                             if ((WallpaperGrabType)Settings.Default.wallpaperGrabType == WallpaperGrabType.Random)
                                 token = redditResult.ElementAt(_random.Next(0, redditResult.Count() - 1));
 
-                            _uiMarshaller.SetCurrentThread($"http://reddit.com{token["data"]["permalink"]}");
+                            var tokenData = token["data"];
 
-                            if (!await ChangeWallpaperIfValidImageAsync(token).ConfigureAwait(false))
+                            _uiMarshaller.SetCurrentThread($"http://reddit.com{tokenData["permalink"]}");
+
+                            var redditLink = new RedditLink(
+                                tokenData["url"].ToString(),
+                                tokenData["title"].ToString(),
+                                tokenData["id"].ToString());
+
+                            if (!await ChangeWallpaperIfValidImageAsync(redditLink).ConfigureAwait(false))
                                 return true;
                         }
                         catch (InvalidOperationException)
@@ -268,22 +275,16 @@ namespace Reddit_Wallpaper_Changer
             return true;
         }
 
-        private async Task<bool> ChangeWallpaperIfValidImageAsync(JToken token)
+        private async Task<bool> ChangeWallpaperIfValidImageAsync(RedditLink redditLink)
         {
-            var title = token["data"]["title"].ToString();
-            var url = token["data"]["url"].ToString();
-            var id = token["data"]["id"].ToString();
-
-            Logger.Instance.LogMessageToFile($"Found a wallpaper! Title: {title}, URL: {url}, ThreadID: {id}", LogLevel.Information);
+            Logger.Instance.LogMessageToFile($"Found a wallpaper! Title: {redditLink.Title}, URL: {redditLink.Url}, ThreadID: {redditLink.ThreadId}", LogLevel.Information);
 
             // Validate URL 
-            if (await HelperMethods.ValidateImageAsync(url).ConfigureAwait(false))
+            if (await HelperMethods.ValidateImageAsync(redditLink).ConfigureAwait(false))
             {
-                if (await HelperMethods.ValidateImgurImageAsync(url).ConfigureAwait(false))
+                if (await HelperMethods.ValidateImgurImageAsync(redditLink.Url).ConfigureAwait(false))
                 {
-                    var imageDetails = new RedditLink(url, title, id);
-
-                    if (!await SetWallpaperAsync(imageDetails).ConfigureAwait(false))
+                    if (!await SetWallpaperAsync(redditLink).ConfigureAwait(false))
                     {
                         while (!await SearchForWallpaperAsync().ConfigureAwait(false)) { }
                     }
