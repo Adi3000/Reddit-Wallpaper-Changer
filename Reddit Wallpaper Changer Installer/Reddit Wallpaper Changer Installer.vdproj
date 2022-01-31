@@ -39,18 +39,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AC6917875828289A7C9561984959D95B"
+        "OwnerKey" = "8:_12CE8F77BDEF41128AC71956DB7868D0"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D27C8C034F43445E9BA76F6C52D0B50A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_D3C3A0B044AC107821101235342C4242"
-        "OwnerKey" = "8:_12CE8F77BDEF41128AC71956DB7868D0"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_12CE8F77BDEF41128AC71956DB7868D0"
         "MsmSig" = "8:_UNDEFINED"
@@ -58,7 +58,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D3C3A0B044AC107821101235342C4242"
+        "OwnerKey" = "8:_AC6917875828289A7C9561984959D95B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -154,7 +154,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:.NETFramework,Version=v4.6.1"
+                "FrameworkVersion" = "8:.NETFramework,Version=v4.7"
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=671728"
                 }
@@ -233,34 +233,14 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D27C8C034F43445E9BA76F6C52D0B50A"
-            {
-            "SourcePath" = "8:..\\Reddit Wallpaper Changer\\Resources\\rwc.ico"
-            "TargetName" = "8:rwc.ico"
-            "Tag" = "8:"
-            "Folder" = "8:_508F98CE01814F948B108EEF6FC57D33"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D3C3A0B044AC107821101235342C4242"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_AC6917875828289A7C9561984959D95B"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.114.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.115.5, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_D3C3A0B044AC107821101235342C4242"
+                    "_AC6917875828289A7C9561984959D95B"
                     {
                     "Name" = "8:System.Data.SQLite.dll"
                     "Attributes" = "3:512"
@@ -282,6 +262,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D27C8C034F43445E9BA76F6C52D0B50A"
+            {
+            "SourcePath" = "8:..\\Reddit Wallpaper Changer\\Resources\\rwc.ico"
+            "TargetName" = "8:rwc.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_508F98CE01814F948B108EEF6FC57D33"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
         }
@@ -362,15 +362,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Reddit Wallpaper Changer"
-        "ProductCode" = "8:{B5E5E003-534A-4EDA-A3C8-E35C820E8817}"
-        "PackageCode" = "8:{752AE72B-1C39-4FD1-9A17-2D6B17423512}"
+        "ProductCode" = "8:{0B11CB66-9E1F-408E-B65E-24FAFE076861}"
+        "PackageCode" = "8:{C123A0FB-C3B1-49C3-B6CB-1AE84E7E5337}"
         "UpgradeCode" = "8:{B05B9A99-E492-439D-A828-1D783173D70C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.17"
+        "ProductVersion" = "8:1.0.18"
         "Manufacturer" = "8:qwertydog"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://www.reddit.com/r/rwallpaperchanger/"
