@@ -239,9 +239,11 @@ namespace Reddit_Wallpaper_Changer
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return true;
+                Logger.Instance.LogMessageToFile(ex.Message, LogLevel.Error);
+
+                return false;
             }
         }
 
@@ -254,7 +256,7 @@ namespace Reddit_Wallpaper_Changer
             {
                 if (url.Contains("imgur"))
                 {
-                    Logger.Instance.LogMessageToFile("Checking to ensure the chosen walllpaper is still available on Imgur.", LogLevel.Information);
+                    Logger.Instance.LogMessageToFile("Checking to ensure the chosen wallpaper is still available on Imgur.", LogLevel.Information);
 
                     // A request for a deleted image on Imgur will return status code 302 & redirect to http://i.imgur.com/removed.png returning status code 200
                     var imgurRequest = (HttpWebRequest)WebRequest.Create(url);
