@@ -1306,6 +1306,7 @@ namespace Reddit_Wallpaper_Changer.Forms
                 RegistryAdapter.SetAutoStart(chkAutoStart.Checked);
 
             Settings.Default.startInTray = chkStartInTray.Checked;
+            Settings.Default.includeNsfw = chkIncludeNsfw.Checked;
             Settings.Default.autoStart = chkAutoStart.Checked;
             Settings.Default.wallpaperGrabType = wallpaperGrabType.SelectedIndex;
             Settings.Default.subredditsUsed = subredditTextBox.Text;
@@ -1447,6 +1448,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             changeTimeValue.Value = Settings.Default.changeTimeValue;
             changeTimeType.SelectedIndex = Settings.Default.changeTimeType;
             chkStartInTray.Checked = Settings.Default.startInTray;
+            chkIncludeNsfw.Checked = Settings.Default.includeNsfw;
             chkAutoStart.Checked = Settings.Default.autoStart;
             chkFade.Checked = Settings.Default.wallpaperFade;
             chkNotifications.Checked = Settings.Default.disableNotifications;

@@ -156,9 +156,9 @@
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(12, 240);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(291, 13);
+            this.label10.Size = new System.Drawing.Size(287, 13);
             this.label10.TabIndex = 17;
-            this.label10.Text = "Searching for images that are only NSFW (opposite nsfw:no)";
+            this.label10.Text = "Search for ONLY images that are NSFW (opposite nsfw:no)";
             // 
             // label11
             // 

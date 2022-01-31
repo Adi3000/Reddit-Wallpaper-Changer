@@ -169,6 +169,7 @@
             this.saveThisWallpaperToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rwcStatusStrip = new System.Windows.Forms.StatusStrip();
             this.statuslabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.chkIncludeNsfw = new System.Windows.Forms.CheckBox();
             this.configurePanel.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
             this.tabSettingsControl.SuspendLayout();
@@ -915,6 +916,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.chkIncludeNsfw);
             this.groupBox1.Controls.Add(this.subredditTextBox);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.label5);
@@ -1899,6 +1901,16 @@
             this.statuslabel1.Size = new System.Drawing.Size(100, 17);
             this.statuslabel1.Text = "RWC Status Text";
             // 
+            // chkIncludeNsfw
+            // 
+            this.chkIncludeNsfw.AutoSize = true;
+            this.chkIncludeNsfw.Location = new System.Drawing.Point(310, 47);
+            this.chkIncludeNsfw.Name = "chkIncludeNsfw";
+            this.chkIncludeNsfw.Size = new System.Drawing.Size(103, 17);
+            this.chkIncludeNsfw.TabIndex = 20;
+            this.chkIncludeNsfw.Text = "Include NSFW?";
+            this.chkIncludeNsfw.UseVisualStyleBackColor = true;
+            // 
             // RWC
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -2131,6 +2143,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.CheckBox chkUseHotkeys;
+        private System.Windows.Forms.CheckBox chkIncludeNsfw;
     }
 }
 

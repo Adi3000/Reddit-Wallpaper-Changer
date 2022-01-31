@@ -49,6 +49,7 @@ namespace Reddit_Wallpaper_Changer
                     writer.WriteElementString("ChangeTimerValue", Settings.Default.changeTimeValue.ToString());
                     writer.WriteElementString("ChangeTimerType", Settings.Default.changeTimeType.ToString());
                     writer.WriteElementString("StartInTray", Settings.Default.startInTray.ToString());
+                    writer.WriteElementString("IncludeNsfw", Settings.Default.includeNsfw.ToString());
                     writer.WriteElementString("AutoStart", Settings.Default.autoStart.ToString());
                     writer.WriteElementString("UseProxy", Settings.Default.useProxy.ToString());
                     writer.WriteElementString("ProxyServer", Settings.Default.proxyAddress);
@@ -93,22 +94,23 @@ namespace Reddit_Wallpaper_Changer
                     Settings.Default.wallpaperGrabType = int.Parse(xn["GrabType"].InnerText);
                     Settings.Default.subredditsUsed = xn["Subreddits"].InnerText;
                     Settings.Default.searchQuery = xn["SearchQuery"].InnerText;
-                    Settings.Default.changeTimeValue = Int32.Parse(xn["ChangeTimerValue"].InnerText);
-                    Settings.Default.changeTimeType = Int32.Parse(xn["ChangeTimerType"].InnerText);
-                    Settings.Default.startInTray = Boolean.Parse(xn["StartInTray"].InnerText);
-                    Settings.Default.autoStart = Boolean.Parse(xn["AutoStart"].InnerText);
-                    Settings.Default.useProxy = Boolean.Parse(xn["UseProxy"].InnerText);
+                    Settings.Default.changeTimeValue = int.Parse(xn["ChangeTimerValue"].InnerText);
+                    Settings.Default.changeTimeType = int.Parse(xn["ChangeTimerType"].InnerText);
+                    Settings.Default.startInTray = bool.Parse(xn["StartInTray"].InnerText);
+                    Settings.Default.includeNsfw = bool.TryParse(xn["IncludeNsfw"].InnerText, out var result) && result;
+                    Settings.Default.autoStart = bool.Parse(xn["AutoStart"].InnerText);
+                    Settings.Default.useProxy = bool.Parse(xn["UseProxy"].InnerText);
                     Settings.Default.proxyAddress = xn["ProxyServer"].InnerText;
-                    Settings.Default.proxyAuth = Boolean.Parse(xn["ProxyAuthentication"].InnerText);
+                    Settings.Default.proxyAuth = bool.Parse(xn["ProxyAuthentication"].InnerText);
                     Settings.Default.defaultSaveLocation = xn["DefaultSaveLocation"].InnerText;
-                    Settings.Default.autoSave = Boolean.Parse(xn["AutoSave"].InnerText);
-                    Settings.Default.autoSaveFaves = Boolean.Parse(xn["AutoSaveFaves"].InnerText);
-                    Settings.Default.wallpaperFade = Boolean.Parse(xn["WallpaperFade"].InnerText);
-                    Settings.Default.disableNotifications = Boolean.Parse(xn["DisableNotifications"].InnerText);
-                    Settings.Default.suppressDuplicates = Boolean.Parse(xn["SuppressDuplicates"].InnerText);
-                    Settings.Default.sizeValidation = Boolean.Parse(xn["ValidateWallpaperSize"].InnerText);
-                    Settings.Default.wallpaperInfoPopup = Boolean.Parse(xn["WallpaperInfoPopup"].InnerText);
-                    Settings.Default.autoUpdateCheck = Boolean.Parse(xn["AutoUpdateCheck"].InnerText);
+                    Settings.Default.autoSave = bool.Parse(xn["AutoSave"].InnerText);
+                    Settings.Default.autoSaveFaves = bool.Parse(xn["AutoSaveFaves"].InnerText);
+                    Settings.Default.wallpaperFade = bool.Parse(xn["WallpaperFade"].InnerText);
+                    Settings.Default.disableNotifications = bool.Parse(xn["DisableNotifications"].InnerText);
+                    Settings.Default.suppressDuplicates = bool.Parse(xn["SuppressDuplicates"].InnerText);
+                    Settings.Default.sizeValidation = bool.Parse(xn["ValidateWallpaperSize"].InnerText);
+                    Settings.Default.wallpaperInfoPopup = bool.Parse(xn["WallpaperInfoPopup"].InnerText);
+                    Settings.Default.autoUpdateCheck = bool.Parse(xn["AutoUpdateCheck"].InnerText);
                     Settings.Default.wallpaperStyle = xn["WallpaperFit"].InnerText;
 
                     Settings.Default.Save();
@@ -485,6 +487,7 @@ namespace Reddit_Wallpaper_Changer
         {
             Logger.Instance.LogMessageToFile("Auto Start: " + Settings.Default.autoStart, LogLevel.Information);
             Logger.Instance.LogMessageToFile("Start In Tray: " + Settings.Default.startInTray, LogLevel.Information);
+            Logger.Instance.LogMessageToFile("Include NSFW: " + Settings.Default.includeNsfw, LogLevel.Information);
             Logger.Instance.LogMessageToFile("Proxy Enabled: " + Settings.Default.useProxy, LogLevel.Information);
 
             if (Settings.Default.useProxy)
