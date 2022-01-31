@@ -28,11 +28,17 @@ namespace Reddit_Wallpaper_Changer
 
             if (File.Exists(fileName)) return;
 
-            var ms = new MemoryStream(Convert.FromBase64String(Thumbnail));
-
-            using (var image = Image.FromStream(ms))
+            try
             {
-                image.Save(fileName);
+                using (var ms = new MemoryStream(Convert.FromBase64String(Thumbnail)))
+                using (var image = Image.FromStream(ms))
+                {
+                    image.Save(fileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessageToFile($"Unable to save thumbnail: {Thumbnail} to file: {fileName}. {ex.Message}", LogLevel.Warning);
             }
         }
     }
