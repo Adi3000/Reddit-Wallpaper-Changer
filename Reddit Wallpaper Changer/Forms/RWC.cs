@@ -779,7 +779,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         private async void BlacklistWallpapertoolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var redditLink = ControlHelpers.CreateRedditLinkFromGrid(blacklistDataGrid, _currentMouseOverRow);
+            var redditLink = ControlHelpers.CreateRedditLinkFromGrid(historyDataGrid, _currentMouseOverRow);
 
             var blacklistSuccessful = await _database.BlacklistWallpaperAsync(redditLink);
 
@@ -806,7 +806,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         private async void FavouriteThisWallpaperToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var redditLink = ControlHelpers.CreateRedditLinkFromGrid(favouritesDataGrid, _currentMouseOverRow);
+            var redditLink = ControlHelpers.CreateRedditLinkFromGrid(historyDataGrid, _currentMouseOverRow);
 
             var favouriteSuccessful = await _database.FaveWallpaperAsync(redditLink);
 
