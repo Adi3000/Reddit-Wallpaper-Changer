@@ -30,6 +30,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         private int _currentMouseOverRow;
         private bool _enabledOnSleep;
+        private bool _showedTray;
 
         public string CurrentThread { private get; set; }
 
@@ -366,7 +367,11 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             Visible = false;
 
-            ControlHelpers.FakeClose(taskIcon);
+            if (!_showedTray)
+            {
+                _showedTray = true;
+                ControlHelpers.ShowTrayMsg(taskIcon);
+            }
         }
 
         private void ShowForm()
