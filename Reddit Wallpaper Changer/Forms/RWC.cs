@@ -53,6 +53,9 @@ namespace Reddit_Wallpaper_Changer.Forms
             _tabSelector = new TabSelector(configurePanel, configureButton);
             _mainThreadMarshaller = new MainThreadMarshaller(this, SynchronizationContext.Current);
             _wallpaperChanger = new WallpaperChanger(_mainThreadMarshaller, _database);
+
+            this.ShowInTaskbar = false;
+            this.WindowState = FormWindowState.Minimized;
         }
 
         /// <summary>
@@ -186,6 +189,8 @@ namespace Reddit_Wallpaper_Changer.Forms
             statuslabel1.Text = "RWC Setup Initiated.";
 
             checkInternetTimer.Enabled = true;
+
+            if (!chkStartInTray.Checked) ShowForm();
         }
 
         //======================================================================
@@ -353,18 +358,6 @@ namespace Reddit_Wallpaper_Changer.Forms
             => changeWallpaperTimer.Enabled = true;
 
         //======================================================================
-        // Form load screen
-        //======================================================================
-        private void RWC_Shown(object sender, EventArgs e)
-        {
-            if (!chkStartInTray.Checked) return;
-
-            Visible = false;
-
-            ControlHelpers.FakeClose(taskIcon);
-        }
-
-        //======================================================================
         // Closing the form
         //======================================================================
         private void RWC_FormClosing(object sender, FormClosingEventArgs e)
@@ -376,15 +369,23 @@ namespace Reddit_Wallpaper_Changer.Forms
             ControlHelpers.FakeClose(taskIcon);
         }
 
+        private void ShowForm()
+        {
+            if (!this.ShowInTaskbar) this.ShowInTaskbar = true;
+            if (this.WindowState == FormWindowState.Minimized) this.WindowState = FormWindowState.Normal;
+
+            this.Visible = true;
+        }
+
         //======================================================================
         // Restore from system tray
         //======================================================================
-        private void TaskIcon_MouseDoubleClick(object sender, MouseEventArgs e) => Visible = true;
+        private void TaskIcon_MouseDoubleClick(object sender, MouseEventArgs e) { ShowForm(); }
 
         //======================================================================
         // Settings selected from the menu
         //======================================================================
-        private void SettingsToolStripMenuItem_Click(object sender, EventArgs e) => Visible = true;
+        private void SettingsToolStripMenuItem_Click(object sender, EventArgs e) { ShowForm(); }
 
         //======================================================================
         // Exit selected form the menu

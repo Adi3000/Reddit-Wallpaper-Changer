@@ -1937,7 +1937,6 @@
             this.Name = "RWC";
             this.Text = "Reddit Wallpaper Changer";
             this.Load += new System.EventHandler(this.RWC_Load);
-            this.Shown += new System.EventHandler(this.RWC_Shown);
             this.configurePanel.ResumeLayout(false);
             this.configurePanel.PerformLayout();
             this.contextMenuStrip.ResumeLayout(false);
