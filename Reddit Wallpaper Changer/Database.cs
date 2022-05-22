@@ -28,32 +28,37 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         public async Task ConnectToDatabaseAsync()
         {
-            if (File.Exists(_dbPath))
-            {
-                try
-                {
-                    using (await GetNewOpenConnectionAsync().ConfigureAwait(false))
-                    {
-                        Logger.Instance.LogMessageToFile($"Successfully connected to database '{DbName}'", LogLevel.Information);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Instance.LogMessageToFile($"Unexpected error connecting to database: {ex.Message}", LogLevel.Error);
-                }
-            }
-            else
+            if (!File.Exists(_dbPath))
             {
                 try
                 {
                     SQLiteConnection.CreateFile(_dbPath);
 
                     Logger.Instance.LogMessageToFile($"Database '{DbName}' created successfully: {_dbPath}", LogLevel.Information);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.LogMessageToFile($"Unexpected error creating database: {ex.Message}", LogLevel.Error);
+                    throw ex;
+                }
+            }
 
-                    using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+            try
+            {
+                using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                {
+                    Logger.Instance.LogMessageToFile($"Successfully connected to database '{DbName}'", LogLevel.Information);
+
+                    bool databaseEmpty = false;
+
+                    using (var existsCommand = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' AND name='blacklist';", con))
                     {
-                        Logger.Instance.LogMessageToFile($"Successfully connected to database '{DbName}'", LogLevel.Information);
+                        await existsCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        databaseEmpty = !existsCommand.ExecuteReader().HasRows;
+                    }
 
+                    if (databaseEmpty)
+                    {
                         using (var beginCommand = new SQLiteCommand("BEGIN", con))
                         using (var versionTableCommand = new SQLiteCommand("CREATE TABLE version (version STRING, date STRING)", con))
                         using (var blacklistTableCommand = new SQLiteCommand("CREATE TABLE blacklist (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
@@ -101,14 +106,15 @@ namespace Reddit_Wallpaper_Changer
 
                             await endCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                         }
-                    }
 
-                    await AddVersionAsync().ConfigureAwait(false);
+                        await AddVersionAsync().ConfigureAwait(false);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Logger.Instance.LogMessageToFile($"Unexpected error creating database: {ex.Message}", LogLevel.Error);
-                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessageToFile($"Unexpected error creating database: {ex.Message}", LogLevel.Error);
+                throw ex;
             }
         }
 
