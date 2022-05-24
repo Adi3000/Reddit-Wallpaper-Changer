@@ -43,9 +43,9 @@ namespace Reddit_Wallpaper_Changer
         }
 
         //======================================================================
-        // Send to system tray
+        // Show system tray message
         //======================================================================
-        public static void FakeClose(NotifyIcon taskIcon)
+        public static void ShowTrayMsg(NotifyIcon taskIcon)
         {
             var details = new BalloonTipDetails(ToolTipIcon.Info, "Reddit Wallpaper Changer", 
                 "Down here if you need me!", 700);
