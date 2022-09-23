@@ -293,6 +293,8 @@ namespace Reddit_Wallpaper_Changer
                 {
                     if (!await SetWallpaperAsync(redditLink).ConfigureAwait(false))
                     {
+                        _noResultCount++;
+
                         await SearchForWallpaperAsync().ConfigureAwait(false);
                     }
                 }
