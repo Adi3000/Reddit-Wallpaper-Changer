@@ -495,11 +495,8 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             changeWallpaperTimer.Enabled = false;
 
-            while (true)
-            {
-                if (await Task.Run(() => _wallpaperChanger.SearchForWallpaperAsync())
-                                                          .ConfigureAwait(false)) return;
-            }
+            await Task.Run(_wallpaperChanger.SearchForWallpaperAsync)
+                .ConfigureAwait(false);
         }
 
         //======================================================================
@@ -841,14 +838,12 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             var redditLink = ControlHelpers.CreateRedditLinkFromGrid(historyDataGrid, _currentMouseOverRow);
 
-            if (!await Task.Run(() => _wallpaperChanger.SetWallpaperAsync(redditLink)).ConfigureAwait(false))
+            await Task.Run(async () =>
             {
-                while (true)
-                {
-                    if (await Task.Run(() => _wallpaperChanger.SearchForWallpaperAsync())
-                                                              .ConfigureAwait(false)) return;
-                }
-            }
+                if (!await _wallpaperChanger.SetWallpaperAsync(redditLink).ConfigureAwait(false))
+                    await _wallpaperChanger.SearchForWallpaperAsync().ConfigureAwait(false);
+            })
+            .ConfigureAwait(false);
         }
 
         //======================================================================
@@ -862,14 +857,12 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             var redditLink = ControlHelpers.CreateRedditLinkFromGrid(favouritesDataGrid, _currentMouseOverRow);
 
-            if (!await Task.Run(() => _wallpaperChanger.SetWallpaperAsync(redditLink)).ConfigureAwait(false))
+            await Task.Run(async () =>
             {
-                while (true)
-                {
-                    if (await Task.Run(() => _wallpaperChanger.SearchForWallpaperAsync())
-                                                              .ConfigureAwait(false)) return;
-                }
-            }
+                if (!await _wallpaperChanger.SetWallpaperAsync(redditLink).ConfigureAwait(false))
+                    await _wallpaperChanger.SearchForWallpaperAsync().ConfigureAwait(false);
+            })
+            .ConfigureAwait(false);
         }
 
         //======================================================================

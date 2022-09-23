@@ -87,97 +87,103 @@ namespace Reddit_Wallpaper_Changer
             return true;
         }
 
-        // TODO refactor
+        // TODO refactor, add cancellation
         //======================================================================
         // Search for a wallpaper
         //======================================================================
-        public async Task<bool> SearchForWallpaperAsync()
+        public async Task SearchForWallpaperAsync()
         {
-            Logger.Instance.LogMessageToFile("Looking for a wallpaper.", LogLevel.Information);
-
-            if (MaxRetriesExceeded())
-                return true;
-
-            _uiMarshaller.UpdateStatus("Finding New Wallpaper");
-
-            try
+            while (true)
             {
-                var url = GetRedditSearchUrl(_random, _uiMarshaller);
-                var jsonData = await GetJsonDataAsync(url, _uiMarshaller).ConfigureAwait(false);
+                Logger.Instance.LogMessageToFile("Looking for a wallpaper.", LogLevel.Information);
+
+                if (MaxRetriesExceeded())
+                    return;
+
+                _uiMarshaller.UpdateStatus("Finding New Wallpaper");
 
                 try
                 {
-                    if (jsonData.Any())
+                    var url = GetRedditSearchUrl(_random, _uiMarshaller);
+                    var jsonData = await GetJsonDataAsync(url, _uiMarshaller).ConfigureAwait(false);
+
+                    try
                     {
-                        var redditResult = GetRedditResult(JToken.Parse(jsonData));
-
-                        JToken token = null;
-
-                        try
+                        if (jsonData.Any())
                         {
-                            foreach (var toke in redditResult.Reverse())
+                            var redditResult = GetRedditResult(JToken.Parse(jsonData));
+
+                            JToken token = null;
+
+                            try
                             {
-                                token = toke;
-                            }
+                                foreach (var toke in redditResult.Reverse())
+                                {
+                                    token = toke;
+                                }
 
-                            if (token == null)
+                                if (token == null)
+                                {
+                                    if (redditResult.HasValues)
+                                    {
+                                        var randIndex = _random.Next(0, redditResult.Count() - 1);
+                                        token = redditResult.ElementAt(randIndex);
+                                    }
+                                    else
+                                    {
+                                        ++_noResultCount;
+
+                                        _uiMarshaller.UpdateStatus("No results found, searching again.");
+                                        Logger.Instance.LogMessageToFile("No search results, trying to change wallpaper again.", LogLevel.Information);
+
+                                        continue;
+                                    }
+                                }
+
+                                if ((WallpaperGrabType)Settings.Default.wallpaperGrabType == WallpaperGrabType.Random)
+                                    token = redditResult.ElementAt(_random.Next(0, redditResult.Count() - 1));
+
+                                var tokenData = token["data"];
+
+                                _uiMarshaller.SetCurrentThread($"http://reddit.com{tokenData["permalink"]}");
+
+                                var redditLink = new RedditLink(
+                                    tokenData["url"].ToString(),
+                                    tokenData["title"].ToString(),
+                                    tokenData["id"].ToString());
+
+                                if (!await ChangeWallpaperIfValidImageAsync(redditLink).ConfigureAwait(false))
+                                    return;
+                            }
+                            catch (InvalidOperationException)
                             {
-                                if (redditResult.HasValues)
-                                {
-                                    var randIndex = _random.Next(0, redditResult.Count() - 1);
-                                    token = redditResult.ElementAt(randIndex);
-                                }
-                                else
-                                {
-                                    ++_noResultCount;
-
-                                    _uiMarshaller.UpdateStatus("No results found, searching again.");
-                                    Logger.Instance.LogMessageToFile("No search results, trying to change wallpaper again.", LogLevel.Information);
-
-                                    return false;
-                                }
+                                _uiMarshaller.LogFailure("Your search query is bringing up no results.",
+                                    "No results from the search query.");
                             }
-
-                            if ((WallpaperGrabType)Settings.Default.wallpaperGrabType == WallpaperGrabType.Random)
-                                token = redditResult.ElementAt(_random.Next(0, redditResult.Count() - 1));
-
-                            var tokenData = token["data"];
-
-                            _uiMarshaller.SetCurrentThread($"http://reddit.com{tokenData["permalink"]}");
-
-                            var redditLink = new RedditLink(
-                                tokenData["url"].ToString(),
-                                tokenData["title"].ToString(),
-                                tokenData["id"].ToString());
-
-                            if (!await ChangeWallpaperIfValidImageAsync(redditLink).ConfigureAwait(false))
-                                return true;
                         }
-                        catch (InvalidOperationException)
+                        else
                         {
-                            _uiMarshaller.LogFailure("Your search query is bringing up no results.", 
-                                "No results from the search query.");
+                            _uiMarshaller.LogFailure("Subreddit Probably Doesn't Exist",
+                                "Subreddit probably does not exist.");
+
+                            _noResultCount++;
+
+                            return;
                         }
                     }
-                    else
+                    catch (JsonReaderException ex)
                     {
-                        _uiMarshaller.LogFailure("Subreddit Probably Doesn't Exist", 
-                            "Subreddit probably does not exist.");
-
-                        _noResultCount++;
-
-                        return true;
+                        _uiMarshaller.LogFailure($"Unexpected error: {ex.Message}",
+                            $"Unexpected error: {ex.Message}", LogLevel.Error);
                     }
                 }
-                catch (JsonReaderException ex)
+                catch (Exception ex)
                 {
-                    _uiMarshaller.LogFailure($"Unexpected error: {ex.Message}", 
-                        $"Unexpected error: {ex.Message}", LogLevel.Error);
+                    Logger.Instance.LogMessageToFile(ex.Message, LogLevel.Warning);
                 }
-            }
-            catch { }
 
-            return true;
+                return;
+            }
         }
 
         private async Task<bool> SetWallpaperAsync(RedditLink redditLink, string wallpaperFile)
@@ -287,7 +293,7 @@ namespace Reddit_Wallpaper_Changer
                 {
                     if (!await SetWallpaperAsync(redditLink).ConfigureAwait(false))
                     {
-                        while (!await SearchForWallpaperAsync().ConfigureAwait(false)) { }
+                        await SearchForWallpaperAsync().ConfigureAwait(false);
                     }
                 }
                 else
@@ -297,7 +303,7 @@ namespace Reddit_Wallpaper_Changer
 
                     _noResultCount++;
 
-                    while (!await SearchForWallpaperAsync().ConfigureAwait(false)) { }
+                    await SearchForWallpaperAsync().ConfigureAwait(false);
                 }
             }
             else
