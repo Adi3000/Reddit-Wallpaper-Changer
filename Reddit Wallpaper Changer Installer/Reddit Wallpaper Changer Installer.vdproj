@@ -362,15 +362,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Reddit Wallpaper Changer"
-        "ProductCode" = "8:{130116FE-B6DA-48FB-A53A-118D8832A27D}"
-        "PackageCode" = "8:{23090705-D140-4F47-A9EC-B3FD1300E573}"
+        "ProductCode" = "8:{F0409869-8BC7-46E3-812B-33810DDFA416}"
+        "PackageCode" = "8:{66620633-5806-4AAA-932D-B4A958346D85}"
         "UpgradeCode" = "8:{B05B9A99-E492-439D-A828-1D783173D70C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.19"
+        "ProductVersion" = "8:1.0.20"
         "Manufacturer" = "8:qwertydog"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://www.reddit.com/r/rwallpaperchanger/"
@@ -856,7 +856,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_12CE8F77BDEF41128AC71956DB7868D0"
             {
-            "SourcePath" = "8:..\\Reddit Wallpaper Changer\\obj\\x86\\Release\\Reddit Wallpaper Changer.exe"
+            "SourcePath" = "8:..\\Reddit Wallpaper Changer\\obj\\Release\\Reddit Wallpaper Changer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_508F98CE01814F948B108EEF6FC57D33"
