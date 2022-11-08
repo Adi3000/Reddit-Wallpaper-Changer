@@ -41,7 +41,7 @@ namespace Reddit_Wallpaper_Changer
         {
             Logger.Instance.LogMessageToFile("Setting wallpaper.", LogLevel.Information);
 
-            if (!await WallpaperLinkValidAsync(redditLink).ConfigureAwait(false))
+            if (!WallpaperLinkValid(redditLink))
                 return false;
 
             HelperMethods.ResetManualOverride();
@@ -241,9 +241,9 @@ namespace Reddit_Wallpaper_Changer
             return true;
         }
 
-        private async Task<bool> WallpaperLinkValidAsync(RedditLink redditLink)
+        private bool WallpaperLinkValid(RedditLink redditLink)
         {
-            if (await _database.IsBlacklistedAsync(redditLink.Url).ConfigureAwait(false))
+            if (_database.IsBlacklisted(redditLink.Url))
             {
                 _uiMarshaller.UpdateStatus("Wallpaper is blacklisted.");
                 Logger.Instance.LogMessageToFile("The selected wallpaper has been blacklisted, searching again.", LogLevel.Warning);

@@ -26,7 +26,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Create the SQLite Blacklist database
         //======================================================================
-        public async Task ConnectToDatabaseAsync()
+        public void ConnectToDatabase()
         {
             if (!File.Exists(_dbPath))
             {
@@ -45,7 +45,7 @@ namespace Reddit_Wallpaper_Changer
 
             try
             {
-                using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                using (var con = GetNewOpenConnection())
                 {
                     Logger.Instance.LogMessageToFile($"Successfully connected to database '{DbName}'", LogLevel.Information);
 
@@ -53,8 +53,7 @@ namespace Reddit_Wallpaper_Changer
 
                     using (var existsCommand = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' AND name='blacklist';", con))
                     {
-                        var numRows = await existsCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                        databaseEmpty = (numRows == 0);
+                        databaseEmpty = (existsCommand.ExecuteNonQuery() == 0);
                     }
 
                     if (databaseEmpty)
@@ -72,42 +71,42 @@ namespace Reddit_Wallpaper_Changer
                         using (var historyIndexDateTimeCommand = new SQLiteCommand("CREATE INDEX idx_history_date ON history (datetime(date) DESC)", con))
                         using (var endCommand = new SQLiteCommand("END", con))
                         {
-                            await beginCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            beginCommand.ExecuteNonQuery();
 
-                            await versionTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            versionTableCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Table 'version' successfully created.", LogLevel.Information);
 
-                            await blacklistTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            blacklistTableCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Table 'blacklist' successfully created.", LogLevel.Information);
 
-                            await blacklistIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            blacklistIndexCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Index 'idx_blacklist' successfully created.", LogLevel.Information);
 
-                            await blacklistIndexDateTimeCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            blacklistIndexDateTimeCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Index 'idx_blacklist_date' successfully created.", LogLevel.Information);
 
-                            await favouritesTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            favouritesTableCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Table 'favourites' successfully created.", LogLevel.Information);
 
-                            await favouritesIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            favouritesIndexCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Index 'idx_favourites' successfully created.", LogLevel.Information);
 
-                            await favouritesIndexDateTimeCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            favouritesIndexDateTimeCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Index 'idx_favourites_date' successfully created.", LogLevel.Information);
 
-                            await historyTableCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            historyTableCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Table 'history' successfully created.", LogLevel.Information);
 
-                            await historyIndexCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            historyIndexCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Index 'idx_history' successfully created.", LogLevel.Information);
 
-                            await historyIndexDateTimeCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            historyIndexDateTimeCommand.ExecuteNonQuery();
                             Logger.Instance.LogMessageToFile("Index 'idx_history_date' successfully created.", LogLevel.Information);
 
-                            await endCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            endCommand.ExecuteNonQuery();
                         }
 
-                        await AddVersionAsync().ConfigureAwait(false);
+                        AddVersion();
                     }
                 }
             }
@@ -155,7 +154,7 @@ namespace Reddit_Wallpaper_Changer
 
                                 var dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
 
-                                using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                                using (var con = GetNewOpenConnection())
                                 using (var command = new SQLiteCommand(
                                     "INSERT INTO blacklist (thumbnail, title, threadid, url, date) " +
                                     "VALUES (@thumbnail, @title, @threadid, @url, @date)", con))
@@ -239,21 +238,21 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Add version
         //======================================================================
-        public async Task AddVersionAsync()
+        public void AddVersion()
         {
             try
             {
                 var currentVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
                 var dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
 
-                using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                using (var connection = GetNewOpenConnection())
                 using (var command = new SQLiteCommand("INSERT INTO version (version, date) " +
                                                        "VALUES (@version, @dateTime)", connection))
                 {
                     command.Parameters.AddWithValue("version", currentVersion);
                     command.Parameters.AddWithValue("dateTime", dateTime);
 
-                    await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    command.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
@@ -282,11 +281,11 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Remove wallpaper from blacklist
         //======================================================================
-        public async Task RemoveFromBlacklistAsync(string url)
+        public void RemoveFromBlacklist(string url)
         {
             try
             {
-                await DeleteFromTableAsync("blacklist", url);
+                DeleteFromTable("blacklist", url);
 
                 Logger.Instance.LogMessageToFile($"Wallpaper removed from blacklist! URL: {url}", LogLevel.Information);
             }
@@ -299,11 +298,11 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Remove wallpaper from favourites
         //======================================================================
-        public async Task RemoveFromFavouritesAsync(string url)
+        public void RemoveFromFavourites(string url)
         {
             try
             {
-                await DeleteFromTableAsync("favourites", url);
+                DeleteFromTable("favourites", url);
 
                 Logger.Instance.LogMessageToFile($"Wallpaper removed from favourites! URL: {url}", LogLevel.Information);
             }
@@ -316,11 +315,11 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Remove wallpaper from History
         //======================================================================
-        public async Task RemoveFromHistoryAsync(string url)
+        public void RemoveFromHistory(string url)
         {
             try
             {
-                await DeleteFromTableAsync("history", url);
+                DeleteFromTable("history", url);
 
                 Logger.Instance.LogMessageToFile($"Wallpaper removed from history! URL: {url}", LogLevel.Information);
             }
@@ -333,11 +332,11 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve history from the database
         //======================================================================
-        public async Task<IEnumerable<RedditImage>> GetFromHistoryAsync()
+        public IEnumerable<RedditImage> GetFromHistory()
         {
             try
             {
-                return await GetRedditImagesFromDatabaseAsync("history").ConfigureAwait(false);
+                return GetRedditImagesFromDatabase("history");
             }
             catch (Exception ex)
             {
@@ -349,11 +348,11 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve blacklist from the database
         //======================================================================
-        public async Task<IEnumerable<RedditImage>> GetFromBlacklistAsync()
+        public IEnumerable<RedditImage> GetFromBlacklist()
         {
             try
             {
-                return await GetRedditImagesFromDatabaseAsync("blacklist").ConfigureAwait(false);
+                return GetRedditImagesFromDatabase("blacklist");
             }
             catch (Exception ex)
             {
@@ -365,11 +364,11 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve favourites from the database
         //======================================================================
-        public async Task<IEnumerable<RedditImage>> GetFromFavouritesAsync()
+        public IEnumerable<RedditImage> GetFromFavourites()
         {
             try
             {
-                return await GetRedditImagesFromDatabaseAsync("favourites").ConfigureAwait(false);
+                return GetRedditImagesFromDatabase("favourites");
             }
             catch (Exception ex)
             {
@@ -381,11 +380,11 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Check for blacklisted wallpaper
         //======================================================================
-        public async Task<bool> IsBlacklistedAsync(string url)
+        public bool IsBlacklisted(string url)
         {
             try
             {
-                using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                using (var con = GetNewOpenConnection())
                 using (var command = new SQLiteCommand("SELECT COUNT(*) " +
                                                        "FROM blacklist " +
                                                        "WHERE url = @url", con))
@@ -393,7 +392,7 @@ namespace Reddit_Wallpaper_Changer
                 {
                     command.Parameters.AddWithValue("@url", url);
 
-                    var count = await command.ExecuteScalarAsync().ConfigureAwait(false);
+                    var count = command.ExecuteScalar();
                     if (count != null)
                         return Convert.ToInt32(count) > 0;
                 }
@@ -410,7 +409,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Delete all values from table
         //======================================================================
-        public async Task<bool> WipeTableAsync(string tableName)
+        public bool WipeTable(string tableName)
         {
             try
             {
@@ -419,10 +418,10 @@ namespace Reddit_Wallpaper_Changer
                     case "favourites":
                     case "history":
                     case "blacklist":
-                        using (var con = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+                        using (var con = GetNewOpenConnection())
                         using (var command = new SQLiteCommand($"DELETE FROM {tableName}", con))
                         {
-                            await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            command.ExecuteNonQuery();
                         }
                         break;
                 }
@@ -440,7 +439,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Backup database
         //======================================================================
-        public async Task<bool> BackupDatabaseAsync(string backupPath)
+        public bool BackupDatabase(string backupPath)
         {
             try
             {
@@ -450,7 +449,7 @@ namespace Reddit_Wallpaper_Changer
 
                 File.Copy(_dbPath, fullBackupPath, true);
 
-                await ConnectToDatabaseAsync().ConfigureAwait(false);
+                ConnectToDatabase();
 
                 return true;
             }
@@ -465,7 +464,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Restore sqlite database
         //======================================================================
-        public async Task<bool> RestoreDatabaseAsync(string restoreSource)
+        public bool RestoreDatabase(string restoreSource)
         {
             try
             {
@@ -473,7 +472,7 @@ namespace Reddit_Wallpaper_Changer
 
                 File.Copy(restoreSource, _dbPath, true);
 
-                await ConnectToDatabaseAsync().ConfigureAwait(false);
+                ConnectToDatabase();
 
                 return true;
             }
@@ -488,13 +487,13 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Generate thumbnails for History
         //======================================================================
-        public async Task BuildThumbnailCacheAsync()
+        public void BuildThumbnailCache()
         {
             try
             {
                 Logger.Instance.LogMessageToFile("Updating wallpaper thumbnail cache.", LogLevel.Information);
 
-                var images = await GetAllImagesFromDatabaseAsync().ConfigureAwait(false);
+                var images = GetAllImagesFromDatabase();
 
                 foreach (var image in images)
                 {
@@ -509,30 +508,30 @@ namespace Reddit_Wallpaper_Changer
             }
         }
 
-        private async Task<IEnumerable<RedditImage>> GetAllImagesFromDatabaseAsync()
+        private IEnumerable<RedditImage> GetAllImagesFromDatabase()
         {
             var imageList = new List<RedditImage>();
 
-            using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+            using (var connection = GetNewOpenConnection())
             using (var command = new SQLiteCommand("SELECT * FROM blacklist " +
                                                    "UNION " +
                                                    "SELECT * FROM history " +
                                                    "UNION " +
                                                    "SELECT * FROM favourites", connection))
-            using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess).ConfigureAwait(false))
+            using (var reader = command.ExecuteReader(CommandBehavior.SequentialAccess))
             {
                 if (!reader.HasRows)
                     return imageList;
 
-                while (await reader.ReadAsync().ConfigureAwait(false))
+                while (reader.Read())
                 {
                     var redditImage = new RedditImage
                     (
-                        await reader.GetFieldValueAsync<string>(0).ConfigureAwait(false), // thumbnail
-                        await reader.GetFieldValueAsync<string>(1).ConfigureAwait(false), // title
-                        await reader.GetFieldValueAsync<string>(2).ConfigureAwait(false), // threadid
-                        await reader.GetFieldValueAsync<string>(3).ConfigureAwait(false), // url
-                        await reader.GetFieldValueAsync<string>(4).ConfigureAwait(false)  // date
+                        reader.GetFieldValue<string>(0), // thumbnail
+                        reader.GetFieldValue<string>(1), // title
+                        reader.GetFieldValue<string>(2), // threadid
+                        reader.GetFieldValue<string>(3), // url
+                        reader.GetFieldValue<string>(4)  // date
                     );
 
                     imageList.Add(redditImage);
@@ -542,28 +541,28 @@ namespace Reddit_Wallpaper_Changer
             return imageList;
         }
 
-        private async Task<IEnumerable<RedditImage>> GetRedditImagesFromDatabaseAsync(string tableName)
+        private IEnumerable<RedditImage> GetRedditImagesFromDatabase(string tableName)
         {
             var imageList = new List<RedditImage>();
 
-            using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+            using (var connection = GetNewOpenConnection())
             using (var command = new SQLiteCommand("SELECT * " +
                                                   $"FROM {tableName} " +
                                                    "ORDER BY datetime(date) DESC", connection))
-            using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess).ConfigureAwait(false))
+            using (var reader = command.ExecuteReader(CommandBehavior.SequentialAccess))
             {
                 if (!reader.HasRows)
                     return imageList;
 
-                while (await reader.ReadAsync().ConfigureAwait(false))
+                while (reader.Read())
                 {
                     var redditImage = new RedditImage
                     (
-                        await reader.GetFieldValueAsync<string>(0).ConfigureAwait(false), // thumbnail
-                        await reader.GetFieldValueAsync<string>(1).ConfigureAwait(false), // title
-                        await reader.GetFieldValueAsync<string>(2).ConfigureAwait(false), // threadid
-                        await reader.GetFieldValueAsync<string>(3).ConfigureAwait(false), // url
-                        await reader.GetFieldValueAsync<string>(4).ConfigureAwait(false)  // date
+                        reader.GetFieldValue<string>(0), // thumbnail
+                        reader.GetFieldValue<string>(1), // title
+                        reader.GetFieldValue<string>(2), // threadid
+                        reader.GetFieldValue<string>(3), // url
+                        reader.GetFieldValue<string>(4)  // date
                     );
 
                     imageList.Add(redditImage);
@@ -573,16 +572,16 @@ namespace Reddit_Wallpaper_Changer
             return imageList;
         }
 
-        private async Task DeleteFromTableAsync(string tableName, string url)
+        private void DeleteFromTable(string tableName, string url)
         {
-            using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+            using (var connection = GetNewOpenConnection())
             using (var command = new SQLiteCommand("DELETE " +
                                                   $"FROM {tableName} " +
                                                    "WHERE url = @url", connection))
             {
                 command.Parameters.AddWithValue("@url", url);
 
-                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                command.ExecuteNonQuery();
             }
         }
 
@@ -594,7 +593,7 @@ namespace Reddit_Wallpaper_Changer
 
             redditLink.Title = redditLink.Title.Replace("'", "''");
 
-            using (var connection = await GetNewOpenConnectionAsync().ConfigureAwait(false))
+            using (var connection = GetNewOpenConnection())
             using (var command = new SQLiteCommand($"INSERT INTO {tableName} (thumbnail, title, threadid, url, date) " +
                                                     "VALUES (@thumbnail, @title, @threadid, @url, @dateTime)", connection))
             {
@@ -610,10 +609,10 @@ namespace Reddit_Wallpaper_Changer
             return redditImage;
         }
 
-        private async Task<SQLiteConnection> GetNewOpenConnectionAsync()
+        private SQLiteConnection GetNewOpenConnection()
         {
             var connection = new SQLiteConnection(_connectionString);
-            await connection.OpenAsync().ConfigureAwait(false);
+            connection.Open();
             return connection;
         }
     }

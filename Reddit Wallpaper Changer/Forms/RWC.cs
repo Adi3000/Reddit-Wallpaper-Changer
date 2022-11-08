@@ -135,7 +135,7 @@ namespace Reddit_Wallpaper_Changer.Forms
                 Settings.Default.updateSettings = false;
                 Settings.Default.Save();
 
-                await _database.AddVersionAsync();
+                _database.AddVersion();
             }
 
             Logger.Instance.LogMessageToFile("===================================================================================================================", LogLevel.Information);
@@ -176,16 +176,16 @@ namespace Reddit_Wallpaper_Changer.Forms
             ControlHelpers.SetSubredditTypeLabel(label5, subredditTextBox.Text);
             HelperMethods.LogSettings(changeTimeType.Text, Screen.AllScreens.Length);
 
-            await _database.ConnectToDatabaseAsync();
+            _database.ConnectToDatabase();
 
             if (!Settings.Default.dbMigrated)
                 await _database.MigrateOldBlacklistAsync();
 
-            await _database.BuildThumbnailCacheAsync();
+            _database.BuildThumbnailCache();
 
-            await ControlHelpers.PopulateHistoryAsync(historyDataGrid, _database);
-            await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database);
-            await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database);
+            ControlHelpers.PopulateHistory(historyDataGrid, _database);
+            ControlHelpers.PopulateFavourites(favouritesDataGrid, _database);
+            ControlHelpers.PopulateBlacklist(blacklistDataGrid, _database);
 
             statuslabel1.Text = "RWC Setup Initiated.";
 
@@ -740,7 +740,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             var details = new BalloonTipDetails(ToolTipIcon.Info, "Wallpaper Favourited!", "Wallpaper added to favourites!", 750);
             ControlHelpers.ShowBalloonTip(taskIcon, details);
 
-            await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database).ConfigureAwait(false);
+            ControlHelpers.PopulateFavourites(favouritesDataGrid, _database);
 
             if (Settings.Default.autoSaveFaves)
                 await ControlHelpers.SaveLinkAsync(statuslabel1, taskIcon, redditLink).ConfigureAwait(false);
@@ -773,7 +773,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             wallpaperChangeTimer.Enabled = true;
             changeWallpaperTimer.Enabled = true;
 
-            await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database).ConfigureAwait(false);
+            ControlHelpers.PopulateBlacklist(blacklistDataGrid, _database);
         }
 
         //======================================================================
@@ -800,7 +800,7 @@ namespace Reddit_Wallpaper_Changer.Forms
                 changeWallpaperTimer.Enabled = true;
             }
 
-            await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database).ConfigureAwait(false);
+            ControlHelpers.PopulateBlacklist(blacklistDataGrid, _database);
         }
 
         //======================================================================
@@ -821,7 +821,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             ControlHelpers.ShowBalloonTip(taskIcon, details);
 
-            await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database).ConfigureAwait(false);
+            ControlHelpers.PopulateFavourites(favouritesDataGrid, _database);
 
             if (Settings.Default.autoSaveFaves)
                 await ControlHelpers.SaveLinkAsync(statuslabel1, taskIcon, redditLink).ConfigureAwait(false);
@@ -868,15 +868,15 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Remove a previously blacklisted wallpaper
         //======================================================================
-        private async void UnblacklistWallpaper_Click(object sender, EventArgs e)
+        private void UnblacklistWallpaper_Click(object sender, EventArgs e)
         {
             try
             {
                 var url = blacklistDataGrid.Rows[_currentMouseOverRow].Cells[3].Value.ToString();
 
-                await _database.RemoveFromBlacklistAsync(url).ConfigureAwait(false);
+                _database.RemoveFromBlacklist(url);
 
-                await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database).ConfigureAwait(false);
+                ControlHelpers.PopulateBlacklist(blacklistDataGrid, _database);
             }
             catch(Exception ex)
             {
@@ -887,15 +887,15 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Remove a previously favourited wallpaper
         //======================================================================
-        private async void RemoveFaveMenu_Click(object sender, EventArgs e)
+        private void RemoveFaveMenu_Click(object sender, EventArgs e)
         {
             try
             {
                 var url = favouritesDataGrid.Rows[_currentMouseOverRow].Cells[3].Value.ToString();
 
-                await _database.RemoveFromFavouritesAsync(url).ConfigureAwait(false);
+                _database.RemoveFromFavourites(url);
 
-                await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database).ConfigureAwait(false);
+                ControlHelpers.PopulateFavourites(favouritesDataGrid, _database);
             }
             catch (Exception ex)
             {
@@ -906,15 +906,15 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Remove wallpaper from history
         //======================================================================
-        private async void RemoveThisWallpaperFromHistoryToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RemoveThisWallpaperFromHistoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
                 var url = historyDataGrid.Rows[_currentMouseOverRow].Cells[3].Value.ToString();
 
-                await _database.RemoveFromHistoryAsync(url).ConfigureAwait(false);
+                _database.RemoveFromHistory(url);
 
-                await ControlHelpers.PopulateHistoryAsync(historyDataGrid, _database).ConfigureAwait(false);
+                ControlHelpers.PopulateHistory(historyDataGrid, _database);
             }
             catch (Exception ex)
             {
@@ -1132,14 +1132,14 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Delete all wallpaper history from the database
         //======================================================================
-        private async void BtnClearHistory_Click(object sender, EventArgs e)
+        private void BtnClearHistory_Click(object sender, EventArgs e)
         {
             var choice = MessageBox.Show("Are you sure you want to delete ALL wallpaper history?\r\n" + 
                 "It's recommended that you take a backup first!\r\n\r\nTHIS ACTION CANNOT BE UNDONE!", "Clear History?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-            if (choice == DialogResult.Yes && await _database.WipeTableAsync("history"))
+            if (choice == DialogResult.Yes && _database.WipeTable("history"))
             {
-                await ControlHelpers.PopulateHistoryAsync(historyDataGrid, _database);
+                ControlHelpers.PopulateHistory(historyDataGrid, _database);
                 MessageBox.Show("All historical wallpaper data has been deleted!", 
                     "History Deleted!", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -1148,14 +1148,14 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Delete all favourite wallpapers from the database 
         //======================================================================
-        private async void BtnClearFavourites_Click(object sender, EventArgs e)
+        private void BtnClearFavourites_Click(object sender, EventArgs e)
         {
             var choice = MessageBox.Show("Are you sure you want to remove all favourite wallpapers?\r\n" +
                 "It's recommended that you take a backup first!\r\n\r\nTHIS ACTION CANNOT BE UNDONE!", "Clear Favourites?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-            if (choice == DialogResult.Yes && await _database.WipeTableAsync("favourites"))
+            if (choice == DialogResult.Yes && _database.WipeTable("favourites"))
             {
-                await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database);
+                ControlHelpers.PopulateFavourites(favouritesDataGrid, _database);
                 MessageBox.Show("All wallpapers have been deleted from your favourites!", "Favourites Deleted!", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -1163,14 +1163,14 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Delete all blacklisted wallpapers from the database 
         //======================================================================
-        private async void BtnClearBlacklisted_Click(object sender, EventArgs e)
+        private void BtnClearBlacklisted_Click(object sender, EventArgs e)
         {
             DialogResult choice = MessageBox.Show("Are you sure you want to remove all blacklisted wallpapers?\r\n" +
                 "It's recommended that you take a backup first!\r\n\r\nTHIS ACTION CANNOT BE UNDONE!", "Clear Blacklist?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-            if (choice == DialogResult.Yes && await _database.WipeTableAsync("blacklist"))
+            if (choice == DialogResult.Yes && _database.WipeTable("blacklist"))
             {
-                await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database);
+                ControlHelpers.PopulateBlacklist(blacklistDataGrid, _database);
                 MessageBox.Show("All wallpaper have been deleted from your blacklist!", "Blacklist Deleted!", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
@@ -1178,7 +1178,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Backup SQLite database
         //======================================================================
-        private async void BtnBackup_Click(object sender, EventArgs e)
+        private void BtnBackup_Click(object sender, EventArgs e)
         {
             using (var folderBrowser = new FolderBrowserDialog
             {
@@ -1189,7 +1189,7 @@ namespace Reddit_Wallpaper_Changer.Forms
                 {
                     Logger.Instance.LogMessageToFile("Database backup process started.", LogLevel.Information);
 
-                    if (await _database.BackupDatabaseAsync(folderBrowser.SelectedPath))
+                    if (_database.BackupDatabase(folderBrowser.SelectedPath))
                     {
                         MessageBox.Show("Your database has been successfully backed up.", "Backup Successful!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         Logger.Instance.LogMessageToFile("The backup process has completed successfully.", LogLevel.Information);
@@ -1206,7 +1206,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         // Restore SQLite backup
         //======================================================================
-        private async void BtnRestore_Click(object sender, EventArgs e)
+        private void BtnRestore_Click(object sender, EventArgs e)
         {
             using (var fileBrowser = new OpenFileDialog
             {
@@ -1218,11 +1218,11 @@ namespace Reddit_Wallpaper_Changer.Forms
                 {
                     Logger.Instance.LogMessageToFile("Database restore process has been started.", LogLevel.Information);
 
-                    if (await _database.RestoreDatabaseAsync(fileBrowser.FileName))
+                    if (_database.RestoreDatabase(fileBrowser.FileName))
                     {
-                        await ControlHelpers.PopulateHistoryAsync(historyDataGrid, _database);
-                        await ControlHelpers.PopulateFavouritesAsync(favouritesDataGrid, _database);
-                        await ControlHelpers.PopulateBlacklistAsync(blacklistDataGrid, _database);
+                        ControlHelpers.PopulateHistory(historyDataGrid, _database);
+                        ControlHelpers.PopulateFavourites(favouritesDataGrid, _database);
+                        ControlHelpers.PopulateBlacklist(blacklistDataGrid, _database);
 
                         MessageBox.Show("Your database has been successfully restored.", "Restore Successful!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         Logger.Instance.LogMessageToFile("The restore process has completed successfully.", LogLevel.Information);

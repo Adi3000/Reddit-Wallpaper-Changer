@@ -217,7 +217,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Populate the History panel
         //======================================================================
-        public static async Task<bool> PopulateHistoryAsync(DataGridView historyGrid, Database database)
+        public static bool PopulateHistory(DataGridView historyGrid, Database database)
         {
             historyGrid.Rows.Clear();
 
@@ -225,7 +225,7 @@ namespace Reddit_Wallpaper_Changer
 
             try
             {
-                foreach (var item in await database.GetFromHistoryAsync())
+                foreach (var item in database.GetFromHistory())
                 {
                     AddImageToHistoryDataGrid(historyGrid, item);
                 }
@@ -266,7 +266,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Populate the blacklisted history panel
         //======================================================================
-        public static async Task PopulateBlacklistAsync(DataGridView blacklistGrid, Database database)
+        public static void PopulateBlacklist(DataGridView blacklistGrid, Database database)
         {
             Logger.Instance.LogMessageToFile("Refreshing blacklisted panel.", LogLevel.Information);
 
@@ -274,7 +274,7 @@ namespace Reddit_Wallpaper_Changer
 
             try
             {
-                foreach (var item in await database.GetFromBlacklistAsync())
+                foreach (var item in database.GetFromBlacklist())
                 {
                     var index = blacklistGrid.Rows.Add();
                     var row = blacklistGrid.Rows[index];
@@ -293,7 +293,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Populate the Favourites panel
         //======================================================================
-        public static async Task PopulateFavouritesAsync(DataGridView favouritesGrid, Database database)
+        public static void PopulateFavourites(DataGridView favouritesGrid, Database database)
         {
             Logger.Instance.LogMessageToFile("Refreshing Favourites panel.", LogLevel.Information);
 
@@ -301,7 +301,7 @@ namespace Reddit_Wallpaper_Changer
 
             try
             {
-                foreach (var item in await database.GetFromFavouritesAsync())
+                foreach (var item in database.GetFromFavourites())
                 {
                     var index = favouritesGrid.Rows.Add();
                     var row = favouritesGrid.Rows[index];
