@@ -53,8 +53,8 @@ namespace Reddit_Wallpaper_Changer
 
                     using (var existsCommand = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' AND name='blacklist';", con))
                     {
-                        await existsCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                        databaseEmpty = !existsCommand.ExecuteReader().HasRows;
+                        var numRows = await existsCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        databaseEmpty = (numRows == 0);
                     }
 
                     if (databaseEmpty)
