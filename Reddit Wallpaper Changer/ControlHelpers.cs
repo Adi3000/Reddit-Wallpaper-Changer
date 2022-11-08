@@ -324,17 +324,26 @@ namespace Reddit_Wallpaper_Changer
             row.SetValues(bitmap, redditImage.Title, redditImage.ThreadId, redditImage.Url, redditImage.Date);
         }
 
+        private static readonly object CacheLock = new object();
+        private static readonly Dictionary<string, Bitmap> BitmapCache = new Dictionary<string, Bitmap>();
+
         private static Bitmap GetBitmap(RedditImage redditImage)
         {
-            Bitmap bitmap;
-
+            lock (CacheLock)
+            {
+                if (!BitmapCache.TryGetValue(redditImage.ThreadId, out var result))
+                {
             using (var fs = new FileStream($@"{Settings.Default.thumbnailCache}\{redditImage.ThreadId}.jpg", FileMode.Open, FileAccess.Read))
             using (var tempImage = Image.FromStream(fs))
             {
-                bitmap = new Bitmap(tempImage);
+                        result = new Bitmap(tempImage);
+                    }
+
+                    BitmapCache[redditImage.ThreadId] = result;
             }
 
-            return bitmap;
+                return result;
+            }
         }
 
         public static void SetSubredditTypeLabel(Label label, string subredditText)
