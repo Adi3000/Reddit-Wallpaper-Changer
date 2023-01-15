@@ -97,7 +97,7 @@ namespace Reddit_Wallpaper_Changer
                     Settings.Default.changeTimeValue = int.Parse(xn["ChangeTimerValue"].InnerText);
                     Settings.Default.changeTimeType = int.Parse(xn["ChangeTimerType"].InnerText);
                     Settings.Default.startInTray = bool.Parse(xn["StartInTray"].InnerText);
-                    Settings.Default.includeNsfw = bool.TryParse(xn["IncludeNsfw"].InnerText, out var result) && result;
+                    Settings.Default.includeNsfw = bool.TryParse(xn["IncludeNsfw"]?.InnerText, out var result) && result;
                     Settings.Default.autoStart = bool.Parse(xn["AutoStart"].InnerText);
                     Settings.Default.useProxy = bool.Parse(xn["UseProxy"].InnerText);
                     Settings.Default.proxyAddress = xn["ProxyServer"].InnerText;
