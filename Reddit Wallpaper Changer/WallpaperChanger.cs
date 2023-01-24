@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Reddit_Wallpaper_Changer
@@ -37,7 +38,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Set the wallpaper
         //======================================================================
-        public async Task<bool> SetWallpaperAsync(RedditLink redditLink)
+        public async Task<bool> SetWallpaperAsync(RedditLink redditLink, CancellationToken token)
         {
             Logger.Instance.LogMessageToFile("Setting wallpaper.", LogLevel.Information);
 
@@ -50,7 +51,7 @@ namespace Reddit_Wallpaper_Changer
 
             if (!string.IsNullOrEmpty(redditLink.Url))
             {
-                redditLink.Url = await ConvertRedditLinkToImageLink(redditLink.Url, _random, ImageExtensions).ConfigureAwait(false);
+                redditLink.Url = await ConvertRedditLinkToImageLink(redditLink.Url, _random, ImageExtensions, token).ConfigureAwait(false);
 
                 var uri = new Uri(redditLink.Url);
                 var extension = Path.GetExtension(uri.LocalPath);
@@ -62,7 +63,7 @@ namespace Reddit_Wallpaper_Changer
 
                 if (ImageExtensions.Contains(extension.ToUpper()))
                 {
-                    await DownloadWallpaperAsync(uri.AbsoluteUri, wallpaperFile);
+                    await DownloadWallpaperAsync(uri.AbsoluteUri, wallpaperFile, token);
 
                     if (!await SetWallpaperAsync(redditLink, wallpaperFile))
                         return false;
@@ -322,16 +323,13 @@ namespace Reddit_Wallpaper_Changer
 
         private static async Task DownloadWallpaperAsync(string uri, string fileName)
         {
-            if (File.Exists(fileName))
+            try
             {
-                try
-                {
-                    File.Delete(fileName);
-                }
-                catch (IOException ex)
-                {
-                    Logger.Instance.LogMessageToFile($"Unexpected error deleting old wallpaper: {ex.Message}", LogLevel.Warning);
-                }
+                File.Delete(fileName);
+            }
+            catch (IOException ex)
+            {
+                Logger.Instance.LogMessageToFile($"Unexpected error deleting old wallpaper: {ex.Message}", LogLevel.Warning);
             }
 
             try
