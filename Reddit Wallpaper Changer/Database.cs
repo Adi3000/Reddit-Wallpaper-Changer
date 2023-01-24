@@ -568,7 +568,7 @@ namespace Reddit_Wallpaper_Changer
                 command.Parameters.AddWithValue("@url", redditLink.Url);
                 command.Parameters.AddWithValue("@dateTime", dateTime);
 
-                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                command.ExecuteNonQuery();
             }
 
             return redditImage;
