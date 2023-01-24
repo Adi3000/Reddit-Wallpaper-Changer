@@ -49,65 +49,30 @@ namespace Reddit_Wallpaper_Changer
                 {
                     Logger.Instance.LogMessageToFile($"Successfully connected to database '{DbName}'", LogLevel.Information);
 
-                    bool databaseEmpty = false;
+                    Logger.Instance.LogMessageToFile("Ensuring tables and indexes exist", LogLevel.Information);
 
-                    using (var existsCommand = new SQLiteCommand("SELECT name FROM sqlite_master WHERE type='table' AND name='blacklist';", con))
+                    const string Sql = @"
+                        BEGIN;
+                            CREATE TABLE IF NOT EXISTS version (version STRING, date STRING);
+                            CREATE TABLE IF NOT EXISTS blacklist (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING);
+                            CREATE INDEX IF NOT EXISTS idx_blacklist ON blacklist (url);
+                            CREATE INDEX IF NOT EXISTS idx_blacklist_date ON blacklist (datetime(date) DESC);
+                            CREATE TABLE IF NOT EXISTS favourites (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING);
+                            CREATE INDEX IF NOT EXISTS idx_favourites ON favourites (url);
+                            CREATE INDEX IF NOT EXISTS idx_favourites_date ON favourites (datetime(date) DESC);
+                            CREATE TABLE IF NOT EXISTS history (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING);
+                            CREATE INDEX IF NOT EXISTS idx_history ON history (url);
+                            CREATE INDEX IF NOT EXISTS idx_history_date ON history (datetime(date) DESC);
+                        END;";
+
+                    using (var command = new SQLiteCommand(Sql, con))
                     {
-                        databaseEmpty = (existsCommand.ExecuteNonQuery() == 0);
+                        command.ExecuteNonQuery();
                     }
 
-                    if (databaseEmpty)
-                    {
-                        using (var beginCommand = new SQLiteCommand("BEGIN", con))
-                        using (var versionTableCommand = new SQLiteCommand("CREATE TABLE version (version STRING, date STRING)", con))
-                        using (var blacklistTableCommand = new SQLiteCommand("CREATE TABLE blacklist (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
-                        using (var blacklistIndexCommand = new SQLiteCommand("CREATE INDEX idx_blacklist ON blacklist (url)", con))
-                        using (var blacklistIndexDateTimeCommand = new SQLiteCommand("CREATE INDEX idx_blacklist_date ON blacklist (datetime(date) DESC)", con))
-                        using (var favouritesTableCommand = new SQLiteCommand("CREATE TABLE favourites (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
-                        using (var favouritesIndexCommand = new SQLiteCommand("CREATE INDEX idx_favourites ON favourites (url)", con))
-                        using (var favouritesIndexDateTimeCommand = new SQLiteCommand("CREATE INDEX idx_favourites_date ON favourites (datetime(date) DESC)", con))
-                        using (var historyTableCommand = new SQLiteCommand("CREATE TABLE history (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING)", con))
-                        using (var historyIndexCommand = new SQLiteCommand("CREATE INDEX idx_history ON history (url)", con))
-                        using (var historyIndexDateTimeCommand = new SQLiteCommand("CREATE INDEX idx_history_date ON history (datetime(date) DESC)", con))
-                        using (var endCommand = new SQLiteCommand("END", con))
-                        {
-                            beginCommand.ExecuteNonQuery();
+                    Logger.Instance.LogMessageToFile($"Successfully created/validated tables and indexes", LogLevel.Information);
 
-                            versionTableCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Table 'version' successfully created.", LogLevel.Information);
-
-                            blacklistTableCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Table 'blacklist' successfully created.", LogLevel.Information);
-
-                            blacklistIndexCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Index 'idx_blacklist' successfully created.", LogLevel.Information);
-
-                            blacklistIndexDateTimeCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Index 'idx_blacklist_date' successfully created.", LogLevel.Information);
-
-                            favouritesTableCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Table 'favourites' successfully created.", LogLevel.Information);
-
-                            favouritesIndexCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Index 'idx_favourites' successfully created.", LogLevel.Information);
-
-                            favouritesIndexDateTimeCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Index 'idx_favourites_date' successfully created.", LogLevel.Information);
-
-                            historyTableCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Table 'history' successfully created.", LogLevel.Information);
-
-                            historyIndexCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Index 'idx_history' successfully created.", LogLevel.Information);
-
-                            historyIndexDateTimeCommand.ExecuteNonQuery();
-                            Logger.Instance.LogMessageToFile("Index 'idx_history_date' successfully created.", LogLevel.Information);
-
-                            endCommand.ExecuteNonQuery();
-                        }
-
-                        AddVersion();
-                    }
+                    AddVersion();
                 }
             }
             catch (Exception ex)
