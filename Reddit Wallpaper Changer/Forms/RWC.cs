@@ -134,8 +134,6 @@ namespace Reddit_Wallpaper_Changer.Forms
                 Settings.Default.Upgrade();
                 Settings.Default.updateSettings = false;
                 Settings.Default.Save();
-
-                _database.AddVersion();
             }
 
             Logger.Instance.LogMessageToFile("===================================================================================================================", LogLevel.Information);
