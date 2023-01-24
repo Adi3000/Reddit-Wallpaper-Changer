@@ -10,6 +10,7 @@ namespace Reddit_Wallpaper_Changer
         public string Url { get; set; }
         public string Title { get; set; }
         public string ThreadId { get; }
+        public string Permalink { get; set; }
 
         public RedditLink(string url, string title, string threadId)
         {

@@ -146,12 +146,13 @@ namespace Reddit_Wallpaper_Changer
 
                                 var jTokenData = jToken["data"];
 
-                                _uiMarshaller.SetCurrentThread($"http://reddit.com{jTokenData["permalink"]}");
-
                                 var redditLink = new RedditLink(
                                     jTokenData["url"].ToString(),
                                     jTokenData["title"].ToString(),
-                                    jTokenData["id"].ToString());
+                                    jTokenData["id"].ToString())
+                                {
+                                    Permalink = jTokenData["permalink"].ToString()
+                                };
 
                                 if (!await ChangeWallpaperIfValidImageAsync(redditLink, token).ConfigureAwait(false))
                                     return;
@@ -199,6 +200,12 @@ namespace Reddit_Wallpaper_Changer
             _uiMarshaller.UpdateStatus("Wallpaper Changed!");
 
             Logger.Instance.LogMessageToFile("Wallpaper changed!", LogLevel.Information);
+
+            var currentThread = !string.IsNullOrWhiteSpace(redditLink.Permalink)
+                ? $"http://reddit.com{redditLink.Permalink}"
+                : null;
+
+            _uiMarshaller.SetCurrentThread(currentThread);
 
             _currentSessionHistory.Add(redditLink.ThreadId);
 
