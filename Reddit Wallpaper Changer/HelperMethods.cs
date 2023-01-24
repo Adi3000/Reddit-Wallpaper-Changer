@@ -243,7 +243,7 @@ namespace Reddit_Wallpaper_Changer
             }
             catch (Exception ex)
             {
-                Logger.Instance.LogMessageToFile(ex.Message, LogLevel.Error);
+                Logger.Instance.LogMessageToFile(ex.ToString(), LogLevel.Error);
 
                 return false;
             }

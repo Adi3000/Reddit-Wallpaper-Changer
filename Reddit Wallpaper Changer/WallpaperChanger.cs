@@ -521,7 +521,7 @@ namespace Reddit_Wallpaper_Changer
             }
             catch (WebException ex)
             {
-                uiMarshaller.LogFailure(ex.Message, $"Reddit server error: {ex.Message}", 
+                uiMarshaller.LogFailure(ex.Message, $"Reddit server error: {ex}", 
                     LogLevel.Error);
 
                 throw;
