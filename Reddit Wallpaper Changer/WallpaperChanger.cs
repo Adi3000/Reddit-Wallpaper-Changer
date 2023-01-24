@@ -38,7 +38,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Set the wallpaper
         //======================================================================
-        public async Task<bool> SetWallpaperAsync(RedditLink redditLink, CancellationToken token)
+        public async Task<bool> SetWallpaperAsync(RedditLink redditLink)
         {
             Logger.Instance.LogMessageToFile("Setting wallpaper.", LogLevel.Information);
 
@@ -51,7 +51,7 @@ namespace Reddit_Wallpaper_Changer
 
             if (!string.IsNullOrEmpty(redditLink.Url))
             {
-                redditLink.Url = await ConvertRedditLinkToImageLink(redditLink.Url, _random, ImageExtensions, token).ConfigureAwait(false);
+                redditLink.Url = await ConvertRedditLinkToImageLink(redditLink.Url, _random, ImageExtensions).ConfigureAwait(false);
 
                 var uri = new Uri(redditLink.Url);
                 var extension = Path.GetExtension(uri.LocalPath);
@@ -63,7 +63,7 @@ namespace Reddit_Wallpaper_Changer
 
                 if (ImageExtensions.Contains(extension.ToUpper()))
                 {
-                    await DownloadWallpaperAsync(uri.AbsoluteUri, wallpaperFile, token);
+                    await DownloadWallpaperAsync(uri.AbsoluteUri, wallpaperFile);
 
                     if (!await SetWallpaperAsync(redditLink, wallpaperFile))
                         return false;
@@ -88,13 +88,13 @@ namespace Reddit_Wallpaper_Changer
             return true;
         }
 
-        // TODO refactor, add cancellation
+        // TODO refactor
         //======================================================================
         // Search for a wallpaper
         //======================================================================
-        public async Task SearchForWallpaperAsync()
+        public async Task SearchForWallpaperAsync(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 Logger.Instance.LogMessageToFile("Looking for a wallpaper.", LogLevel.Information);
 
@@ -114,21 +114,21 @@ namespace Reddit_Wallpaper_Changer
                         {
                             var redditResult = GetRedditResult(JToken.Parse(jsonData));
 
-                            JToken token = null;
+                            JToken jToken = null;
 
                             try
                             {
                                 foreach (var toke in redditResult.Reverse())
                                 {
-                                    token = toke;
+                                    jToken = toke;
                                 }
 
-                                if (token == null)
+                                if (jToken == null)
                                 {
                                     if (redditResult.HasValues)
                                     {
                                         var randIndex = _random.Next(0, redditResult.Count() - 1);
-                                        token = redditResult.ElementAt(randIndex);
+                                        jToken = redditResult.ElementAt(randIndex);
                                     }
                                     else
                                     {
@@ -142,18 +142,18 @@ namespace Reddit_Wallpaper_Changer
                                 }
 
                                 if ((WallpaperGrabType)Settings.Default.wallpaperGrabType == WallpaperGrabType.Random)
-                                    token = redditResult.ElementAt(_random.Next(0, redditResult.Count() - 1));
+                                    jToken = redditResult.ElementAt(_random.Next(0, redditResult.Count() - 1));
 
-                                var tokenData = token["data"];
+                                var jTokenData = jToken["data"];
 
-                                _uiMarshaller.SetCurrentThread($"http://reddit.com{tokenData["permalink"]}");
+                                _uiMarshaller.SetCurrentThread($"http://reddit.com{jTokenData["permalink"]}");
 
                                 var redditLink = new RedditLink(
-                                    tokenData["url"].ToString(),
-                                    tokenData["title"].ToString(),
-                                    tokenData["id"].ToString());
+                                    jTokenData["url"].ToString(),
+                                    jTokenData["title"].ToString(),
+                                    jTokenData["id"].ToString());
 
-                                if (!await ChangeWallpaperIfValidImageAsync(redditLink).ConfigureAwait(false))
+                                if (!await ChangeWallpaperIfValidImageAsync(redditLink, token).ConfigureAwait(false))
                                     return;
                             }
                             catch (InvalidOperationException)
@@ -283,7 +283,7 @@ namespace Reddit_Wallpaper_Changer
             return true;
         }
 
-        private async Task<bool> ChangeWallpaperIfValidImageAsync(RedditLink redditLink)
+        private async Task<bool> ChangeWallpaperIfValidImageAsync(RedditLink redditLink, CancellationToken token)
         {
             Logger.Instance.LogMessageToFile($"Found a wallpaper! Title: {redditLink.Title}, URL: {redditLink.Url}, ThreadID: {redditLink.ThreadId}", LogLevel.Information);
 
@@ -296,7 +296,7 @@ namespace Reddit_Wallpaper_Changer
                     {
                         _noResultCount++;
 
-                        await SearchForWallpaperAsync().ConfigureAwait(false);
+                        await SearchForWallpaperAsync(token).ConfigureAwait(false);
                     }
                 }
                 else
@@ -306,7 +306,7 @@ namespace Reddit_Wallpaper_Changer
 
                     _noResultCount++;
 
-                    await SearchForWallpaperAsync().ConfigureAwait(false);
+                    await SearchForWallpaperAsync(token).ConfigureAwait(false);
                 }
             }
             else

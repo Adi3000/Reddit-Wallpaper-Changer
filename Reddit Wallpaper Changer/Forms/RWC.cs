@@ -18,6 +18,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 {
     public sealed partial class RWC : Form
     {
+        private readonly CancellationTokenSource _closeCts = new CancellationTokenSource();
         private readonly Dictionary<EventHandler, HotKey> _hotkeys = new Dictionary<EventHandler, HotKey>();
         private readonly Database _database;
         private readonly MainThreadMarshaller _mainThreadMarshaller;
@@ -72,6 +73,8 @@ namespace Reddit_Wallpaper_Changer.Forms
                 _toolTip?.Dispose();
 
                 UnregisterHotkeys();
+
+                _closeCts.Cancel();
             }
 
             base.Dispose(disposing);
@@ -493,7 +496,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             changeWallpaperTimer.Enabled = false;
 
-            await Task.Run(_wallpaperChanger.SearchForWallpaperAsync)
+            await Task.Run(() => _wallpaperChanger.SearchForWallpaperAsync(_closeCts.Token))
                 .ConfigureAwait(false);
         }
 
@@ -839,7 +842,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             await Task.Run(async () =>
             {
                 if (!await _wallpaperChanger.SetWallpaperAsync(redditLink).ConfigureAwait(false))
-                    await _wallpaperChanger.SearchForWallpaperAsync().ConfigureAwait(false);
+                    await _wallpaperChanger.SearchForWallpaperAsync(_closeCts.Token).ConfigureAwait(false);
             })
             .ConfigureAwait(false);
         }
@@ -858,7 +861,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             await Task.Run(async () =>
             {
                 if (!await _wallpaperChanger.SetWallpaperAsync(redditLink).ConfigureAwait(false))
-                    await _wallpaperChanger.SearchForWallpaperAsync().ConfigureAwait(false);
+                    await _wallpaperChanger.SearchForWallpaperAsync(_closeCts.Token).ConfigureAwait(false);
             })
             .ConfigureAwait(false);
         }
