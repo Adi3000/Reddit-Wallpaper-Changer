@@ -176,7 +176,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             ControlHelpers.SetSubredditTypeLabel(label5, subredditTextBox.Text);
             HelperMethods.LogSettings(changeTimeType.Text, Screen.AllScreens.Length);
 
-            _database.ConnectToDatabase();
+            _database.InitialiseDatabase();
 
             if (!Settings.Default.dbMigrated)
                 await _database.MigrateOldBlacklistAsync();

@@ -26,7 +26,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Create the SQLite Blacklist database
         //======================================================================
-        public void ConnectToDatabase()
+        public void InitialiseDatabase()
         {
             if (!File.Exists(_dbPath))
             {
@@ -414,7 +414,7 @@ namespace Reddit_Wallpaper_Changer
 
                 File.Copy(_dbPath, fullBackupPath, true);
 
-                ConnectToDatabase();
+                InitialiseDatabase();
 
                 return true;
             }
@@ -437,7 +437,7 @@ namespace Reddit_Wallpaper_Changer
 
                 File.Copy(restoreSource, _dbPath, true);
 
-                ConnectToDatabase();
+                InitialiseDatabase();
 
                 return true;
             }
