@@ -1,5 +1,7 @@
 ﻿using Reddit_Wallpaper_Changer.Forms;
+using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Reddit_Wallpaper_Changer
 {
@@ -25,44 +27,12 @@ namespace Reddit_Wallpaper_Changer
                 _uiContext.Post(x => UpdateStatus(text), null);
         }
 
-        public void OpenPopupInfoWindow(RedditLink redditLink)
+        public void SetWallpaperChanged(RedditImage redditImage, RedditLink redditLink)
         {
             if (SynchronizationContext.Current == _uiContext)
-                _mainForm.OpenPopupInfoWindow(redditLink);
+                _mainForm.SetWallpaperChanged(redditImage, redditLink);
             else
-                _uiContext.Post(x => OpenPopupInfoWindow(redditLink), null);
-        }
-
-        public void DisableChangeWallpaperTimer()
-        {
-            if (SynchronizationContext.Current == _uiContext)
-                _mainForm.DisableChangeWallpaperTimer();
-            else
-                _uiContext.Post(x => DisableChangeWallpaperTimer(), null);
-        }
-
-        public void AddImageToHistory(RedditImage image)
-        {
-            if (SynchronizationContext.Current == _uiContext)
-                _mainForm.AddImageToHistory(image);
-            else
-                _uiContext.Post(x => AddImageToHistory(image), null);
-        }
-
-        public void SetCurrentThread(string currentThread)
-        {
-            if (SynchronizationContext.Current == _uiContext)
-                _mainForm.CurrentThread = currentThread;
-            else
-                _uiContext.Post(x => SetCurrentThread(currentThread), null);
-        }
-
-        public void RestartBreakBetweenChangeTimer()
-        {
-            if (SynchronizationContext.Current == _uiContext)
-                _mainForm.RestartBreakBetweenChangeTimer();
-            else
-                _uiContext.Post(x => RestartBreakBetweenChangeTimer(), null);
+                _uiContext.Post(x => SetWallpaperChanged(redditImage, redditLink), null);
         }
 
         public void RestartChangeWallpaperTimer()
@@ -73,22 +43,31 @@ namespace Reddit_Wallpaper_Changer
                 _uiContext.Post(x => RestartChangeWallpaperTimer(), null);
         }
 
-        public void ShowNoResultsBalloonTip(int retryCount)
+        internal void DisableChangeTimerNoResults(int maxRetryAttempts)
         {
             if (SynchronizationContext.Current == _uiContext)
-                _mainForm.ShowNoResultsBalloonTip(retryCount);
+                _mainForm.DisableChangeTimerNoResults(maxRetryAttempts);
             else
-                _uiContext.Post(x => ShowNoResultsBalloonTip(retryCount), null);
+                _uiContext.Post(x => DisableChangeTimerNoResults(maxRetryAttempts), null);
         }
 
-        public void LogFailure(string uiText, string logText, LogLevel logLevel)
+        public void DisableAndUpdateStatus(string status, string log)
+        {
+            if (SynchronizationContext.Current == _uiContext)
+                _mainForm.DisableAndUpdateStatus(status, log);
+            else
+                _uiContext.Post(x => DisableAndUpdateStatus(status, log), null);
+        }
+
+        public async Task LogFailureAsync(string uiText, string logText, LogLevel logLevel)
         {
             UpdateStatus(uiText);
             Logger.Instance.LogMessageToFile(logText, logLevel);
-            RestartBreakBetweenChangeTimer();
+            await Task.Delay(1500);
+            RestartChangeWallpaperTimer();
         }
 
-        public void LogFailure(string uiText, string logText)
-            => LogFailure(uiText, logText, LogLevel.Warning);
+        public Task LogFailureAsync(string uiText, string logText)
+            => LogFailureAsync(uiText, logText, LogLevel.Warning);
     }
 }

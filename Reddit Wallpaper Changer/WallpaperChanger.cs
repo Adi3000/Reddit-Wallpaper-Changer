@@ -22,16 +22,16 @@ namespace Reddit_Wallpaper_Changer
         private static readonly IReadOnlyList<string> SortValues = new List<string> { "&sort=relevance", "&sort=hot", "&sort=top", "&sort=comments", "&sort=new" };
         private static readonly IReadOnlyList<string> ImageExtensions = new List<string> { ".JPG", ".JPEG", ".BMP", ".GIF", ".PNG" };
 
-        private readonly MainThreadMarshaller _uiMarshaller;
+        public MainThreadMarshaller UiMarshaller { private get; set; }
+
         private readonly Database _database;
         private readonly Random _random = new Random();
-        private readonly List<string> _currentSessionHistory = new List<string>();
+        private readonly HashSet<string> _currentSessionHistory = new HashSet<string>();
 
         private int _noResultCount;
 
-        public WallpaperChanger(MainThreadMarshaller uiMarshaller, Database database)
+        public WallpaperChanger(Database database)
         {
-            _uiMarshaller = uiMarshaller;
             _database = database;
         }
 
@@ -47,7 +47,7 @@ namespace Reddit_Wallpaper_Changer
 
             HelperMethods.ResetManualOverride();
 
-            _uiMarshaller.UpdateStatus("Setting Wallpaper");
+            UiMarshaller.UpdateStatus("Setting Wallpaper");
 
             if (!string.IsNullOrEmpty(redditLink.Url))
             {
@@ -72,18 +72,18 @@ namespace Reddit_Wallpaper_Changer
                 {
                     Logger.Instance.LogMessageToFile($"Wallpaper URL failed validation: {extension.ToUpper()}", LogLevel.Warning);
 
-                    _uiMarshaller.RestartChangeWallpaperTimer();
+                    UiMarshaller.RestartChangeWallpaperTimer();
                 }
 
                 using (var wc = HelperMethods.CreateWebClient())
                 {
                     var bytes = await wc.DownloadDataTaskAsync(uri).ConfigureAwait(false);
                     if (!bytes.Any())
-                        _uiMarshaller.RestartChangeWallpaperTimer();
+                        UiMarshaller.RestartChangeWallpaperTimer();
                 }
             }
             else
-                _uiMarshaller.RestartChangeWallpaperTimer();
+                UiMarshaller.RestartChangeWallpaperTimer();
 
             return true;
         }
@@ -101,12 +101,12 @@ namespace Reddit_Wallpaper_Changer
                 if (MaxRetriesExceeded())
                     return;
 
-                _uiMarshaller.UpdateStatus("Finding New Wallpaper");
+                UiMarshaller.UpdateStatus("Finding New Wallpaper");
 
                 try
                 {
-                    var url = GetRedditSearchUrl(_random, _uiMarshaller);
-                    var jsonData = await GetJsonDataAsync(url, _uiMarshaller).ConfigureAwait(false);
+                    var url = GetRedditSearchUrl(_random, UiMarshaller);
+                    var jsonData = await GetJsonDataAsync(url, UiMarshaller).ConfigureAwait(false);
 
                     try
                     {
@@ -134,7 +134,7 @@ namespace Reddit_Wallpaper_Changer
                                     {
                                         ++_noResultCount;
 
-                                        _uiMarshaller.UpdateStatus("No results found, searching again.");
+                                        UiMarshaller.UpdateStatus("No results found, searching again.");
                                         Logger.Instance.LogMessageToFile("No search results, trying to change wallpaper again.", LogLevel.Information);
 
                                         continue;
@@ -159,13 +159,13 @@ namespace Reddit_Wallpaper_Changer
                             }
                             catch (InvalidOperationException)
                             {
-                                _uiMarshaller.LogFailure("Your search query is bringing up no results.",
+                                await UiMarshaller.LogFailureAsync("Your search query is bringing up no results.",
                                     "No results from the search query.");
                             }
                         }
                         else
                         {
-                            _uiMarshaller.LogFailure("Subreddit Probably Doesn't Exist",
+                            await UiMarshaller.LogFailureAsync("Subreddit Probably Doesn't Exist",
                                 "Subreddit probably does not exist.");
 
                             _noResultCount++;
@@ -175,7 +175,7 @@ namespace Reddit_Wallpaper_Changer
                     }
                     catch (JsonReaderException ex)
                     {
-                        _uiMarshaller.LogFailure($"Unexpected error: {ex.Message}",
+                        await UiMarshaller.LogFailureAsync($"Unexpected error: {ex.Message}",
                             $"Unexpected error: {ex.Message}", LogLevel.Error);
                     }
                 }
@@ -190,22 +190,16 @@ namespace Reddit_Wallpaper_Changer
 
         private async Task<bool> SetWallpaperAsync(RedditLink redditLink, string wallpaperFile)
         {
-            if (!WallpaperSizeValid(wallpaperFile))
+            if (!await WallpaperSizeValidAsync(wallpaperFile))
                 return false;
 
             await ActiveDesktop.SetWallpaperAsync(wallpaperFile).ConfigureAwait(false);
 
             _noResultCount = 0;
 
-            _uiMarshaller.UpdateStatus("Wallpaper Changed!");
+            UiMarshaller.UpdateStatus("Wallpaper Changed!");
 
             Logger.Instance.LogMessageToFile("Wallpaper changed!", LogLevel.Information);
-
-            var currentThread = !string.IsNullOrWhiteSpace(redditLink.Permalink)
-                ? $"http://reddit.com{redditLink.Permalink}"
-                : null;
-
-            _uiMarshaller.SetCurrentThread(currentThread);
 
             _currentSessionHistory.Add(redditLink.ThreadId);
 
@@ -214,20 +208,15 @@ namespace Reddit_Wallpaper_Changer
 
             HelperMethods.SaveToThumbnailCache(redditImage.ThreadId, redditImage.Thumbnail);
 
-            _uiMarshaller.AddImageToHistory(redditImage);
-
-            if (!Settings.Default.disableNotifications && Settings.Default.wallpaperInfoPopup)
-                _uiMarshaller.OpenPopupInfoWindow(redditLink);
-
             if (Settings.Default.autoSave)
                 HelperMethods.SaveCurrentWallpaper(Settings.Default.currentWallpaperName);
 
-            _uiMarshaller.UpdateStatus("");
+            UiMarshaller.SetWallpaperChanged(redditImage, redditLink);
 
             return true;
         }
 
-        private bool WallpaperSizeValid(string wallpaperFile)
+        private async Task<bool> WallpaperSizeValidAsync(string wallpaperFile)
         {
             if (Settings.Default.fitWallpaper)
             {
@@ -237,7 +226,7 @@ namespace Reddit_Wallpaper_Changer
                 {
                     if (screen.Width != img.Width || screen.Height != img.Height)
                     {
-                        _uiMarshaller.LogFailure("Wallpaper resolution mismatch.",
+                        await UiMarshaller.LogFailureAsync("Wallpaper resolution mismatch.",
                             $"Wallpaper size mismatch. Screen: {screen.Width}x{screen.Height}, Wallpaper: {img.Width}x{img.Height}");
 
                         _noResultCount++;
@@ -253,10 +242,7 @@ namespace Reddit_Wallpaper_Changer
         {
             if (_database.IsBlacklisted(redditLink.Url))
             {
-                _uiMarshaller.UpdateStatus("Wallpaper is blacklisted.");
-                Logger.Instance.LogMessageToFile("The selected wallpaper has been blacklisted, searching again.", LogLevel.Warning);
-                _uiMarshaller.DisableChangeWallpaperTimer();
-
+                UiMarshaller.DisableAndUpdateStatus("Wallpaper is blacklisted.", "The selected wallpaper has been blacklisted, searching again.");
                 return false;
             }
 
@@ -264,10 +250,7 @@ namespace Reddit_Wallpaper_Changer
                 Settings.Default.suppressDuplicates && 
                 _currentSessionHistory.Contains(redditLink.ThreadId))
             {
-                _uiMarshaller.UpdateStatus("Wallpaper already used this session.");
-                Logger.Instance.LogMessageToFile("The selected wallpaper has already been used this session, searching again.", LogLevel.Warning);
-                _uiMarshaller.DisableChangeWallpaperTimer();
-
+                UiMarshaller.DisableAndUpdateStatus("Wallpaper already used this session.", "The selected wallpaper has already been used this session, searching again.");
                 return false;
             }
 
@@ -283,9 +266,7 @@ namespace Reddit_Wallpaper_Changer
 
             Logger.Instance.LogMessageToFile($"No results after {MaxRetryAttempts} attempts. Disabling Reddit Wallpaper Changer.", LogLevel.Warning);
 
-            _uiMarshaller.ShowNoResultsBalloonTip(MaxRetryAttempts);
-            _uiMarshaller.UpdateStatus("RWC Disabled.");
-            _uiMarshaller.DisableChangeWallpaperTimer();
+            UiMarshaller.DisableChangeTimerNoResults(MaxRetryAttempts);
 
             return true;
         }
@@ -308,7 +289,7 @@ namespace Reddit_Wallpaper_Changer
                 }
                 else
                 {
-                    _uiMarshaller.LogFailure("Wallpaper has been removed from Imgur.", 
+                    await UiMarshaller.LogFailureAsync("Wallpaper has been removed from Imgur.", 
                         "The selected wallpaper was deleted from Imgur, searching again.");
 
                     _noResultCount++;
@@ -318,7 +299,7 @@ namespace Reddit_Wallpaper_Changer
             }
             else
             {
-                _uiMarshaller.LogFailure("The selected URL is not for an image.", 
+                await UiMarshaller.LogFailureAsync("The selected URL is not for an image.", 
                     "Not a direct wallpaper URL, searching again.");
 
                 _noResultCount++;
@@ -526,14 +507,14 @@ namespace Reddit_Wallpaper_Changer
             }
             catch (WebException ex)
             {
-                uiMarshaller.LogFailure(ex.Message, $"Reddit server error: {ex}", 
+                await uiMarshaller.LogFailureAsync(ex.Message, $"Reddit server error: {ex}", 
                     LogLevel.Error);
 
                 throw;
             }
             catch (Exception ex)
             {
-                uiMarshaller.LogFailure("Error downloading search results.", 
+                await uiMarshaller.LogFailureAsync("Error downloading search results.", 
                     $"Error downloading search results: {ex.Message}", LogLevel.Error);
 
                 throw;

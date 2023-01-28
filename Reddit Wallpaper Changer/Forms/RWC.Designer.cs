@@ -74,7 +74,6 @@
             this.txtChangeHotkey = new System.Windows.Forms.TextBox();
             this.chkUseHotkeys = new System.Windows.Forms.CheckBox();
             this.iconList = new System.Windows.Forms.ImageList(this.components);
-            this.noticeLabel = new System.Windows.Forms.Label();
             this.btnSave = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -85,6 +84,7 @@
             this.changeTimeType = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chkIncludeNsfw = new System.Windows.Forms.CheckBox();
             this.subredditTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -135,7 +135,6 @@
             this.configureButton = new System.Windows.Forms.Button();
             this.aboutButton = new System.Windows.Forms.Button();
             this.historyButton = new System.Windows.Forms.Button();
-            this.breakBetweenChange = new System.Windows.Forms.Timer(this.components);
             this.monitorButton = new System.Windows.Forms.Button();
             this.historyMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.useThisWallpaperToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -169,7 +168,6 @@
             this.saveThisWallpaperToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rwcStatusStrip = new System.Windows.Forms.StatusStrip();
             this.statuslabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.chkIncludeNsfw = new System.Windows.Forms.CheckBox();
             this.configurePanel.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
             this.tabSettingsControl.SuspendLayout();
@@ -213,7 +211,6 @@
             this.configurePanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.configurePanel.ContextMenuStrip = this.contextMenuStrip;
             this.configurePanel.Controls.Add(this.tabSettingsControl);
-            this.configurePanel.Controls.Add(this.noticeLabel);
             this.configurePanel.Controls.Add(this.btnSave);
             this.configurePanel.Controls.Add(this.groupBox2);
             this.configurePanel.Controls.Add(this.groupBox1);
@@ -790,15 +787,6 @@
             this.iconList.Images.SetKeyName(3, "database.png");
             this.iconList.Images.SetKeyName(4, "keyboard.png");
             // 
-            // noticeLabel
-            // 
-            this.noticeLabel.AutoSize = true;
-            this.noticeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.noticeLabel.Location = new System.Drawing.Point(18, 239);
-            this.noticeLabel.Name = "noticeLabel";
-            this.noticeLabel.Size = new System.Drawing.Size(0, 13);
-            this.noticeLabel.TabIndex = 11;
-            // 
             // btnSave
             // 
             this.btnSave.Image = global::Reddit_Wallpaper_Changer.Properties.Resources.save;
@@ -927,6 +915,16 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Sub Settings:";
+            // 
+            // chkIncludeNsfw
+            // 
+            this.chkIncludeNsfw.AutoSize = true;
+            this.chkIncludeNsfw.Location = new System.Drawing.Point(310, 47);
+            this.chkIncludeNsfw.Name = "chkIncludeNsfw";
+            this.chkIncludeNsfw.Size = new System.Drawing.Size(103, 17);
+            this.chkIncludeNsfw.TabIndex = 20;
+            this.chkIncludeNsfw.Text = "Include NSFW?";
+            this.chkIncludeNsfw.UseVisualStyleBackColor = true;
             // 
             // subredditTextBox
             // 
@@ -1533,11 +1531,6 @@
             this.historyButton.UseVisualStyleBackColor = false;
             this.historyButton.Click += new System.EventHandler(this.HistoryButton_Click);
             // 
-            // breakBetweenChange
-            // 
-            this.breakBetweenChange.Interval = 1500;
-            this.breakBetweenChange.Tick += new System.EventHandler(this.BreakBetweenChange_Tick);
-            // 
             // monitorButton
             // 
             this.monitorButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(214)))), ((int)(((byte)(234)))), ((int)(((byte)(244)))));
@@ -1901,16 +1894,6 @@
             this.statuslabel1.Size = new System.Drawing.Size(100, 17);
             this.statuslabel1.Text = "RWC Status Text";
             // 
-            // chkIncludeNsfw
-            // 
-            this.chkIncludeNsfw.AutoSize = true;
-            this.chkIncludeNsfw.Location = new System.Drawing.Point(310, 47);
-            this.chkIncludeNsfw.Name = "chkIncludeNsfw";
-            this.chkIncludeNsfw.Size = new System.Drawing.Size(103, 17);
-            this.chkIncludeNsfw.TabIndex = 20;
-            this.chkIncludeNsfw.Text = "Include NSFW?";
-            this.chkIncludeNsfw.UseVisualStyleBackColor = true;
-            // 
             // RWC
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -1935,7 +1918,9 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "RWC";
+            this.ShowInTaskbar = false;
             this.Text = "Reddit Wallpaper Changer";
+            this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             this.Load += new System.EventHandler(this.RWC_Load);
             this.configurePanel.ResumeLayout(false);
             this.configurePanel.PerformLayout();
@@ -2036,9 +2021,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.SaveFileDialog saveWallpaper;
         private System.Windows.Forms.Timer checkInternetTimer;
-        private System.Windows.Forms.Label noticeLabel;
         private System.Windows.Forms.Button btnWizard;
-        private System.Windows.Forms.Timer breakBetweenChange;
         private System.Windows.Forms.Button monitorButton;
         private System.Windows.Forms.Panel monitorPanel;
         private System.Windows.Forms.GroupBox groupBox7;

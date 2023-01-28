@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
@@ -21,13 +20,11 @@ namespace Reddit_Wallpaper_Changer.Forms
         private readonly CancellationTokenSource _closeCts = new CancellationTokenSource();
         private readonly Dictionary<EventHandler, HotKey> _hotkeys = new Dictionary<EventHandler, HotKey>();
         private readonly Database _database;
-        private readonly MainThreadMarshaller _mainThreadMarshaller;
         private readonly WallpaperChanger _wallpaperChanger;
         private readonly TabSelector _tabSelector;
+        private readonly ToolTip _toolTip;
 
         private readonly string _currentVersion;
-
-        private ToolTip _toolTip;
 
         private int _currentMouseOverRow;
         private bool _enabledOnSleep;
@@ -35,29 +32,26 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         public string CurrentThread { private get; set; }
 
-        public RWC()
+        public RWC(Database database, WallpaperChanger wallpaperChanger)
         {
             InitializeComponent();
 
             _currentVersion = Assembly.GetEntryAssembly().GetName().Version.ToString().Trim();
 
-            string appDataFolderPath;
-            if (Settings.Default.AppDataPath.Any())
-                appDataFolderPath = Settings.Default.AppDataPath;
-            else
-                appDataFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\Reddit Wallpaper Changer";
-
-            Directory.CreateDirectory(appDataFolderPath);
-            Settings.Default.AppDataPath = appDataFolderPath;
-            Settings.Default.Save();
-
-            _database = new Database(appDataFolderPath);
             _tabSelector = new TabSelector(configurePanel, configureButton);
-            _mainThreadMarshaller = new MainThreadMarshaller(this, SynchronizationContext.Current);
-            _wallpaperChanger = new WallpaperChanger(_mainThreadMarshaller, _database);
 
-            this.ShowInTaskbar = false;
-            this.WindowState = FormWindowState.Minimized;
+            _database = database;
+            _wallpaperChanger = wallpaperChanger;
+
+            _toolTip = new ToolTip
+            {
+                AutoPopDelay = 7500,
+                InitialDelay = 1000,
+                ReshowDelay = 500,
+                ShowAlways = true,
+                ToolTipTitle = "RWC",
+                ToolTipIcon = ToolTipIcon.Info
+            };
         }
 
         /// <summary>
@@ -82,34 +76,40 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         #region Public Methods
 
-        public void OpenPopupInfoWindow(RedditLink redditLink)
+        internal void DisableAndUpdateStatus(string status, string log)
         {
-            var formx = 300;
-            var formy = 90;
+            UpdateStatus(status);
+            Logger.Instance.LogMessageToFile(log, LogLevel.Warning);
+            changeWallpaperTimer.Enabled = false;
+        }
 
-            var screenx = Screen.PrimaryScreen.Bounds.Width;
-            var screeny = Screen.PrimaryScreen.Bounds.Height;
+        internal void SetWallpaperChanged(RedditImage redditImage, RedditLink redditLink)
+        {
+            AddImageToHistory(redditImage);
 
-            var popupx = screenx - formx - 50;
-            var popupy = screeny - formy - 50;
+            var currentThread = !string.IsNullOrWhiteSpace(redditLink.Permalink)
+                ? $"http://reddit.com{redditLink.Permalink}"
+                : null;
 
-            var point = new Point(popupx, popupy);
+            CurrentThread = currentThread;
 
-            new PopupInfo(redditLink.ThreadId, redditLink.Title)
-            {
-                Location = point
-            }
-            .Show();
+            if (!Settings.Default.disableNotifications && Settings.Default.wallpaperInfoPopup)
+                OpenPopupInfoWindow(redditLink.ThreadId, redditLink.Title);
+
+            UpdateStatus("");
+        }
+
+        internal void DisableChangeTimerNoResults(int maxRetryAttempts)
+        {
+            ShowNoResultsBalloonTip(maxRetryAttempts);
+            UpdateStatus("RWC Disabled.");
+            changeWallpaperTimer.Enabled = false;
         }
 
         public void AddImageToHistory(RedditImage image)
             => ControlHelpers.InsertImageInHistoryDataGrid(historyDataGrid, image);
 
         public void UpdateStatus(string text) => statuslabel1.Text = text;
-
-        public void DisableChangeWallpaperTimer() => changeWallpaperTimer.Enabled = false;
-
-        public void RestartBreakBetweenChangeTimer() => breakBetweenChange.Enabled = true;
 
         public void RestartChangeWallpaperTimer() => changeWallpaperTimer.Enabled = true;
 
@@ -145,7 +145,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             var db = random.Next(0, 1000);
             if (db == 500) { SuperSecret.DickButt(); }
 
-            Logger.Instance.LogMessageToFile("Reddit Wallpaper Changer Version " + Assembly.GetEntryAssembly().GetName().Version.ToString(), LogLevel.Information);
+            Logger.Instance.LogMessageToFile("Reddit Wallpaper Changer Version " + _currentVersion, LogLevel.Information);
             Logger.Instance.LogMessageToFile("RWC is starting.", LogLevel.Information);
             Logger.Instance.LogMessageToFile("RWC Interface Loaded.", LogLevel.Information);
 
@@ -154,7 +154,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             FormClosing += RWC_FormClosing;
             Size = new Size(466, 531);
 
-            statuslabel1.Text = "RWC Setup Initating.";
+            statuslabel1.Text = "RWC Setup Initiating.";
 
             taskIcon.Visible = true;
 
@@ -377,10 +377,13 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         private void ShowForm()
         {
-            if (!this.ShowInTaskbar) this.ShowInTaskbar = true;
-            if (this.WindowState == FormWindowState.Minimized) this.WindowState = FormWindowState.Normal;
+            if (!ShowInTaskbar)
+                ShowInTaskbar = true;
 
-            this.Visible = true;
+            if (WindowState == FormWindowState.Minimized)
+                WindowState = FormWindowState.Normal;
+
+            Visible = true;
         }
 
         //======================================================================
@@ -549,8 +552,6 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         private void CheckInternetTimer_Tick(object sender, EventArgs e)
         {
-            noticeLabel.Text = "Checking Internet Connection...";
-
             if (NetworkInterface.GetIsNetworkAvailable())
             {
                 checkInternetTimer.Enabled = false;
@@ -580,15 +581,6 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             searchWizard.Closing += (s, ev) => { searchQuery.Text = searchWizard.SearchText; };
             searchWizard.Show();
-        }
-
-        //======================================================================
-        // One second break after setting a wallpaper. Once passed, this method is trigered
-        //======================================================================
-        private void BreakBetweenChange_Tick(object sender, EventArgs e)
-        {
-            breakBetweenChange.Enabled = false;
-            changeWallpaperTimer.Enabled = true;
         }
 
         //======================================================================
@@ -1273,6 +1265,26 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         #region Helper methods
 
+        private void OpenPopupInfoWindow(string threadId, string title)
+        {
+            var formx = 300;
+            var formy = 90;
+
+            var screenx = Screen.PrimaryScreen.Bounds.Width;
+            var screeny = Screen.PrimaryScreen.Bounds.Height;
+
+            var popupx = screenx - formx - 50;
+            var popupy = screeny - formy - 50;
+
+            var point = new Point(popupx, popupy);
+
+            new PopupInfo(threadId, title)
+            {
+                Location = point
+            }
+            .Show();
+        }
+
         private void Exit()
         {
             FormClosing -= RWC_FormClosing;
@@ -1349,16 +1361,6 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         private void SetToolTips()
         {
-            _toolTip = new ToolTip
-            {
-                AutoPopDelay = 7500,
-                InitialDelay = 1000,
-                ReshowDelay = 500,
-                ShowAlways = true,
-                ToolTipTitle = "RWC",
-                ToolTipIcon = ToolTipIcon.Info
-            };
-
             _toolTip.SetToolTip(chkAutoStart, "Run Reddit Wallpaper Changer when your computer starts.");
             _toolTip.SetToolTip(chkStartInTray, "Start Reddit Wallpaper Changer minimised.");
             _toolTip.SetToolTip(chkProxy, "Configure a proxy server for Reddit Wallpaper Changer to use.");
