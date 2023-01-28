@@ -14,7 +14,7 @@ namespace Reddit_Wallpaper_Changer.DTOs
         public string Url { get; }
         public DateTime Date { get; }
 
-        public RedditImageViewModel(RedditImage image, Bitmap bitmap)
+        public RedditImageViewModel(DbRedditImage image, Bitmap bitmap)
         {
             Title = image.Title;
             ThreadId = image.ThreadId;
@@ -29,7 +29,7 @@ namespace Reddit_Wallpaper_Changer.DTOs
         private static readonly object CacheLock = new object();
         private static readonly Dictionary<string, Bitmap> BitmapCache = new Dictionary<string, Bitmap>();
 
-        public static RedditImageViewModel ToViewModel(this RedditImage redditImage)
+        public static RedditImageViewModel ToViewModel(this DbRedditImage redditImage)
         {
             Bitmap bitmap;
             if (File.Exists(GetThumbnailFileName(redditImage.ThreadId)))

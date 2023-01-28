@@ -88,7 +88,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             changeWallpaperTimer.Enabled = false;
         }
 
-        internal void SetWallpaperChanged(RedditImage redditImage, RedditLink redditLink)
+        internal void SetWallpaperChanged(DbRedditImage redditImage, RedditLink redditLink)
         {
             ((BindingSource)historyDataGrid.DataSource).Insert(0, redditImage.ToViewModel());
 

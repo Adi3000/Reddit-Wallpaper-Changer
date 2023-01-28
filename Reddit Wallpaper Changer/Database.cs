@@ -169,7 +169,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Add wallpaper to blacklisted
         //======================================================================
-        public async Task<RedditImage> BlacklistWallpaperAsync(RedditLink redditLink)
+        public async Task<DbRedditImage> BlacklistWallpaperAsync(RedditLink redditLink)
         {
             try
             {
@@ -189,7 +189,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Add wallpaper to favourites
         //======================================================================
-        public async Task<RedditImage> FaveWallpaperAsync(RedditLink redditLink)
+        public async Task<DbRedditImage> FaveWallpaperAsync(RedditLink redditLink)
         {
             try
             {
@@ -235,7 +235,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Add wallpaper to history
         //======================================================================
-        public async Task<RedditImage> AddWallpaperToHistoryAsync(RedditLink redditLink)
+        public async Task<DbRedditImage> AddWallpaperToHistoryAsync(RedditLink redditLink)
         {
             try
             {
@@ -303,7 +303,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Retrieve history from the database
         //======================================================================
-        public IEnumerable<RedditImage> GetFromHistory()
+        public IEnumerable<DbRedditImage> GetFromHistory()
         {
             try
             {
@@ -312,14 +312,14 @@ namespace Reddit_Wallpaper_Changer
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected error retrieving History from database: {ex.Message}", LogLevel.Warning);
-                return new List<RedditImage>();
+                return new List<DbRedditImage>();
             }
         }
 
         //======================================================================
         // Retrieve blacklist from the database
         //======================================================================
-        public IEnumerable<RedditImage> GetFromBlacklist()
+        public IEnumerable<DbRedditImage> GetFromBlacklist()
         {
             try
             {
@@ -328,14 +328,14 @@ namespace Reddit_Wallpaper_Changer
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected error retrieving Blacklist from database: {ex.Message}", LogLevel.Warning);
-                return new List<RedditImage>();
+                return new List<DbRedditImage>();
             }
         }
 
         //======================================================================
         // Retrieve favourites from the database
         //======================================================================
-        public IEnumerable<RedditImage> GetFromFavourites()
+        public IEnumerable<DbRedditImage> GetFromFavourites()
         {
             try
             {
@@ -344,7 +344,7 @@ namespace Reddit_Wallpaper_Changer
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected error retrieving favourites from database: {ex.Message}", LogLevel.Warning);
-                return new List<RedditImage>();
+                return new List<DbRedditImage>();
             }
         }
 
@@ -520,9 +520,9 @@ namespace Reddit_Wallpaper_Changer
             return threadThumbnails;
         }
 
-        private IEnumerable<RedditImage> GetRedditImagesFromDatabase(string tableName)
+        private IEnumerable<DbRedditImage> GetRedditImagesFromDatabase(string tableName)
         {
-            var imageList = new List<RedditImage>();
+            var imageList = new List<DbRedditImage>();
 
             using (var connection = GetNewOpenConnection())
             using (var command = new SQLiteCommand("SELECT * " +
@@ -535,7 +535,7 @@ namespace Reddit_Wallpaper_Changer
 
                 while (reader.Read())
                 {
-                    var redditImage = new RedditImage
+                    var redditImage = new DbRedditImage
                     (
                         reader.GetFieldValue<string>(0),    // thumbnail
                         reader.GetFieldValue<string>(1),    // title
@@ -564,11 +564,10 @@ namespace Reddit_Wallpaper_Changer
             }
         }
 
-        private async Task<RedditImage> InsertWallpaperIntoDatabaseAsync(string tableName, RedditLink redditLink)
+        private async Task<DbRedditImage> InsertWallpaperIntoDatabaseAsync(string tableName, RedditLink redditLink)
         {
             var thumbnail = await HelperMethods.GetThumbnailAsync(redditLink.Url).ConfigureAwait(false);
             var now = DateTime.Now;
-            var redditImage = new RedditImage(thumbnail, redditLink.Title, redditLink.ThreadId, redditLink.Url, now);
 
             using (var connection = GetNewOpenConnection())
             using (var command = new SQLiteCommand($"INSERT INTO {tableName} (thumbnail, title, threadid, url, date) " +
@@ -583,7 +582,12 @@ namespace Reddit_Wallpaper_Changer
                 command.ExecuteNonQuery();
             }
 
-            return redditImage;
+            return new DbRedditImage(
+                thumbnail,
+                redditLink.Title,
+                redditLink.ThreadId,
+                redditLink.Url,
+                now);
         }
 
         private SQLiteConnection GetNewOpenConnection()
