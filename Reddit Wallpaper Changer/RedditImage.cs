@@ -1,9 +1,4 @@
-﻿using Reddit_Wallpaper_Changer.Properties;
-using System;
-using System.Drawing;
-using System.IO;
-
-namespace Reddit_Wallpaper_Changer
+﻿namespace Reddit_Wallpaper_Changer
 {
     public class RedditImage
     {
@@ -20,26 +15,6 @@ namespace Reddit_Wallpaper_Changer
             ThreadId = threadId;
             Url = url;
             Date = date;
-        }
-
-        public void SaveToThumbnailCache()
-        {
-            var fileName = $@"{Settings.Default.thumbnailCache}\{ThreadId}.jpg";
-
-            if (File.Exists(fileName)) return;
-
-            try
-            {
-                using (var ms = new MemoryStream(Convert.FromBase64String(Thumbnail)))
-                using (var image = Image.FromStream(ms))
-                {
-                    image.Save(fileName);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Instance.LogMessageToFile($"Unable to save thumbnail: {Thumbnail} to file: {fileName}. {ex.Message}", LogLevel.Warning);
-            }
         }
     }
 }

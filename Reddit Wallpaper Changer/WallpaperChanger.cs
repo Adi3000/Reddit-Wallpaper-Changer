@@ -212,7 +212,7 @@ namespace Reddit_Wallpaper_Changer
             var redditImage = await _database.AddWallpaperToHistoryAsync(redditLink)
                                              .ConfigureAwait(false);
 
-            redditImage.SaveToThumbnailCache();
+            HelperMethods.SaveToThumbnailCache(redditImage.ThreadId, redditImage.Thumbnail);
 
             _uiMarshaller.AddImageToHistory(redditImage);
 

@@ -522,5 +522,25 @@ namespace Reddit_Wallpaper_Changer
             Settings.Default.defaultSaveLocation = savedWallpaperPath;
             Settings.Default.Save();
         }
+
+        public static void SaveToThumbnailCache(string threadId, string thumbnail)
+        {
+            var fileName = $@"{Settings.Default.thumbnailCache}\{threadId}.jpg";
+
+            if (File.Exists(fileName)) return;
+
+            try
+            {
+                using (var ms = new MemoryStream(Convert.FromBase64String(thumbnail)))
+                using (var image = Image.FromStream(ms))
+                {
+                    image.Save(fileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Instance.LogMessageToFile($"Unable to save thumbnail: {thumbnail} to file: {fileName}. {ex.Message}", LogLevel.Warning);
+            }
+        }
     }
 }

@@ -458,11 +458,11 @@ namespace Reddit_Wallpaper_Changer
             {
                 Logger.Instance.LogMessageToFile("Updating wallpaper thumbnail cache.", LogLevel.Information);
 
-                var images = GetAllImagesFromDatabase();
+                var threadThumbnails = GetAllThumbnailsFromDatabase();
 
-                foreach (var image in images)
+                foreach (var (ThreadId, Thumbnail) in threadThumbnails)
                 {
-                    image.SaveToThumbnailCache();
+                    HelperMethods.SaveToThumbnailCache(ThreadId, Thumbnail);
                 }
 
                 Logger.Instance.LogMessageToFile("Wallpaper thumbnail cache updated.", LogLevel.Information);
@@ -473,37 +473,45 @@ namespace Reddit_Wallpaper_Changer
             }
         }
 
-        private IEnumerable<RedditImage> GetAllImagesFromDatabase()
+        private IEnumerable<(string ThreadId, string Thumbnail)> GetAllThumbnailsFromDatabase()
         {
-            var imageList = new List<RedditImage>();
+            var threadThumbnails = new List<(string, string)>();
 
             using (var connection = GetNewOpenConnection())
-            using (var command = new SQLiteCommand("SELECT * FROM blacklist " +
-                                                   "UNION " +
-                                                   "SELECT * FROM history " +
-                                                   "UNION " +
-                                                   "SELECT * FROM favourites", connection))
+            using (var command = new SQLiteCommand(
+                @"WITH cte AS
+                (
+                    SELECT thumbnail, threadid, date FROM blacklist
+                    UNION ALL
+                    SELECT thumbnail, threadid, date FROM history
+                    UNION ALL
+                    SELECT thumbnail, threadid, date FROM favourites
+                ),
+                row_nums AS (
+                    SELECT
+                        thumbnail,
+                        threadid,
+                        ROW_NUMBER() OVER (PARTITION BY threadid ORDER BY datetime(date) DESC) AS row_num
+                    FROM cte
+                )
+                SELECT thumbnail, threadid
+                FROM row_nums
+                WHERE row_num = 1", connection))
             using (var reader = command.ExecuteReader(CommandBehavior.SequentialAccess))
             {
                 if (!reader.HasRows)
-                    return imageList;
+                    return threadThumbnails;
 
                 while (reader.Read())
                 {
-                    var redditImage = new RedditImage
-                    (
-                        reader.GetFieldValue<string>(0), // thumbnail
-                        reader.GetFieldValue<string>(1), // title
-                        reader.GetFieldValue<string>(2), // threadid
-                        reader.GetFieldValue<string>(3), // url
-                        reader.GetFieldValue<string>(4)  // date
-                    );
+                    var thumbnail = reader.GetFieldValue<string>(0);    // thumbnail
+                    var threadId = reader.GetFieldValue<string>(1);     // threadid
 
-                    imageList.Add(redditImage);
+                    threadThumbnails.Add((threadId, thumbnail));
                 }
             }
 
-            return imageList;
+            return threadThumbnails;
         }
 
         private IEnumerable<RedditImage> GetRedditImagesFromDatabase(string tableName)
@@ -555,8 +563,6 @@ namespace Reddit_Wallpaper_Changer
             var thumbnail = await HelperMethods.GetThumbnailAsync(redditLink.Url).ConfigureAwait(false);
             var dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
             var redditImage = new RedditImage(thumbnail, redditLink.Title, redditLink.ThreadId, redditLink.Url, dateTime);
-
-            redditLink.Title = redditLink.Title.Replace("'", "''");
 
             using (var connection = GetNewOpenConnection())
             using (var command = new SQLiteCommand($"INSERT INTO {tableName} (thumbnail, title, threadid, url, date) " +

@@ -256,7 +256,7 @@ namespace Reddit_Wallpaper_Changer
         {
             Bitmap bitmap;
             if (File.Exists(Settings.Default.thumbnailCache + @"\" + image.ThreadId + ".jpg"))
-                bitmap = GetBitmap(image);
+                bitmap = GetBitmap(image.ThreadId);
             else
                 bitmap = Resources.null_thumb;
 
@@ -319,7 +319,7 @@ namespace Reddit_Wallpaper_Changer
 
         public static void UpdateDataGridRowValues(DataGridViewRow row, RedditImage redditImage)
         {
-            var bitmap = GetBitmap(redditImage);
+            var bitmap = GetBitmap(redditImage.ThreadId);
 
             row.SetValues(bitmap, redditImage.Title, redditImage.ThreadId, redditImage.Url, redditImage.Date);
         }
@@ -327,20 +327,20 @@ namespace Reddit_Wallpaper_Changer
         private static readonly object CacheLock = new object();
         private static readonly Dictionary<string, Bitmap> BitmapCache = new Dictionary<string, Bitmap>();
 
-        private static Bitmap GetBitmap(RedditImage redditImage)
+        private static Bitmap GetBitmap(string threadId)
         {
             lock (CacheLock)
             {
-                if (!BitmapCache.TryGetValue(redditImage.ThreadId, out var result))
+                if (!BitmapCache.TryGetValue(threadId, out var result))
                 {
-            using (var fs = new FileStream($@"{Settings.Default.thumbnailCache}\{redditImage.ThreadId}.jpg", FileMode.Open, FileAccess.Read))
-            using (var tempImage = Image.FromStream(fs))
-            {
+                    using (var fs = new FileStream($@"{Settings.Default.thumbnailCache}\{threadId}.jpg", FileMode.Open, FileAccess.Read))
+                    using (var tempImage = Image.FromStream(fs))
+                    {
                         result = new Bitmap(tempImage);
                     }
 
-                    BitmapCache[redditImage.ThreadId] = result;
-            }
+                    BitmapCache[threadId] = result;
+                }
 
                 return result;
             }
