@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -13,6 +14,7 @@ namespace Reddit_Wallpaper_Changer
 {
     public class Database
     {
+        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.FFF";
         private const string DbName = "Reddit-Wallpaper-Changer.sqlite";
 
         private readonly string _dbPath, _connectionString;
@@ -163,40 +165,40 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Add wallpaper to blacklisted
         //======================================================================
-        public async Task<bool> BlacklistWallpaperAsync(RedditLink redditLink)
+        public async Task<RedditImage> BlacklistWallpaperAsync(RedditLink redditLink)
         {
             try
             {
-                await InsertWallpaperIntoDatabaseAsync("blacklist", redditLink).ConfigureAwait(false);
+                var redditImage = await InsertWallpaperIntoDatabaseAsync("blacklist", redditLink).ConfigureAwait(false);
 
                 Logger.Instance.LogMessageToFile($"Wallpaper blacklisted! Title: {redditLink.Title}, Thread ID: {redditLink.ThreadId}, URL: {redditLink.Url}", LogLevel.Information);
 
-                return true;
+                return redditImage;
             }
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected error blacklisting wallpaper: {ex.Message}", LogLevel.Warning);
-                return false;
+                return null;
             }
         }
 
         //======================================================================
         // Add wallpaper to favourites
         //======================================================================
-        public async Task<bool> FaveWallpaperAsync(RedditLink redditLink)
+        public async Task<RedditImage> FaveWallpaperAsync(RedditLink redditLink)
         {
             try
             {
-                await InsertWallpaperIntoDatabaseAsync("favourites", redditLink).ConfigureAwait(false);
+                var redditImage = await InsertWallpaperIntoDatabaseAsync("favourites", redditLink).ConfigureAwait(false);
 
                 Logger.Instance.LogMessageToFile($"Wallpaper added to favourites! Title: {redditLink.Title}, Thread ID: {redditLink.ThreadId}, URL: {redditLink.Url}", LogLevel.Information);
 
-                return true;
+                return redditImage;
             }
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected error favouriting wallpaper: {ex.Message}", LogLevel.Warning);
-                return false;
+                return null;
             }
         }
 
@@ -306,7 +308,7 @@ namespace Reddit_Wallpaper_Changer
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected error retrieving History from database: {ex.Message}", LogLevel.Warning);
-                return null;
+                return new List<RedditImage>();
             }
         }
 
@@ -322,7 +324,7 @@ namespace Reddit_Wallpaper_Changer
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected error retrieving Blacklist from database: {ex.Message}", LogLevel.Warning);
-                return null;
+                return new List<RedditImage>();
             }
         }
 
@@ -338,7 +340,7 @@ namespace Reddit_Wallpaper_Changer
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected error retrieving favourites from database: {ex.Message}", LogLevel.Warning);
-                return null;
+                return new List<RedditImage>();
             }
         }
 
@@ -531,11 +533,11 @@ namespace Reddit_Wallpaper_Changer
                 {
                     var redditImage = new RedditImage
                     (
-                        reader.GetFieldValue<string>(0), // thumbnail
-                        reader.GetFieldValue<string>(1), // title
-                        reader.GetFieldValue<string>(2), // threadid
-                        reader.GetFieldValue<string>(3), // url
-                        reader.GetFieldValue<string>(4)  // date
+                        reader.GetFieldValue<string>(0),    // thumbnail
+                        reader.GetFieldValue<string>(1),    // title
+                        reader.GetFieldValue<string>(2),    // threadid
+                        reader.GetFieldValue<string>(3),    // url
+                        DateTime.Parse(reader.GetFieldValue<string>(4), CultureInfo.InvariantCulture)   // date
                     );
 
                     imageList.Add(redditImage);
@@ -561,8 +563,8 @@ namespace Reddit_Wallpaper_Changer
         private async Task<RedditImage> InsertWallpaperIntoDatabaseAsync(string tableName, RedditLink redditLink)
         {
             var thumbnail = await HelperMethods.GetThumbnailAsync(redditLink.Url).ConfigureAwait(false);
-            var dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.FFF");
-            var redditImage = new RedditImage(thumbnail, redditLink.Title, redditLink.ThreadId, redditLink.Url, dateTime);
+            var now = DateTime.Now;
+            var redditImage = new RedditImage(thumbnail, redditLink.Title, redditLink.ThreadId, redditLink.Url, now);
 
             using (var connection = GetNewOpenConnection())
             using (var command = new SQLiteCommand($"INSERT INTO {tableName} (thumbnail, title, threadid, url, date) " +
@@ -572,7 +574,7 @@ namespace Reddit_Wallpaper_Changer
                 command.Parameters.AddWithValue("@title", redditLink.Title);
                 command.Parameters.AddWithValue("@threadid", redditLink.ThreadId);
                 command.Parameters.AddWithValue("@url", redditLink.Url);
-                command.Parameters.AddWithValue("@dateTime", dateTime);
+                command.Parameters.AddWithValue("@dateTime", now.ToString(DateTimeFormat));
 
                 command.ExecuteNonQuery();
             }

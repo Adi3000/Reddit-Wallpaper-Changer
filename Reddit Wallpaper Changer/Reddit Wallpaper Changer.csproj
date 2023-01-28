@@ -109,6 +109,7 @@
     <Compile Include="DTOs\BalloonTipDetails.cs" />
     <Compile Include="ControlHelpers.cs" />
     <Compile Include="Database.cs" />
+    <Compile Include="DTOs\RedditImageViewModel.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="HelperMethods.cs" />
     <Compile Include="HotKey.cs" />

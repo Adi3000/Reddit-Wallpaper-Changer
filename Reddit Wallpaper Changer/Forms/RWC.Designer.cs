@@ -1,4 +1,6 @@
-﻿namespace Reddit_Wallpaper_Changer.Forms
+﻿using Reddit_Wallpaper_Changer.DTOs;
+
+namespace Reddit_Wallpaper_Changer.Forms
 {
     partial class RWC
     {
@@ -123,9 +125,6 @@
             this.historyDataGrid = new System.Windows.Forms.DataGridView();
             this.Preview = new System.Windows.Forms.DataGridViewImageColumn();
             this.Thread = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.orderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.DateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.wallpaperChangeTimer = new System.Windows.Forms.Timer(this.components);
             this.taskIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.startupTimer = new System.Windows.Forms.Timer(this.components);
@@ -147,9 +146,6 @@
             this.blacklistDataGrid = new System.Windows.Forms.DataGridView();
             this.blacklistPreview = new System.Windows.Forms.DataGridViewImageColumn();
             this.blacklistThread = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.blacklistOrderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.blacklistThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.blacklistDateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.blacklistButton = new System.Windows.Forms.Button();
             this.blacklistMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.unblacklistWallpaper = new System.Windows.Forms.ToolStripMenuItem();
@@ -159,9 +155,6 @@
             this.favouritesDataGrid = new System.Windows.Forms.DataGridView();
             this.favouritePreview = new System.Windows.Forms.DataGridViewImageColumn();
             this.favouriteThread = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.favouriteOrderID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.favouriteThreadLink = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.favouriteDateTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.favouritesMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.useFaveMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.removeFaveMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -1383,10 +1376,7 @@
             this.historyDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.historyDataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Preview,
-            this.Thread,
-            this.orderID,
-            this.ThreadLink,
-            this.DateTime});
+            this.Thread});
             this.historyDataGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.historyDataGrid.Location = new System.Drawing.Point(3, 18);
             this.historyDataGrid.MultiSelect = false;
@@ -1402,12 +1392,13 @@
             this.historyDataGrid.ShowRowErrors = false;
             this.historyDataGrid.Size = new System.Drawing.Size(420, 366);
             this.historyDataGrid.TabIndex = 1;
-            this.historyDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.HistoryDataGrid_CellContentClick);
+            this.historyDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGrid_CellContentClick);
             this.historyDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HistoryDataGrid_MouseClick);
             // 
             // Preview
             // 
             this.Preview.HeaderText = "Preview";
+            this.Preview.DataPropertyName = "Bitmap";
             this.Preview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
             this.Preview.Name = "Preview";
             this.Preview.ReadOnly = true;
@@ -1418,29 +1409,9 @@
             dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.Thread.DefaultCellStyle = dataGridViewCellStyle1;
             this.Thread.HeaderText = "Thread";
+            this.Thread.DataPropertyName = "Title";
             this.Thread.Name = "Thread";
             this.Thread.ReadOnly = true;
-            // 
-            // orderID
-            // 
-            this.orderID.HeaderText = "OrderID";
-            this.orderID.Name = "orderID";
-            this.orderID.ReadOnly = true;
-            this.orderID.Visible = false;
-            // 
-            // ThreadLink
-            // 
-            this.ThreadLink.HeaderText = "ThreadLink";
-            this.ThreadLink.Name = "ThreadLink";
-            this.ThreadLink.ReadOnly = true;
-            this.ThreadLink.Visible = false;
-            // 
-            // DateTime
-            // 
-            this.DateTime.HeaderText = "DateTime";
-            this.DateTime.Name = "DateTime";
-            this.DateTime.ReadOnly = true;
-            this.DateTime.Visible = false;
             // 
             // wallpaperChangeTimer
             // 
@@ -1636,10 +1607,7 @@
             this.blacklistDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.blacklistDataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.blacklistPreview,
-            this.blacklistThread,
-            this.blacklistOrderID,
-            this.blacklistThreadLink,
-            this.blacklistDateTime});
+            this.blacklistThread});
             this.blacklistDataGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.blacklistDataGrid.Location = new System.Drawing.Point(3, 18);
             this.blacklistDataGrid.MultiSelect = false;
@@ -1656,12 +1624,13 @@
             this.blacklistDataGrid.ShowRowErrors = false;
             this.blacklistDataGrid.Size = new System.Drawing.Size(419, 365);
             this.blacklistDataGrid.TabIndex = 1;
-            this.blacklistDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.BlacklistDataGrid_CellContentClick);
+            this.blacklistDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGrid_CellContentClick);
             this.blacklistDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.BlacklistDataGrid_MouseClick);
             // 
             // blacklistPreview
             // 
             this.blacklistPreview.HeaderText = "Preview";
+            this.blacklistPreview.DataPropertyName = "Bitmap";
             this.blacklistPreview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
             this.blacklistPreview.Name = "blacklistPreview";
             this.blacklistPreview.ReadOnly = true;
@@ -1672,29 +1641,9 @@
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.blacklistThread.DefaultCellStyle = dataGridViewCellStyle2;
             this.blacklistThread.HeaderText = "Thread";
+            this.blacklistThread.DataPropertyName = "Title";
             this.blacklistThread.Name = "blacklistThread";
             this.blacklistThread.ReadOnly = true;
-            // 
-            // blacklistOrderID
-            // 
-            this.blacklistOrderID.HeaderText = "OrderID";
-            this.blacklistOrderID.Name = "blacklistOrderID";
-            this.blacklistOrderID.ReadOnly = true;
-            this.blacklistOrderID.Visible = false;
-            // 
-            // blacklistThreadLink
-            // 
-            this.blacklistThreadLink.HeaderText = "ThreadLink";
-            this.blacklistThreadLink.Name = "blacklistThreadLink";
-            this.blacklistThreadLink.ReadOnly = true;
-            this.blacklistThreadLink.Visible = false;
-            // 
-            // blacklistDateTime
-            // 
-            this.blacklistDateTime.HeaderText = "DateTime";
-            this.blacklistDateTime.Name = "blacklistDateTime";
-            this.blacklistDateTime.ReadOnly = true;
-            this.blacklistDateTime.Visible = false;
             // 
             // blacklistButton
             // 
@@ -1780,10 +1729,7 @@
             this.favouritesDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.favouritesDataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.favouritePreview,
-            this.favouriteThread,
-            this.favouriteOrderID,
-            this.favouriteThreadLink,
-            this.favouriteDateTime});
+            this.favouriteThread});
             this.favouritesDataGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.favouritesDataGrid.Location = new System.Drawing.Point(3, 18);
             this.favouritesDataGrid.MultiSelect = false;
@@ -1800,12 +1746,13 @@
             this.favouritesDataGrid.ShowRowErrors = false;
             this.favouritesDataGrid.Size = new System.Drawing.Size(419, 367);
             this.favouritesDataGrid.TabIndex = 1;
-            this.favouritesDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.FavouritesDataGrid_CellContentClick);
+            this.favouritesDataGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGrid_CellContentClick);
             this.favouritesDataGrid.MouseClick += new System.Windows.Forms.MouseEventHandler(this.FavouritesDataGrid_MouseClick);
             // 
             // favouritePreview
             // 
             this.favouritePreview.HeaderText = "Preview";
+            this.favouritePreview.DataPropertyName = "Bitmap";
             this.favouritePreview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
             this.favouritePreview.Name = "favouritePreview";
             this.favouritePreview.ReadOnly = true;
@@ -1816,29 +1763,9 @@
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
             this.favouriteThread.DefaultCellStyle = dataGridViewCellStyle3;
             this.favouriteThread.HeaderText = "Thread";
+            this.favouriteThread.DataPropertyName = "Title";
             this.favouriteThread.Name = "favouriteThread";
             this.favouriteThread.ReadOnly = true;
-            // 
-            // favouriteOrderID
-            // 
-            this.favouriteOrderID.HeaderText = "OrderID";
-            this.favouriteOrderID.Name = "favouriteOrderID";
-            this.favouriteOrderID.ReadOnly = true;
-            this.favouriteOrderID.Visible = false;
-            // 
-            // favouriteThreadLink
-            // 
-            this.favouriteThreadLink.HeaderText = "ThreadLink";
-            this.favouriteThreadLink.Name = "favouriteThreadLink";
-            this.favouriteThreadLink.ReadOnly = true;
-            this.favouriteThreadLink.Visible = false;
-            // 
-            // favouriteDateTime
-            // 
-            this.favouriteDateTime.HeaderText = "DateTime";
-            this.favouriteDateTime.Name = "favouriteDateTime";
-            this.favouriteDateTime.ReadOnly = true;
-            this.favouriteDateTime.Visible = false;
             // 
             // favouritesMenuStrip
             // 
@@ -2100,19 +2027,10 @@
         private System.Windows.Forms.Label statuslabel;
         private System.Windows.Forms.DataGridViewImageColumn Preview;
         private System.Windows.Forms.DataGridViewLinkColumn Thread;
-        private System.Windows.Forms.DataGridViewTextBoxColumn orderID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ThreadLink;
-        private System.Windows.Forms.DataGridViewTextBoxColumn DateTime;
         private System.Windows.Forms.DataGridViewImageColumn favouritePreview;
         private System.Windows.Forms.DataGridViewLinkColumn favouriteThread;
-        private System.Windows.Forms.DataGridViewTextBoxColumn favouriteOrderID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn favouriteThreadLink;
-        private System.Windows.Forms.DataGridViewTextBoxColumn favouriteDateTime;
         private System.Windows.Forms.DataGridViewImageColumn blacklistPreview;
         private System.Windows.Forms.DataGridViewLinkColumn blacklistThread;
-        private System.Windows.Forms.DataGridViewTextBoxColumn blacklistOrderID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn blacklistThreadLink;
-        private System.Windows.Forms.DataGridViewTextBoxColumn blacklistDateTime;
         private System.Windows.Forms.ToolStripMenuItem disableNotificationsToolStripMenuItem;
         private System.Windows.Forms.TabPage tabHotkeys;
         private System.Windows.Forms.TextBox txtFavouriteHotkey;

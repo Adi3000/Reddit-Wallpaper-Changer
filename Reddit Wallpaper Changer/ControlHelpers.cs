@@ -2,8 +2,8 @@
 using Reddit_Wallpaper_Changer.Properties;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -28,18 +28,6 @@ namespace Reddit_Wallpaper_Changer
             }
 
             statusLabel.Text = statusText;
-        }
-
-        public static RedditLink CreateRedditLinkFromGrid(DataGridView dataGrid, int currentRow)
-        {
-            var row = dataGrid.Rows[currentRow];
-
-            return new RedditLink
-            (
-                row.Cells[3].Value.ToString(), // url
-                row.Cells[1].Value.ToString(), // title
-                row.Cells[2].Value.ToString()  // threadId
-            );
         }
 
         //======================================================================
@@ -219,16 +207,23 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         public static bool PopulateHistory(DataGridView historyGrid, Database database)
         {
-            historyGrid.Rows.Clear();
-
             Logger.Instance.LogMessageToFile("Refreshing History panel.", LogLevel.Information);
+
+            if (!(historyGrid.DataSource is BindingSource bindingSource))
+            {
+                bindingSource = new BindingSource();
+                historyGrid.DataSource = bindingSource;
+            }
 
             try
             {
-                foreach (var item in database.GetFromHistory())
-                {
-                    AddImageToHistoryDataGrid(historyGrid, item);
-                }
+                var redditViewModels = database.GetFromHistory()
+                    .Select(x => x.ToViewModel())
+                    .ToList();
+
+                var bindingList = new BindingList<RedditImageViewModel>(redditViewModels);
+
+                bindingSource.DataSource = bindingList;
 
                 Logger.Instance.LogMessageToFile("History panel reloaded.", LogLevel.Information);
                 return true;
@@ -240,29 +235,6 @@ namespace Reddit_Wallpaper_Changer
             }
         }
 
-        public static void InsertImageInHistoryDataGrid(DataGridView historyDataGrid, RedditImage image)
-        {
-            historyDataGrid.Rows.Insert(0, 1);
-
-            UpdateRow(historyDataGrid, image, 0);
-        }
-
-        public static void AddImageToHistoryDataGrid(DataGridView historyDataGrid, RedditImage image)
-        {
-            UpdateRow(historyDataGrid, image, historyDataGrid.Rows.Add());
-        }
-
-        private static void UpdateRow(DataGridView historyDataGrid, RedditImage image, int index)
-        {
-            Bitmap bitmap;
-            if (File.Exists(Settings.Default.thumbnailCache + @"\" + image.ThreadId + ".jpg"))
-                bitmap = GetBitmap(image.ThreadId);
-            else
-                bitmap = Resources.null_thumb;
-
-            historyDataGrid.Rows[index].SetValues(bitmap, image.Title, image.ThreadId, image.Url, image.Date);
-        }
-
         //======================================================================
         // Populate the blacklisted history panel
         //======================================================================
@@ -270,17 +242,21 @@ namespace Reddit_Wallpaper_Changer
         {
             Logger.Instance.LogMessageToFile("Refreshing blacklisted panel.", LogLevel.Information);
 
-            blacklistGrid.Rows.Clear();
+            if (!(blacklistGrid.DataSource is BindingSource bindingSource))
+            {
+                bindingSource = new BindingSource();
+                blacklistGrid.DataSource = bindingSource;
+            }
 
             try
             {
-                foreach (var item in database.GetFromBlacklist())
-                {
-                    var index = blacklistGrid.Rows.Add();
-                    var row = blacklistGrid.Rows[index];
+                var redditViewModels = database.GetFromBlacklist()
+                    .Select(x => x.ToViewModel())
+                    .ToList();
 
-                    UpdateDataGridRowValues(row, item);
-                }
+                var bindingList = new BindingList<RedditImageViewModel>(redditViewModels);
+
+                bindingSource.DataSource = bindingList;
 
                 Logger.Instance.LogMessageToFile("Blacklisted wallpapers loaded.", LogLevel.Information);
             }
@@ -297,52 +273,27 @@ namespace Reddit_Wallpaper_Changer
         {
             Logger.Instance.LogMessageToFile("Refreshing Favourites panel.", LogLevel.Information);
 
-            favouritesGrid.Rows.Clear();
+            if (!(favouritesGrid.DataSource is BindingSource bindingSource))
+            {
+                bindingSource = new BindingSource();
+                favouritesGrid.DataSource = bindingSource;
+            }
 
             try
             {
-                foreach (var item in database.GetFromFavourites())
-                {
-                    var index = favouritesGrid.Rows.Add();
-                    var row = favouritesGrid.Rows[index];
+                var redditViewModels = database.GetFromFavourites()
+                    .Select(x => x.ToViewModel())
+                    .ToList();
 
-                    UpdateDataGridRowValues(row, item);
-                }
+                var bindingList = new BindingList<RedditImageViewModel>(redditViewModels);
+
+                bindingSource.DataSource = bindingList;
 
                 Logger.Instance.LogMessageToFile("Favourite wallpapers loaded.", LogLevel.Information);
             }
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile("Error populating favourites panel: " + ex.Message, LogLevel.Warning);
-            }
-        }
-
-        public static void UpdateDataGridRowValues(DataGridViewRow row, RedditImage redditImage)
-        {
-            var bitmap = GetBitmap(redditImage.ThreadId);
-
-            row.SetValues(bitmap, redditImage.Title, redditImage.ThreadId, redditImage.Url, redditImage.Date);
-        }
-
-        private static readonly object CacheLock = new object();
-        private static readonly Dictionary<string, Bitmap> BitmapCache = new Dictionary<string, Bitmap>();
-
-        private static Bitmap GetBitmap(string threadId)
-        {
-            lock (CacheLock)
-            {
-                if (!BitmapCache.TryGetValue(threadId, out var result))
-                {
-                    using (var fs = new FileStream($@"{Settings.Default.thumbnailCache}\{threadId}.jpg", FileMode.Open, FileAccess.Read))
-                    using (var tempImage = Image.FromStream(fs))
-                    {
-                        result = new Bitmap(tempImage);
-                    }
-
-                    BitmapCache[threadId] = result;
-                }
-
-                return result;
             }
         }
 
