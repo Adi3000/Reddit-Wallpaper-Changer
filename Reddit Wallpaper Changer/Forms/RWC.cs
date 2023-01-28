@@ -173,13 +173,14 @@ namespace Reddit_Wallpaper_Changer.Forms
             SetupProxySettings();
             SetupButtons();
             SetupPanels();
+
+            _database.InitialiseDatabase();
+
             SetupOthers();
             SetupHotkeys();
 
             ControlHelpers.SetSubredditTypeLabel(label5, subredditTextBox.Text);
             HelperMethods.LogSettings(changeTimeType.Text, Screen.AllScreens.Length);
-
-            _database.InitialiseDatabase();
 
             if (!Settings.Default.dbMigrated)
                 await _database.MigrateOldBlacklistAsync();
@@ -1478,6 +1479,8 @@ namespace Reddit_Wallpaper_Changer.Forms
                 Settings.Default.Upgrade();
                 Settings.Default.UpgradeRequired = false;
                 Settings.Default.Save();
+
+                _database.AddVersion();
             }
 
             wallpaperGrabType.SelectedIndex = Settings.Default.wallpaperGrabType;

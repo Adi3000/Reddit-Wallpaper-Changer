@@ -56,6 +56,12 @@ namespace Reddit_Wallpaper_Changer
                     const string Sql = @"
                         BEGIN;
                             CREATE TABLE IF NOT EXISTS version (version STRING, date STRING);
+                            DELETE FROM version
+                            WHERE ROWID NOT IN (
+                                SELECT MIN(ROWID) 
+                                FROM version 
+                                GROUP BY version
+                            );
                             CREATE TABLE IF NOT EXISTS blacklist (thumbnail STRING, title STRING, threadid STRING, url STRING, date STRING);
                             CREATE INDEX IF NOT EXISTS idx_blacklist ON blacklist (url);
                             CREATE INDEX IF NOT EXISTS idx_blacklist_date ON blacklist (datetime(date) DESC);
@@ -73,8 +79,6 @@ namespace Reddit_Wallpaper_Changer
                     }
 
                     Logger.Instance.LogMessageToFile($"Successfully created/validated tables and indexes", LogLevel.Information);
-
-                    AddVersion();
                 }
             }
             catch (Exception ex)
