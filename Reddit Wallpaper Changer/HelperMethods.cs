@@ -157,11 +157,8 @@ namespace Reddit_Wallpaper_Changer
             return wc;
         }
 
-        public static async Task<bool> UploadLogToPastebinAsync()
+        public static async Task<string> UploadLogToPastebinAsync()
         {
-            Settings.Default.logUrl = "";
-            Settings.Default.Save();
-
             var data = new NameValueCollection
             {
                 ["api_paste_name"] = $"RWC_Log_{DateTime.Now}.log",
@@ -185,20 +182,18 @@ namespace Reddit_Wallpaper_Changer
                 if (response.StartsWith("Bad API request"))
                 {
                     Logger.Instance.LogMessageToFile("Failed to upload log to Pastebin: " + response, LogLevel.Information);
-                    return false;
+                    return null;
                 }
                 else
                 {
                     Logger.Instance.LogMessageToFile("Logfile successfully uploaded to Pastebin: " + response, LogLevel.Information);
-                    Settings.Default.logUrl = response;
-                    Settings.Default.Save();
-                    return true;
+                    return response;
                 }
             }
             catch (Exception ex)
             {
                 Logger.Instance.LogMessageToFile("Error uploading logfile to Pastebin: " + ex.Message, LogLevel.Error);
-                return false;
+                return null;
             }
         }
 

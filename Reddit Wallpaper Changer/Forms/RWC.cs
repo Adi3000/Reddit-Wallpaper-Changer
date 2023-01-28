@@ -1065,14 +1065,14 @@ namespace Reddit_Wallpaper_Changer.Forms
             btnUpload.Enabled = false;
             btnUpload.Text = "Uploading...";
             
-            var uploadSuccessful = await HelperMethods.UploadLogToPastebinAsync();
+            var logUrl = await HelperMethods.UploadLogToPastebinAsync();
 
             btnUpload.Text = "Upload Log";
             btnUpload.Enabled = true;
 
-            if (uploadSuccessful)
+            if (!string.IsNullOrWhiteSpace(logUrl))
             {
-                Clipboard.SetText(Settings.Default.logUrl);
+                Clipboard.SetText(logUrl);
 
                 MessageBox.Show("Your logfile has been uploaded to Pastebin successfully.\r\n" +
                     "The URL to the Paste has been copied to your clipboard.", "Upload successful!", MessageBoxButtons.OK, MessageBoxIcon.Information);
