@@ -42,7 +42,7 @@ namespace Reddit_Wallpaper_Changer
         {
             Logger.Instance.LogMessageToFile("Setting wallpaper.", LogLevel.Information);
 
-            if (!WallpaperLinkValid(redditLink))
+            if (!WallpaperLinkValid(redditLink.ThreadId))
                 return false;
 
             HelperMethods.ResetManualOverride();
@@ -63,9 +63,9 @@ namespace Reddit_Wallpaper_Changer
 
                 if (ImageExtensions.Contains(extension.ToUpper()))
                 {
-                    await DownloadWallpaperAsync(uri.AbsoluteUri, wallpaperFile);
+                    var downloadSuccessful = await DownloadWallpaperAsync(uri.AbsoluteUri, wallpaperFile);
 
-                    if (!await SetWallpaperAsync(redditLink, wallpaperFile))
+                    if (!downloadSuccessful || !await SetWallpaperAsync(redditLink, wallpaperFile))
                         return false;
                 }
                 else
@@ -147,9 +147,9 @@ namespace Reddit_Wallpaper_Changer
                                 var jTokenData = jToken["data"];
 
                                 var redditLink = new RedditLink(
-                                    jTokenData["url"].ToString(),
                                     jTokenData["title"].ToString(),
-                                    jTokenData["id"].ToString())
+                                    jTokenData["id"].ToString(),
+                                    jTokenData["url"].ToString())
                                 {
                                     Permalink = jTokenData["permalink"].ToString()
                                 };
@@ -203,15 +203,16 @@ namespace Reddit_Wallpaper_Changer
 
             _currentSessionHistory.Add(redditLink.ThreadId);
 
-            var redditImage = await _database.AddWallpaperToHistoryAsync(redditLink)
-                                             .ConfigureAwait(false);
+            var thumbnail = await HelperMethods.GetThumbnailAsync(redditLink.Url).ConfigureAwait(false);
 
-            HelperMethods.SaveToThumbnailCache(redditImage.ThreadId, redditImage.Thumbnail);
+            _database.AddWallpaperToHistory(redditLink, thumbnail);
+
+            HelperMethods.SaveToThumbnailCache(redditLink.ThreadId, thumbnail);
 
             if (Settings.Default.autoSave)
                 HelperMethods.SaveCurrentWallpaper(Settings.Default.currentWallpaperName);
 
-            UiMarshaller.SetWallpaperChanged(redditImage, redditLink);
+            UiMarshaller.SetWallpaperChanged(redditLink);
 
             return true;
         }
@@ -238,9 +239,9 @@ namespace Reddit_Wallpaper_Changer
             return true;
         }
 
-        private bool WallpaperLinkValid(RedditLink redditLink)
+        private bool WallpaperLinkValid(string threadId)
         {
-            if (_database.IsBlacklisted(redditLink.Url))
+            if (_database.IsBlacklisted(threadId))
             {
                 UiMarshaller.DisableAndUpdateStatus("Wallpaper is blacklisted.", "The selected wallpaper has been blacklisted, searching again.");
                 return false;
@@ -248,7 +249,7 @@ namespace Reddit_Wallpaper_Changer
 
             if (!Settings.Default.manualOverride && 
                 Settings.Default.suppressDuplicates && 
-                _currentSessionHistory.Contains(redditLink.ThreadId))
+                _currentSessionHistory.Contains(threadId))
             {
                 UiMarshaller.DisableAndUpdateStatus("Wallpaper already used this session.", "The selected wallpaper has already been used this session, searching again.");
                 return false;
@@ -309,27 +310,21 @@ namespace Reddit_Wallpaper_Changer
             return true;
         }
 
-        private static async Task DownloadWallpaperAsync(string uri, string fileName)
+        private static async Task<bool> DownloadWallpaperAsync(string uri, string fileName)
         {
-            try
-            {
-                File.Delete(fileName);
-            }
-            catch (IOException ex)
-            {
-                Logger.Instance.LogMessageToFile($"Unexpected error deleting old wallpaper: {ex.Message}", LogLevel.Warning);
-            }
-
             try
             {
                 using (var wc = HelperMethods.CreateWebClient())
                 {
                     await wc.DownloadFileTaskAsync(uri, fileName).ConfigureAwait(false);
                 }
+
+                return true;
             }
             catch (WebException ex)
             {
                 Logger.Instance.LogMessageToFile($"Unexpected Error: {ex.Message}", LogLevel.Error);
+                return false;
             }
         }
 

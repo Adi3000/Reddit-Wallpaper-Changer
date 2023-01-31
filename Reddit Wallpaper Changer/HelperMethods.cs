@@ -327,28 +327,20 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Generate thumbnail of the wallpaper and convert to base64 to store in db
         //======================================================================
-        public static async Task<string> GetThumbnailAsync(string URL)
+        public static async Task<string> GetThumbnailAsync(string url)
         {
             try
             {
                 using (var wc = CreateWebClient())
                 {
-                    try
-                    {
-                        var bytes = await wc.DownloadDataTaskAsync(URL).ConfigureAwait(false);
+                    var bytes = await wc.DownloadDataTaskAsync(url).ConfigureAwait(false);
 
-                        return ConvertImageBytesToBase64String(bytes);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Instance.LogMessageToFile("Unexpected error generating wallpaper thumbnail: " + ex.Message, LogLevel.Warning);
-                        return "";
-                    }
+                    return ConvertImageBytesToBase64String(bytes);
                 }
             }
             catch (Exception ex)
             {
-                Logger.Instance.LogMessageToFile("Unexpected error generating wallpaper thumbnail: " + ex.Message, LogLevel.Warning);
+                Logger.Instance.LogMessageToFile($"Unexpected error generating wallpaper thumbnail for URL {url}: {ex.Message}", LogLevel.Warning);
                 return "";
             }
         }

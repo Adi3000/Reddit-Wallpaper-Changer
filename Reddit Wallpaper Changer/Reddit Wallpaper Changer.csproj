@@ -114,7 +114,6 @@
     <Compile Include="HelperMethods.cs" />
     <Compile Include="HotKey.cs" />
     <Compile Include="RedditLink.cs" />
-    <Compile Include="RedditImage.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MainThreadMarshaller.cs" />
     <Compile Include="NativeMethods.cs" />

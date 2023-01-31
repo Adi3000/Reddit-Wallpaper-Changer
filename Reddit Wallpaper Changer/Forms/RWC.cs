@@ -84,13 +84,13 @@ namespace Reddit_Wallpaper_Changer.Forms
         internal void DisableAndUpdateStatus(string status, string log)
         {
             UpdateStatus(status);
-            Logger.Instance.LogMessageToFile(log, LogLevel.Warning);
+            Logger.Instance.LogMessageToFile(log, LogLevel.Information);
             changeWallpaperTimer.Enabled = false;
         }
 
-        internal void SetWallpaperChanged(DbRedditImage redditImage, RedditLink redditLink)
+        internal void SetWallpaperChanged(RedditLink redditLink)
         {
-            ((BindingSource)historyDataGrid.DataSource).Insert(0, redditImage.ToViewModel());
+            ((BindingSource)historyDataGrid.DataSource).Insert(0, redditLink.ToViewModel());
 
             var currentThread = !string.IsNullOrWhiteSpace(redditLink.Permalink)
                 ? $"http://reddit.com{redditLink.Permalink}"
@@ -185,7 +185,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             if (!Settings.Default.dbMigrated)
                 await _database.MigrateOldBlacklistAsync();
 
-            _database.BuildThumbnailCache();
+            await _database.BuildThumbnailCacheAsync();
 
             ControlHelpers.PopulateHistory(historyDataGrid, _database);
             ControlHelpers.PopulateFavourites(favouritesDataGrid, _database);
@@ -713,20 +713,21 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             var redditLink = new RedditLink
             (
-                Settings.Default.url,
                 Settings.Default.threadTitle,
-                Settings.Default.threadID
-            );
+                Settings.Default.threadID,
+                Settings.Default.url);
 
-            var redditImage = await _database.FaveWallpaperAsync(redditLink);
+            var successful = await _database.FaveWallpaperAsync(redditLink);
 
             var details = new BalloonTipDetails(ToolTipIcon.Info, "Wallpaper Favourited!", "Wallpaper added to favourites!", 750);
             ControlHelpers.ShowBalloonTip(taskIcon, details);
 
-            if (redditImage != null)
+            if (successful)
             {
-                var viewModel = redditImage.ToViewModel();
-                ((BindingSource)favouritesDataGrid.DataSource).Insert(0, viewModel);
+                var viewModel = redditLink.ToViewModel();
+                var bindingSource = (BindingSource)favouritesDataGrid.DataSource;
+                if (!bindingSource.Contains(viewModel))
+                    bindingSource.Insert(0, viewModel);
             }
 
             if (Settings.Default.autoSaveFaves)
@@ -738,18 +739,17 @@ namespace Reddit_Wallpaper_Changer.Forms
         //======================================================================
         private async void BlacklistCurrentWallpaper_Click(object sender, EventArgs e)
         {
-            var imageDetails = new RedditLink
+            var redditLink = new RedditLink
             (
-                Settings.Default.url,
                 Settings.Default.threadTitle,
-                Settings.Default.threadID
-            );
+                Settings.Default.threadID,
+                Settings.Default.url);
 
-            var redditImage = await _database.BlacklistWallpaperAsync(imageDetails);
+            var successful = await _database.BlacklistWallpaperAsync(redditLink);
 
             BalloonTipDetails details;
 
-            if (redditImage != null)
+            if (successful)
                 details = new BalloonTipDetails(ToolTipIcon.Info, "Wallpaper Blacklisted!", "The wallpaper has been blacklisted! Finding a new wallpaper...", 750);
             else 
                 details = new BalloonTipDetails(ToolTipIcon.Info, "Error Blacklisting!", "There was an error blacklisting the wallpaper!", 750);
@@ -760,11 +760,13 @@ namespace Reddit_Wallpaper_Changer.Forms
             wallpaperChangeTimer.Enabled = true;
             changeWallpaperTimer.Enabled = true;
 
-            if (redditImage != null)
+            if (successful)
             {
-                var viewModel = redditImage.ToViewModel();
-                ((BindingSource)blacklistDataGrid.DataSource).Insert(0, viewModel);
-            }   
+                var viewModel = redditLink.ToViewModel();
+                var bindingSource = (BindingSource)blacklistDataGrid.DataSource;
+                if (!bindingSource.Contains(viewModel))
+                    bindingSource.Insert(0, viewModel);
+            }
         }
 
         //======================================================================
@@ -774,27 +776,29 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             var redditLink = CreateRedditLinkFromCurrentRow(historyDataGrid);
 
-            var redditImage = await _database.BlacklistWallpaperAsync(redditLink);
+            var successful = await _database.BlacklistWallpaperAsync(redditLink);
 
             BalloonTipDetails details;
-            if (redditImage != null)
+            if (successful)
                 details = new BalloonTipDetails(ToolTipIcon.Info, "Wallpaper Blacklisted!", "The wallpaper has been blacklisted!", 750);
             else
                 details = new BalloonTipDetails(ToolTipIcon.Error, "Error!", "There was an error adding the wallpaper to your blacklist!", 750);
 
             ControlHelpers.ShowBalloonTip(taskIcon, details);
 
-            if (redditLink.Url.ToString() == Settings.Default.currentWallpaperUrl)
+            if (redditLink.Url == Settings.Default.currentWallpaperUrl)
             {
                 wallpaperChangeTimer.Enabled = false;
                 wallpaperChangeTimer.Enabled = true;
                 changeWallpaperTimer.Enabled = true;
             }
 
-            if (redditImage != null)
+            if (successful)
             {
-                var viewModel = redditImage.ToViewModel();
-                ((BindingSource)blacklistDataGrid.DataSource).Insert(0, viewModel);
+                var viewModel = redditLink.ToViewModel();
+                var bindingSource = (BindingSource)blacklistDataGrid.DataSource;
+                if (!bindingSource.Contains(viewModel))
+                    bindingSource.Insert(0, viewModel);
             }
         }
 
@@ -805,21 +809,23 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             var redditLink = CreateRedditLinkFromCurrentRow(historyDataGrid);
 
-            var redditImage = await _database.FaveWallpaperAsync(redditLink);
+            var successful = await _database.FaveWallpaperAsync(redditLink);
 
             BalloonTipDetails details;
 
-            if (redditImage != null)
+            if (successful)
                 details = new BalloonTipDetails(ToolTipIcon.Info, "Wallpaper Favourited!", "Wallpaper added to favourites!", 750);
             else
                 details = new BalloonTipDetails(ToolTipIcon.Error, "Error!", "There was an error adding the Wallpaper to your favourites!", 750);
 
             ControlHelpers.ShowBalloonTip(taskIcon, details);
 
-            if (redditImage != null)
+            if (successful)
             {
-                var viewModel = redditImage.ToViewModel();
-                ((BindingSource)favouritesDataGrid.DataSource).Insert(0, viewModel);
+                var viewModel = redditLink.ToViewModel();
+                var bindingSource = (BindingSource)favouritesDataGrid.DataSource;
+                if (!bindingSource.Contains(viewModel))
+                    bindingSource.Insert(0, viewModel);
             }
 
             if (Settings.Default.autoSaveFaves)
@@ -873,14 +879,11 @@ namespace Reddit_Wallpaper_Changer.Forms
             {
                 var bindingSource = (BindingSource)blacklistDataGrid.DataSource;
 
-                var url = ((RedditImageViewModel)bindingSource[_currentMouseOverRow]).Url;
+                var viewModel = (RedditImageViewModel)bindingSource[_currentMouseOverRow];
 
-                _database.RemoveFromBlacklist(url);
+                _database.RemoveFromBlacklist(viewModel.ThreadId);
 
-                foreach (var imageToRemove in ((IList<RedditImageViewModel>)bindingSource.DataSource).Where(x => x.Url == url).ToList())
-                {
-                    bindingSource.Remove(imageToRemove);
-                }
+                bindingSource.Remove(viewModel);
             }
             catch(Exception ex)
             {
@@ -897,14 +900,11 @@ namespace Reddit_Wallpaper_Changer.Forms
             {
                 var bindingSource = (BindingSource)favouritesDataGrid.DataSource;
 
-                var url = ((RedditImageViewModel)bindingSource[_currentMouseOverRow]).Url;
+                var viewModel = (RedditImageViewModel)bindingSource[_currentMouseOverRow];
 
-                _database.RemoveFromFavourites(url);
+                _database.RemoveFromFavourites(viewModel.ThreadId);
 
-                foreach (var imageToRemove in ((IList<RedditImageViewModel>)bindingSource.DataSource).Where(x => x.Url == url).ToList())
-                {
-                    bindingSource.Remove(imageToRemove);
-                }
+                bindingSource.Remove(viewModel);
             }
             catch (Exception ex)
             {
@@ -921,14 +921,11 @@ namespace Reddit_Wallpaper_Changer.Forms
             {
                 var bindingSource = (BindingSource)historyDataGrid.DataSource;
 
-                var url = ((RedditImageViewModel)bindingSource[_currentMouseOverRow]).Url;
+                var viewModel = (RedditImageViewModel)bindingSource[_currentMouseOverRow];
 
-                _database.RemoveFromHistory(url);
+                _database.RemoveFromHistory(viewModel.ThreadId);
 
-                foreach (var imageToRemove in ((IList<RedditImageViewModel>)bindingSource.DataSource).Where(x => x.Url == url).ToList())
-                {
-                    bindingSource.Remove(imageToRemove);
-                }
+                bindingSource.Remove(viewModel);
             }
             catch (Exception ex)
             {
@@ -1151,7 +1148,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             var choice = MessageBox.Show("Are you sure you want to delete ALL wallpaper history?\r\n" + 
                 "It's recommended that you take a backup first!\r\n\r\nTHIS ACTION CANNOT BE UNDONE!", "Clear History?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-            if (choice == DialogResult.Yes && _database.WipeTable("history"))
+            if (choice == DialogResult.Yes && _database.WipeHistory())
             {
                 ((BindingSource)historyDataGrid.DataSource).Clear();
 
@@ -1168,7 +1165,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             var choice = MessageBox.Show("Are you sure you want to remove all favourite wallpapers?\r\n" +
                 "It's recommended that you take a backup first!\r\n\r\nTHIS ACTION CANNOT BE UNDONE!", "Clear Favourites?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-            if (choice == DialogResult.Yes && _database.WipeTable("favourites"))
+            if (choice == DialogResult.Yes && _database.WipeFavourites())
             {
                 ((BindingSource)favouritesDataGrid.DataSource).Clear();
                 MessageBox.Show("All wallpapers have been deleted from your favourites!", "Favourites Deleted!", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1183,7 +1180,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             DialogResult choice = MessageBox.Show("Are you sure you want to remove all blacklisted wallpapers?\r\n" +
                 "It's recommended that you take a backup first!\r\n\r\nTHIS ACTION CANNOT BE UNDONE!", "Clear Blacklist?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-            if (choice == DialogResult.Yes && _database.WipeTable("blacklist"))
+            if (choice == DialogResult.Yes && _database.WipeBlacklist())
             {
                 ((BindingSource)blacklistDataGrid.DataSource).Clear();
                 MessageBox.Show("All wallpaper have been deleted from your blacklist!", "Blacklist Deleted!", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1296,10 +1293,10 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             return new RedditLink
             (
-                viewModel.Url, // url
-                viewModel.Title, // title
+                viewModel.Title, // url
                 viewModel.ThreadId  // threadId
-            );
+, // title
+                viewModel.Url);
         }
 
         private void OpenPopupInfoWindow(string threadId, string title)
@@ -1479,8 +1476,6 @@ namespace Reddit_Wallpaper_Changer.Forms
                 Settings.Default.Upgrade();
                 Settings.Default.UpgradeRequired = false;
                 Settings.Default.Save();
-
-                _database.AddVersion();
             }
 
             wallpaperGrabType.SelectedIndex = Settings.Default.wallpaperGrabType;

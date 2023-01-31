@@ -27,12 +27,12 @@ namespace Reddit_Wallpaper_Changer
                 _uiContext.Post(x => UpdateStatus(text), null);
         }
 
-        public void SetWallpaperChanged(DbRedditImage redditImage, RedditLink redditLink)
+        public void SetWallpaperChanged(RedditLink redditLink)
         {
             if (SynchronizationContext.Current == _uiContext)
-                _mainForm.SetWallpaperChanged(redditImage, redditLink);
+                _mainForm.SetWallpaperChanged(redditLink);
             else
-                _uiContext.Post(x => SetWallpaperChanged(redditImage, redditLink), null);
+                _uiContext.Post(x => SetWallpaperChanged(redditLink), null);
         }
 
         public void RestartChangeWallpaperTimer()

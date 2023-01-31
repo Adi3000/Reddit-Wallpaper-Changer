@@ -12,11 +12,11 @@ namespace Reddit_Wallpaper_Changer
         public string ThreadId { get; }
         public string Permalink { get; set; }
 
-        public RedditLink(string url, string title, string threadId)
+        public RedditLink(string title, string threadId, string url)
         {
-            Url = url;
             Title = title;
             ThreadId = threadId;
+            Url = url;
         }
 
         public void LogDetails()
