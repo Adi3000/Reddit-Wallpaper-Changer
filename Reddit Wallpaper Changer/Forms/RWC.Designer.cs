@@ -19,9 +19,9 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RWC));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
             this.configurePanel = new System.Windows.Forms.Panel();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.statusMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -161,6 +161,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             this.saveThisWallpaperToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rwcStatusStrip = new System.Windows.Forms.StatusStrip();
             this.statuslabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.chkSetOnAllDesktops = new System.Windows.Forms.CheckBox();
             this.configurePanel.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
             this.tabSettingsControl.SuspendLayout();
@@ -1267,6 +1268,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             // 
             // groupBox7
             // 
+            this.groupBox7.Controls.Add(this.chkSetOnAllDesktops);
             this.groupBox7.Controls.Add(this.btnWallpaperHelp);
             this.groupBox7.Controls.Add(this.picStyles);
             this.groupBox7.Controls.Add(this.btnMonitorSave);
@@ -1282,7 +1284,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             // btnWallpaperHelp
             // 
             this.btnWallpaperHelp.Image = global::Reddit_Wallpaper_Changer.Properties.Resources.help;
-            this.btnWallpaperHelp.Location = new System.Drawing.Point(346, 32);
+            this.btnWallpaperHelp.Location = new System.Drawing.Point(249, 21);
             this.btnWallpaperHelp.Name = "btnWallpaperHelp";
             this.btnWallpaperHelp.Size = new System.Drawing.Size(25, 25);
             this.btnWallpaperHelp.TabIndex = 13;
@@ -1302,7 +1304,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             // 
             this.btnMonitorSave.Image = global::Reddit_Wallpaper_Changer.Properties.Resources.save;
             this.btnMonitorSave.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnMonitorSave.Location = new System.Drawing.Point(265, 32);
+            this.btnMonitorSave.Location = new System.Drawing.Point(301, 34);
             this.btnMonitorSave.Name = "btnMonitorSave";
             this.btnMonitorSave.Padding = new System.Windows.Forms.Padding(0, 0, 5, 0);
             this.btnMonitorSave.Size = new System.Drawing.Size(75, 25);
@@ -1328,7 +1330,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             "Stretch",
             "Tile",
             "Center"});
-            this.comboType.Location = new System.Drawing.Point(117, 34);
+            this.comboType.Location = new System.Drawing.Point(101, 23);
             this.comboType.Name = "comboType";
             this.comboType.Size = new System.Drawing.Size(142, 21);
             this.comboType.TabIndex = 10;
@@ -1337,7 +1339,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(32, 37);
+            this.label7.Location = new System.Drawing.Point(16, 26);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(79, 13);
             this.label7.TabIndex = 9;
@@ -1397,8 +1399,8 @@ namespace Reddit_Wallpaper_Changer.Forms
             // 
             // Preview
             // 
-            this.Preview.HeaderText = "Preview";
             this.Preview.DataPropertyName = "Bitmap";
+            this.Preview.HeaderText = "Preview";
             this.Preview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
             this.Preview.Name = "Preview";
             this.Preview.ReadOnly = true;
@@ -1406,10 +1408,10 @@ namespace Reddit_Wallpaper_Changer.Forms
             // Thread
             // 
             this.Thread.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.Thread.DefaultCellStyle = dataGridViewCellStyle1;
-            this.Thread.HeaderText = "Thread";
             this.Thread.DataPropertyName = "Title";
+            dataGridViewCellStyle13.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.Thread.DefaultCellStyle = dataGridViewCellStyle13;
+            this.Thread.HeaderText = "Thread";
             this.Thread.Name = "Thread";
             this.Thread.ReadOnly = true;
             // 
@@ -1629,8 +1631,8 @@ namespace Reddit_Wallpaper_Changer.Forms
             // 
             // blacklistPreview
             // 
-            this.blacklistPreview.HeaderText = "Preview";
             this.blacklistPreview.DataPropertyName = "Bitmap";
+            this.blacklistPreview.HeaderText = "Preview";
             this.blacklistPreview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
             this.blacklistPreview.Name = "blacklistPreview";
             this.blacklistPreview.ReadOnly = true;
@@ -1638,10 +1640,10 @@ namespace Reddit_Wallpaper_Changer.Forms
             // blacklistThread
             // 
             this.blacklistThread.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.blacklistThread.DefaultCellStyle = dataGridViewCellStyle2;
-            this.blacklistThread.HeaderText = "Thread";
             this.blacklistThread.DataPropertyName = "Title";
+            dataGridViewCellStyle14.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.blacklistThread.DefaultCellStyle = dataGridViewCellStyle14;
+            this.blacklistThread.HeaderText = "Thread";
             this.blacklistThread.Name = "blacklistThread";
             this.blacklistThread.ReadOnly = true;
             // 
@@ -1751,8 +1753,8 @@ namespace Reddit_Wallpaper_Changer.Forms
             // 
             // favouritePreview
             // 
-            this.favouritePreview.HeaderText = "Preview";
             this.favouritePreview.DataPropertyName = "Bitmap";
+            this.favouritePreview.HeaderText = "Preview";
             this.favouritePreview.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
             this.favouritePreview.Name = "favouritePreview";
             this.favouritePreview.ReadOnly = true;
@@ -1760,10 +1762,10 @@ namespace Reddit_Wallpaper_Changer.Forms
             // favouriteThread
             // 
             this.favouriteThread.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.favouriteThread.DefaultCellStyle = dataGridViewCellStyle3;
-            this.favouriteThread.HeaderText = "Thread";
             this.favouriteThread.DataPropertyName = "Title";
+            dataGridViewCellStyle15.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.favouriteThread.DefaultCellStyle = dataGridViewCellStyle15;
+            this.favouriteThread.HeaderText = "Thread";
             this.favouriteThread.Name = "favouriteThread";
             this.favouriteThread.ReadOnly = true;
             // 
@@ -1821,6 +1823,17 @@ namespace Reddit_Wallpaper_Changer.Forms
             this.statuslabel1.Size = new System.Drawing.Size(100, 17);
             this.statuslabel1.Text = "RWC Status Text";
             // 
+            // chkSetOnAllDesktops
+            // 
+            this.chkSetOnAllDesktops.AutoSize = true;
+            this.chkSetOnAllDesktops.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkSetOnAllDesktops.Location = new System.Drawing.Point(14, 52);
+            this.chkSetOnAllDesktops.Name = "chkSetOnAllDesktops";
+            this.chkSetOnAllDesktops.Size = new System.Drawing.Size(170, 17);
+            this.chkSetOnAllDesktops.TabIndex = 20;
+            this.chkSetOnAllDesktops.Text = "Set On All Virtual Desktops?";
+            this.chkSetOnAllDesktops.UseVisualStyleBackColor = true;
+            // 
             // RWC
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -1850,7 +1863,6 @@ namespace Reddit_Wallpaper_Changer.Forms
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             this.Load += new System.EventHandler(this.RWC_Load);
             this.configurePanel.ResumeLayout(false);
-            this.configurePanel.PerformLayout();
             this.contextMenuStrip.ResumeLayout(false);
             this.tabSettingsControl.ResumeLayout(false);
             this.tabSettings.ResumeLayout(false);
@@ -2044,6 +2056,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.CheckBox chkUseHotkeys;
         private System.Windows.Forms.CheckBox chkIncludeNsfw;
+        private System.Windows.Forms.CheckBox chkSetOnAllDesktops;
     }
 }
 

@@ -137,6 +137,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="VirtualDesktopManager.cs" />
     <Compile Include="WallpaperChanger.cs" />
     <Compile Include="SuperSecret.cs" />
     <Compile Include="Forms\Update.cs">

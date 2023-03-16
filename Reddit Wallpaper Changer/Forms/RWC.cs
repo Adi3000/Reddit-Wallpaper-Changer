@@ -264,6 +264,7 @@ namespace Reddit_Wallpaper_Changer.Forms
             ControlHelpers.UpdateMonitorPanelScreens(monitorLayoutPanel);
 
             comboType.Text = Settings.Default.wallpaperStyle;
+            chkSetOnAllDesktops.Checked = Settings.Default.setOnAllVirtualDesktops;
 
             ControlHelpers.SetExample(picStyles, comboType.Text);
         }
@@ -1042,6 +1043,9 @@ namespace Reddit_Wallpaper_Changer.Forms
             }
 
             Settings.Default.wallpaperStyle = comboType.Text;
+
+            Settings.Default.setOnAllVirtualDesktops = chkSetOnAllDesktops.Checked;
+
             Settings.Default.Save();
 
             RegistryAdapter.SetWallpaperStyle(wallpaperStyle, tileWallpaper);
@@ -1049,10 +1053,12 @@ namespace Reddit_Wallpaper_Changer.Forms
             ControlHelpers.UpdateMonitorPanelScreens(monitorLayoutPanel);
 
             comboType.Text = Settings.Default.wallpaperStyle;
+            chkSetOnAllDesktops.Checked = Settings.Default.setOnAllVirtualDesktops;
+
             ControlHelpers.SetExample(picStyles, comboType.Text);
 
-            MessageBox.Show($"Wallpaper style successfully changed to: {comboType.Text}", "Saved!",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"Wallpaper style successfully changed to: {comboType.Text} and Set on all virtual desktops changed to: {(chkSetOnAllDesktops.Checked ? "Enabled" : "Disabled")}",
+                "Saved!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         //======================================================================

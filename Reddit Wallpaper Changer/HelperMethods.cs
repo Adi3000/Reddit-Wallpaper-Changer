@@ -64,6 +64,7 @@ namespace Reddit_Wallpaper_Changer
                     writer.WriteElementString("WallpaperInfoPopup", Settings.Default.wallpaperInfoPopup.ToString());
                     writer.WriteElementString("AutoUpdateCheck", Settings.Default.autoUpdateCheck.ToString());
                     writer.WriteElementString("WallpaperFit", Settings.Default.wallpaperStyle);
+                    writer.WriteElementString("SetOnAllVirtualDesktops", Settings.Default.setOnAllVirtualDesktops.ToString());
                     writer.WriteEndElement();
                     writer.WriteEndDocument();
                 }
@@ -112,6 +113,7 @@ namespace Reddit_Wallpaper_Changer
                     Settings.Default.wallpaperInfoPopup = bool.Parse(xn["WallpaperInfoPopup"].InnerText);
                     Settings.Default.autoUpdateCheck = bool.Parse(xn["AutoUpdateCheck"].InnerText);
                     Settings.Default.wallpaperStyle = xn["WallpaperFit"].InnerText;
+                    Settings.Default.setOnAllVirtualDesktops = bool.TryParse(xn["SetOnAllVirtualDesktops"]?.InnerText, out var setOnAllVirtualDesktops) && setOnAllVirtualDesktops;
 
                     Settings.Default.Save();
 
@@ -496,6 +498,7 @@ namespace Reddit_Wallpaper_Changer
             Logger.Instance.LogMessageToFile("Change wallpaper every " + Settings.Default.changeTimeValue + " " + changeTimeType, LogLevel.Information);
             Logger.Instance.LogMessageToFile("Number of detected displays: " + screenCount, LogLevel.Information);
             Logger.Instance.LogMessageToFile("Wallpaper Position: " + Settings.Default.wallpaperStyle, LogLevel.Information);
+            Logger.Instance.LogMessageToFile("Set On All Virtual Desktops: " + Settings.Default.setOnAllVirtualDesktops, LogLevel.Information);
             Logger.Instance.LogMessageToFile("Validate wallpaper size: " + Settings.Default.fitWallpaper, LogLevel.Information);
             Logger.Instance.LogMessageToFile("Wallpaper Info Popup: " + Settings.Default.wallpaperInfoPopup, LogLevel.Information);
         }

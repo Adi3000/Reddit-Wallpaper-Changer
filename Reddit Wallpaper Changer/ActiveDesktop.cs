@@ -269,6 +269,9 @@ namespace Reddit_Wallpaper_Changer
 
                 SetWallpaper(wallpaperFile);
             }
+
+            if (Settings.Default.setOnAllVirtualDesktops)
+                VirtualDesktopManager.SetWallpaperOnAllVirtualDesktops(wallpaperFile);
         }
 
         #region IDisposable Support
