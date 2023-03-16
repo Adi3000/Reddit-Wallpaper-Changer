@@ -52,12 +52,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7F88F9E7D955D66DB54AD09F7A466C3C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_12CE8F77BDEF41128AC71956DB7868D0"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -65,6 +59,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_B0557548FD39DE33CCE75209494E615F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_7F88F9E7D955D66DB54AD09F7A466C3C"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -362,15 +362,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Reddit Wallpaper Changer"
-        "ProductCode" = "8:{25AD3F55-EC88-483F-9E01-7CC349494984}"
-        "PackageCode" = "8:{EA4E8D2D-BF3F-4FEE-87AC-C7B6A4504D15}"
+        "ProductCode" = "8:{9954CB16-9051-4BAA-B870-7F047CD5D65F}"
+        "PackageCode" = "8:{B5985A62-8E14-45F3-972D-A47AD8C176D9}"
         "UpgradeCode" = "8:{B05B9A99-E492-439D-A828-1D783173D70C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.22"
+        "ProductVersion" = "8:1.0.23"
         "Manufacturer" = "8:qwertydog"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://www.reddit.com/r/rwallpaperchanger/"
