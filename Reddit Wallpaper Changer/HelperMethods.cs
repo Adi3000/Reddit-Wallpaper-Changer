@@ -135,26 +135,9 @@ namespace Reddit_Wallpaper_Changer
         {
             var wc = new DecompressableWebClient();
 
-            if (Settings.Default.useProxy)
-            {
-                try
-                {
-                    var proxy = new WebProxy(Settings.Default.proxyAddress);
-
-                    if (Settings.Default.proxyAuth)
-                    {
-                        proxy.Credentials = new NetworkCredential(Settings.Default.proxyUser, Settings.Default.proxyPass);
-                        proxy.UseDefaultCredentials = false;
-                        proxy.BypassProxyOnLocal = false;
-                    }
-
-                    wc.Proxy = proxy;
-                }
-                catch (Exception ex)
-                {
-                    Logger.Instance.LogMessageToFile("Unexpeced error setting proxy: " + ex.Message, LogLevel.Error);
-                }
-            }
+            var proxy = CreateProxy();
+            if (proxy != null)
+                wc.Proxy = proxy;
 
             return wc;
         }
@@ -536,6 +519,32 @@ namespace Reddit_Wallpaper_Changer
             {
                 Logger.Instance.LogMessageToFile($"Unable to save thumbnail: {thumbnail} to file: {fileName}. {ex.Message}", LogLevel.Warning);
             }
+        }
+
+        public static IWebProxy CreateProxy()
+        {
+            if (Settings.Default.useProxy)
+            {
+                try
+                {
+                    var proxy = new WebProxy(Settings.Default.proxyAddress);
+
+                    if (Settings.Default.proxyAuth)
+                    {
+                        proxy.Credentials = new NetworkCredential(Settings.Default.proxyUser, Settings.Default.proxyPass);
+                        proxy.UseDefaultCredentials = false;
+                        proxy.BypassProxyOnLocal = false;
+                    }
+
+                    return proxy;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Instance.LogMessageToFile("Unexpeced error setting proxy: " + ex.Message, LogLevel.Error);
+                }
+            }
+
+            return null;
         }
     }
 }
