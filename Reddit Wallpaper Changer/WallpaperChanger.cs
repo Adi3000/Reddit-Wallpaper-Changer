@@ -8,6 +8,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,14 +26,16 @@ namespace Reddit_Wallpaper_Changer
         public MainThreadMarshaller UiMarshaller { private get; set; }
 
         private readonly Database _database;
+        private readonly RedditClient _redditClient;
         private readonly Random _random = new Random();
         private readonly HashSet<string> _currentSessionHistory = new HashSet<string>();
 
         private int _noResultCount;
 
-        public WallpaperChanger(Database database)
+        public WallpaperChanger(Database database, RedditClient redditClient)
         {
             _database = database;
+            _redditClient = redditClient;
         }
 
         //======================================================================
@@ -106,7 +109,7 @@ namespace Reddit_Wallpaper_Changer
                 try
                 {
                     var url = GetRedditSearchUrl(_random, UiMarshaller);
-                    var jsonData = await GetJsonDataAsync(url, UiMarshaller).ConfigureAwait(false);
+                    var jsonData = await GetJsonDataAsync(url).ConfigureAwait(false);
 
                     try
                     {
@@ -416,7 +419,7 @@ namespace Reddit_Wallpaper_Changer
             uiMarshaller.UpdateStatus("Searching /r/" + sub + " for a wallpaper...");
             Logger.Instance.LogMessageToFile("Selected sub to search: " + sub, LogLevel.Information);
 
-            var formURL = new StringBuilder("http://www.reddit.com/");
+            var formURL = new StringBuilder("https://oauth.reddit.com/");
 
             if (sub.Length == 0)
             {
@@ -489,27 +492,24 @@ namespace Reddit_Wallpaper_Changer
             return result;
         }
 
-        private static async Task<string> GetJsonDataAsync(string url, MainThreadMarshaller uiMarshaller)
+        private async Task<string> GetJsonDataAsync(string url)
         {
             try
             {
                 Logger.Instance.LogMessageToFile("Searching Reddit for a wallpaper.", LogLevel.Information);
 
-                using (var wc = HelperMethods.CreateWebClient())
-                {
-                    return await wc.DownloadStringTaskAsync(url).ConfigureAwait(false);
-                }
+                return await _redditClient.GetJsonAsync(url, CancellationToken.None).ConfigureAwait(false);
             }
-            catch (WebException ex)
+            catch (HttpRequestException ex)
             {
-                await uiMarshaller.LogFailureAsync(ex.Message, $"Reddit server error: {ex}", 
+                await UiMarshaller.LogFailureAsync(ex.Message, $"Reddit server error: {ex}", 
                     LogLevel.Error);
 
                 throw;
             }
             catch (Exception ex)
             {
-                await uiMarshaller.LogFailureAsync("Error downloading search results.", 
+                await UiMarshaller.LogFailureAsync("Error downloading search results.", 
                     $"Error downloading search results: {ex.Message}", LogLevel.Error);
 
                 throw;

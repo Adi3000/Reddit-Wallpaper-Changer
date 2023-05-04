@@ -45,7 +45,8 @@ namespace Reddit_Wallpaper_Changer
 
                 var database = new Database(appDataFolderPath);
 
-                var wallpaperChanger = new WallpaperChanger(database);
+                var redditClient = new RedditClient();
+                var wallpaperChanger = new WallpaperChanger(database, redditClient);
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
