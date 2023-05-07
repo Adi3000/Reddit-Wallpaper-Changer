@@ -44,6 +44,7 @@ namespace Reddit_Wallpaper_Changer
                     case HttpStatusCode.OK:
                         return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     case HttpStatusCode.Unauthorized:
+                    case HttpStatusCode.Forbidden:
                         await LoginAsync(token).ConfigureAwait(false);
                         return await ExecuteWithRateLimit(() => httpClient.GetStringAsync(url), token).ConfigureAwait(false);
                     default:
