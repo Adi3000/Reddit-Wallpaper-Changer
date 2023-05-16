@@ -407,39 +407,9 @@ namespace Reddit_Wallpaper_Changer
         // TODO refactor
         private static string GetRedditSearchUrl(Random random, MainThreadMarshaller uiMarshaller)
         {
-            var subreddits = new StringBuilder(Settings.Default.subredditsUsed).Replace(" ", "")
-                                                                               .Replace("www.reddit.com/", "")
-                                                                               .Replace("reddit.com/", "")
-                                                                               .Replace("http://", "")
-                                                                               .Replace("/r/", "")
-                                                                               .ToString();
-            var subs = subreddits.Split('+');
-            var sub = subs[random.Next(0, subs.Length)];
+            var formURL = GetBaseUrl(random, uiMarshaller);
 
-            uiMarshaller.UpdateStatus("Searching /r/" + sub + " for a wallpaper...");
-            Logger.Instance.LogMessageToFile("Selected sub to search: " + sub, LogLevel.Information);
-
-            var formURL = new StringBuilder("https://oauth.reddit.com/");
-
-            if (sub.Length == 0)
-            {
-                formURL.Append("r/all");
-            }
-            else if (sub.Contains("/m/"))
-            {
-                subreddits = subreddits
-                       .Replace("http://", "")
-                       .Replace("https://", "")
-                       .Replace("user/", "u/");
-
-                formURL.Append(subreddits);
-            }
-            else
-            {
-                formURL.Append($"r/").Append(sub);
-            }
-
-            var query = "/search.json?q=" + 
+            var query = "/search.json?q=" +
                 WebUtility.UrlEncode(Settings.Default.searchQuery) +
                 "+self%3Ano+((url%3A.png+OR+url%3A.jpg+OR+url%3A.jpeg)+OR+(url%3Aimgur.png+OR+url%3Aimgur.jpg+OR+url%3Aimgur.jpeg)+OR+(url%3Adeviantart))" +
                 "&restrict_sr=on";
@@ -490,6 +460,38 @@ namespace Reddit_Wallpaper_Changer
             Logger.Instance.LogMessageToFile("Full URL Search String: " + result, LogLevel.Information);
 
             return result;
+        }
+
+        private static StringBuilder GetBaseUrl(Random random, MainThreadMarshaller uiMarshaller)
+        {
+            var subreddits = new StringBuilder(Settings.Default.subredditsUsed)
+                .Replace(" ", "")
+                .Replace("www.reddit.com/", "")
+                .Replace("reddit.com/", "")
+                .Replace("http://", "")
+                .Replace("/r/", "")
+                .ToString();
+
+            var subs = subreddits.Split('+');
+            var sub = subs[random.Next(0, subs.Length)];
+
+            uiMarshaller.UpdateStatus("Searching " + sub + " for a wallpaper...");
+            Logger.Instance.LogMessageToFile("Selected sub to search: " + sub, LogLevel.Information);
+
+            if (sub.Contains("/m/"))
+            {
+                var multireddit = sub.Replace("http://", "")
+                       .Replace("https://", "")
+                       .Replace("user/", "u/");
+
+                return new StringBuilder("http://www.reddit.com/")
+                    .Append(multireddit);
+            }
+            else
+            {
+                return new StringBuilder("https://oauth.reddit.com/r/")
+                    .Append(sub.Length > 0 ? sub : "all");
+            }
         }
 
         private async Task<string> GetJsonDataAsync(string url)
