@@ -647,17 +647,20 @@ namespace Reddit_Wallpaper_Changer
 
                 foreach (var (ThreadId, Thumbnail, Url) in threadThumbnails)
                 {
-                    if (string.IsNullOrWhiteSpace(Thumbnail))
+                    if (!string.IsNullOrWhiteSpace(Thumbnail))
                     {
-                        var updatedThumbnail = await HelperMethods.GetThumbnailAsync(Url).ConfigureAwait(false);
-
-                        if (string.IsNullOrWhiteSpace(updatedThumbnail))
-                            continue;
-
-                        SaveThumbnailToDatabase(ThreadId, updatedThumbnail);
+                        HelperMethods.SaveToThumbnailCache(ThreadId, Thumbnail);
+                        continue;
                     }
 
-                    HelperMethods.SaveToThumbnailCache(ThreadId, Thumbnail);
+                    var updatedThumbnail = await HelperMethods.GetThumbnailAsync(Url).ConfigureAwait(false);
+
+                    if (string.IsNullOrWhiteSpace(updatedThumbnail))
+                        continue;
+
+                    SaveThumbnailToDatabase(ThreadId, updatedThumbnail);
+
+                    HelperMethods.SaveToThumbnailCache(ThreadId, updatedThumbnail);
                 }
 
                 Logger.Instance.LogMessageToFile("Wallpaper thumbnail cache updated.", LogLevel.Information);
