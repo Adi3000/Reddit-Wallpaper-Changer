@@ -191,6 +191,8 @@ namespace Reddit_Wallpaper_Changer
             {
                 if (redditLink.Url.Contains("deviantart"))
                     return true;
+                else if (redditLink.Url.StartsWith("https://www.reddit.com/gallery/"))
+                    return true;
                 else
                 {
                     Logger.Instance.LogMessageToFile("Checking to ensure the chosen wallpaper URL is for an image.", LogLevel.Information);

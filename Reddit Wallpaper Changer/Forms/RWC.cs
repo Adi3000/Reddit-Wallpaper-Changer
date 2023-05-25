@@ -846,7 +846,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             await Task.Run(async () =>
             {
-                if (!await _wallpaperChanger.SetWallpaperAsync(redditLink).ConfigureAwait(false))
+                if (!await _wallpaperChanger.SetWallpaperAsync(redditLink, _closeCts.Token).ConfigureAwait(false))
                     await _wallpaperChanger.SearchForWallpaperAsync(_closeCts.Token).ConfigureAwait(false);
             })
             .ConfigureAwait(false);
@@ -865,7 +865,7 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             await Task.Run(async () =>
             {
-                if (!await _wallpaperChanger.SetWallpaperAsync(redditLink).ConfigureAwait(false))
+                if (!await _wallpaperChanger.SetWallpaperAsync(redditLink, _closeCts.Token).ConfigureAwait(false))
                     await _wallpaperChanger.SearchForWallpaperAsync(_closeCts.Token).ConfigureAwait(false);
             })
             .ConfigureAwait(false);

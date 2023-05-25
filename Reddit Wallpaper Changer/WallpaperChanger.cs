@@ -41,7 +41,7 @@ namespace Reddit_Wallpaper_Changer
         //======================================================================
         // Set the wallpaper
         //======================================================================
-        public async Task<bool> SetWallpaperAsync(RedditLink redditLink)
+        public async Task<bool> SetWallpaperAsync(RedditLink redditLink, CancellationToken token)
         {
             Logger.Instance.LogMessageToFile("Setting wallpaper.", LogLevel.Information);
 
@@ -54,7 +54,7 @@ namespace Reddit_Wallpaper_Changer
 
             if (!string.IsNullOrEmpty(redditLink.Url))
             {
-                redditLink.Url = await ConvertRedditLinkToImageLink(redditLink.Url, _random, ImageExtensions).ConfigureAwait(false);
+                redditLink.Url = await ConvertRedditLinkToImageLink(redditLink.Url, token).ConfigureAwait(false);
 
                 var uri = new Uri(redditLink.Url);
                 var extension = Path.GetExtension(uri.LocalPath);
@@ -284,7 +284,7 @@ namespace Reddit_Wallpaper_Changer
             {
                 if (await HelperMethods.ValidateImgurImageAsync(redditLink.Url).ConfigureAwait(false))
                 {
-                    if (!await SetWallpaperAsync(redditLink).ConfigureAwait(false))
+                    if (!await SetWallpaperAsync(redditLink, token).ConfigureAwait(false))
                     {
                         _noResultCount++;
 
@@ -331,14 +331,16 @@ namespace Reddit_Wallpaper_Changer
             }
         }
 
-        private static async Task<string> ConvertRedditLinkToImageLink(string url, Random random, IEnumerable<string> imageExtensions)
+        private async Task<string> ConvertRedditLinkToImageLink(string url, CancellationToken token)
         {
             var originalUri = new Uri(url);
             var originalExtension = Path.GetExtension(originalUri.LocalPath);
-            var extensionNotImageType = !imageExtensions.Contains(originalExtension.ToUpper());
+            var extensionNotImageType = !ImageExtensions.Contains(originalExtension.ToUpper());
 
             if (url.Contains("imgur.com/a/"))
-                return await GetImgurAlbumUrlAsync(originalUri, random).ConfigureAwait(false);
+                return await GetImgurAlbumUrlAsync(originalUri).ConfigureAwait(false);
+            else if (url.StartsWith("https://www.reddit.com/gallery/"))
+                return await GetRedditGalleryUrlAsync(originalUri, token).ConfigureAwait(false);
             else if (extensionNotImageType && url.Contains("deviantart"))
                 return await GetDeviantArtUrlAsync(originalUri).ConfigureAwait(false);
             else if (extensionNotImageType && url.Contains("imgur.com"))
@@ -364,7 +366,7 @@ namespace Reddit_Wallpaper_Changer
             }
         }
 
-        private static async Task<string> GetImgurAlbumUrlAsync(Uri uri, Random random)
+        private async Task<string> GetImgurAlbumUrlAsync(Uri uri)
         {
             var imgurId = new StringBuilder(uri.ToString()).Replace("https://", "")
                                                            .Replace("http://", "")
@@ -382,9 +384,32 @@ namespace Reddit_Wallpaper_Changer
             var selc = 0;
 
             if (i - 1 != 0)
-                selc = random.Next(0, i - 1);
+                selc = _random.Next(0, i - 1);
 
             return imgurResult.ElementAt(selc)["link"].ToString();
+        }
+
+        private async Task<string> GetRedditGalleryUrlAsync(Uri uri, CancellationToken token)
+        {
+            var redditId = new StringBuilder(uri.ToString())
+                .Replace("https://www.reddit.com/gallery/", "")
+                .ToString();
+
+            var jsonResult = await _redditClient.GetJsonAsync($"https://oauth.reddit.com/{redditId}.json", token)
+                .ConfigureAwait(false);
+
+            var mediaMetadata = JToken.Parse(jsonResult)[0]["data"]["children"][0]["data"]["media_metadata"];
+            var mediaCount = mediaMetadata.Count();
+            var mediaIndex = _random.Next(0, mediaCount - 1);
+
+            var selectedMedia = mediaMetadata.ElementAt(mediaIndex);
+
+            var mimeType = selectedMedia["m"].ToString();
+            var id = selectedMedia["id"].ToString();
+
+            var extension = mimeType.Split('/')[1];
+
+            return $"https://i.redd.it/{id}.{extension}";
         }
 
         private static async Task<string> GetImgurUrlAsync(Uri uri)
