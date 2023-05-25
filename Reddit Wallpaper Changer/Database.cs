@@ -572,7 +572,7 @@ namespace Reddit_Wallpaper_Changer
                             "SELECT * " +
                             "FROM statuses " +
                             "WHERE redditlink.threadid = statuses.threadid" +
-                        ") " +
+                        "); " +
                     "END;", con))
                 {
                     command.ExecuteNonQuery();
