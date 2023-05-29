@@ -23,12 +23,14 @@ namespace Reddit_Wallpaper_Changer.Forms
         private readonly WallpaperChanger _wallpaperChanger;
         private readonly TabSelector _tabSelector;
         private readonly ToolTip _toolTip;
+        private readonly SemaphoreSlim _setWallpaperLock = new SemaphoreSlim(1, 1);
 
         private readonly string _currentVersion;
 
         private int _currentMouseOverRow;
         private bool _enabledOnSleep;
         private bool _showedTray;
+        private bool _isSearching;
 
         public string CurrentThread { private get; set; }
 
@@ -503,8 +505,12 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             changeWallpaperTimer.Enabled = false;
 
-            await Task.Run(() => _wallpaperChanger.SearchForWallpaperAsync(_closeCts.Token))
-                .ConfigureAwait(false);
+            if (_isSearching) return;
+
+            await SetSearching(
+                cancellationToken => Task.Run(
+                    () => _wallpaperChanger.SearchForWallpaperAsync(cancellationToken), _closeCts.Token),
+                _closeCts.Token).ConfigureAwait(false);
         }
 
         //======================================================================
@@ -844,12 +850,14 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             var redditLink = CreateRedditLinkFromCurrentRow(historyDataGrid);
 
-            await Task.Run(async () =>
-            {
-                if (!await _wallpaperChanger.SetWallpaperAsync(redditLink, _closeCts.Token).ConfigureAwait(false))
-                    await _wallpaperChanger.SearchForWallpaperAsync(_closeCts.Token).ConfigureAwait(false);
-            })
-            .ConfigureAwait(false);
+            await SetSearching(
+                cancellationToken => Task.Run(
+                    async () =>
+                    {
+                        if (!await _wallpaperChanger.SetWallpaperAsync(redditLink, cancellationToken).ConfigureAwait(false))
+                            await _wallpaperChanger.SearchForWallpaperAsync(cancellationToken).ConfigureAwait(false);
+                    }, _closeCts.Token),
+                _closeCts.Token).ConfigureAwait(false);
         }
 
         //======================================================================
@@ -863,12 +871,15 @@ namespace Reddit_Wallpaper_Changer.Forms
 
             var redditLink = CreateRedditLinkFromCurrentRow(favouritesDataGrid);
 
-            await Task.Run(async () =>
-            {
-                if (!await _wallpaperChanger.SetWallpaperAsync(redditLink, _closeCts.Token).ConfigureAwait(false))
-                    await _wallpaperChanger.SearchForWallpaperAsync(_closeCts.Token).ConfigureAwait(false);
-            })
-            .ConfigureAwait(false);
+            await SetSearching(
+                cancellationToken => Task.Run(
+                    async () =>
+                    {
+                        if (!await _wallpaperChanger.SetWallpaperAsync(redditLink, cancellationToken).ConfigureAwait(false))
+                            await _wallpaperChanger.SearchForWallpaperAsync(cancellationToken).ConfigureAwait(false);
+                    },
+                    _closeCts.Token),
+                _closeCts.Token).ConfigureAwait(false);
         }
 
         //======================================================================
@@ -1290,6 +1301,35 @@ namespace Reddit_Wallpaper_Changer.Forms
 
         #region Helper methods
 
+        private async Task SetSearching(Func<CancellationToken, Task> funcToRun, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _setWallpaperLock.WaitAsync(cancellationToken);
+                try
+                {
+                    useFaveMenu.Enabled = false;
+                    useThisWallpaperToolStripMenuItem.Enabled = false;
+
+                    _isSearching = true;
+
+                    try
+                    {
+                        await funcToRun(cancellationToken);
+                    }
+                    finally
+                    {
+                        _isSearching = false;
+
+                        useFaveMenu.Enabled = true;
+                        useThisWallpaperToolStripMenuItem.Enabled = true;
+                    }
+                }
+                finally { _setWallpaperLock.Release(); }
+            }
+            catch (OperationCanceledException) { }
+        }
+
         private RedditImageViewModel GetViewModelAtIndex(DataGridView dataGrid, int index)
             => (RedditImageViewModel)((BindingSource)dataGrid.DataSource)[index];
 
@@ -1297,12 +1337,7 @@ namespace Reddit_Wallpaper_Changer.Forms
         {
             var viewModel = GetViewModelAtIndex(dataGrid, _currentMouseOverRow);
 
-            return new RedditLink
-            (
-                viewModel.Title, // url
-                viewModel.ThreadId  // threadId
-, // title
-                viewModel.Url);
+            return new RedditLink(viewModel.Title, viewModel.ThreadId, viewModel.Url);
         }
 
         private void OpenPopupInfoWindow(string threadId, string title)
