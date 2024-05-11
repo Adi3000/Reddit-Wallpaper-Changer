@@ -538,5 +538,53 @@ namespace Reddit_Wallpaper_Changer.Properties {
                 this["setOnAllVirtualDesktops"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string redditUser {
+            get {
+                return ((string)(this["redditUser"]));
+            }
+            set {
+                this["redditUser"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string redditPassword {
+            get {
+                return ((string)(this["redditPassword"]));
+            }
+            set {
+                this["redditPassword"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string redditClientId {
+            get {
+                return ((string)(this["redditClientId"]));
+            }
+            set {
+                this["redditClientId"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string redditClientSecret {
+            get {
+                return ((string)(this["redditClientSecret"]));
+            }
+            set {
+                this["redditClientSecret"] = value;
+            }
+        }
     }
 }

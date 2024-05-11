@@ -437,7 +437,7 @@ namespace Reddit_Wallpaper_Changer
             var query = "/search.json?q=" +
                 WebUtility.UrlEncode(Settings.Default.searchQuery) +
                 "+self%3Ano+((url%3A.png+OR+url%3A.jpg+OR+url%3A.jpeg)+OR+(url%3Aimgur.png+OR+url%3Aimgur.jpg+OR+url%3Aimgur.jpeg)+OR+(url%3Adeviantart))" +
-                "&restrict_sr=on";
+                "&restrict_sr=on&limit=100";
 
             if (Settings.Default.includeNsfw)
                 query += "&include_over_18=on";
